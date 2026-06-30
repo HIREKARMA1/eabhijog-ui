@@ -1,0 +1,69 @@
+import { serverApiRequest } from "@/lib/api/server";
+import type {
+  AuthStaff,
+  MetadataConstants,
+  OsdDashboardData,
+  OsdGrievanceDetailData,
+  PortalAnalyticsData,
+  PortalDashboardData,
+  PortalGrievanceDetailData,
+  PortalOperationalData,
+  PortalPublicData,
+  StaffAccount,
+} from "@/types/api";
+
+export async function getCurrentUser() {
+  const result = await serverApiRequest<AuthStaff>("/api/auth/me");
+  return result.data;
+}
+
+export async function getPublicPortal() {
+  const result = await serverApiRequest<PortalPublicData>("/api/public/portal");
+  return result.data;
+}
+
+export async function getPortalDashboard() {
+  const result = await serverApiRequest<PortalDashboardData>("/api/portal/dashboard");
+  return result.data;
+}
+
+export async function getPortalOperational(params: Record<string, string> = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const path = qs ? `/api/portal/operational?${qs}` : "/api/portal/operational";
+  const result = await serverApiRequest<PortalOperationalData>(path);
+  return result.data;
+}
+
+export async function getPortalGrievanceDetail(ref: string) {
+  const result = await serverApiRequest<PortalGrievanceDetailData>(
+    `/api/portal/grievances/${encodeURIComponent(ref)}`,
+  );
+  return result.data;
+}
+
+export async function getPortalAnalytics() {
+  const result = await serverApiRequest<PortalAnalyticsData>("/api/portal/analytics");
+  return result.data;
+}
+
+export async function getConstants() {
+  const result = await serverApiRequest<MetadataConstants>("/api/metadata/constants");
+  return result.data;
+}
+
+export async function getOsdDashboard(slug: string) {
+  const result = await serverApiRequest<OsdDashboardData>(`/api/osd/${slug}/dashboard`);
+  return result.data;
+}
+
+export async function getOsdGrievanceDetail(slug: string, ref: string) {
+  const result = await serverApiRequest<OsdGrievanceDetailData>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}`,
+  );
+  return result.data;
+}
+
+export async function getProfile() {
+  const result = await serverApiRequest<StaffAccount>("/api/profile");
+  return result.data;
+}

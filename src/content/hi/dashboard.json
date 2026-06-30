@@ -1,0 +1,86 @@
+{
+  "nav": {
+    "main": "मुख्य",
+    "dashboard": "डैशबोर्ड",
+    "grievances": "शिकायतें",
+    "reports": "रिपोर्ट",
+    "staff": "स्टाफ खाते",
+    "operational": "परिचालन",
+    "overview": "अवलोकन",
+    "operationalCommand": "परिचालन कमांड",
+    "osd": "OSD",
+    "superAdmin": "सुपर एडमिन"
+  },
+  "osd": {
+    "commerce-transport": "वाणिज्य और परिवहन",
+    "steel-mines": "स्टील और खान",
+    "ganjam-district": "गंजाम जिला"
+  },
+  "kpi": {
+    "total": "कुल शिकायतें",
+    "open": "खुली",
+    "closed": "बंद",
+    "pending": "समीक्षा लंबित",
+    "pendingRedressal": "लंबित निवारण",
+    "resolutionRate": "समाधान दर",
+    "overdueSla": "SLA अतिदेय",
+    "whatsappInflow": "WhatsApp प्रवाह (7d)"
+  },
+  "table": {
+    "reference": "संदर्भ",
+    "district": "जिला",
+    "category": "श्रेणी",
+    "status": "स्थिति",
+    "created": "दर्ज तिथि",
+    "priority": "प्राथमिकता",
+    "empty": "कोई शिकायत नहीं मिली।",
+    "actions": "कार्रवाई",
+    "view": "देखें"
+  },
+  "filters": {
+    "title": "फ़िल्टर",
+    "status": "स्थिति",
+    "district": "जिला",
+    "category": "श्रेणी",
+    "search": "संदर्भ या शीर्षक खोजें",
+    "apply": "लागू करें",
+    "clear": "साफ़ करें"
+  },
+  "grievance": {
+    "detail": "शिकायत विवरण",
+    "timeline": "समयरेखा",
+    "audit": "ऑडिट ट्रेल",
+    "respond": "प्रतिक्रिया दर्ज करें",
+    "responseText": "प्रतिक्रिया पाठ",
+    "submitResponse": "प्रतिक्रिया जमा करें",
+    "updateStatus": "स्थिति अपडेट करें",
+    "forward": "विभाग को अग्रेषित",
+    "remarks": "टिप्पणी",
+    "priority": "प्राथमिकता"
+  },
+  "analytics": {
+    "title": "रिपोर्ट और विश्लेषण",
+    "overview": "अवलोकन",
+    "trends": "7-दिन के रुझान",
+    "statusBreakdown": "स्थिति के अनुसार",
+    "feedback": "नागरिक प्रतिक्रिया",
+    "avgRating": "औसत रेटिंग"
+  },
+  "staff": {
+    "title": "स्टाफ खाते",
+    "create": "खाता बनाएं",
+    "username": "उपयोगकर्ता नाम",
+    "role": "भूमिका",
+    "active": "सक्रिय",
+    "inactive": "निष्क्रिय",
+    "save": "खाता सहेजें",
+    "deactivate": "निष्क्रिय करें",
+    "activate": "सक्रिय करें"
+  },
+  "osdSummary": {
+    "pending": "समीक्षा लंबित",
+    "forwarded": "आज अग्रेषित",
+    "actionPending": "विभाग कार्रवाई लंबित",
+    "closed": "बंद"
+  }
+}

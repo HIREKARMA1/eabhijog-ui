@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "main": "ମୁଖ୍ୟ",
+    "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
+    "grievances": "ଅଭିଯୋଗ",
+    "reports": "ରିପୋର୍ଟ",
+    "staff": "କର୍ମଚାରୀ ଖାତା",
+    "operational": "କାର୍ଯ୍ୟାନ୍ୱୟ",
+    "overview": "ସମୀକ୍ଷା",
+    "operationalCommand": "ଅପରେସନାଲ କମାଣ୍ଡ",
+    "osd": "OSD",
+    "departments": "ବିଭାଗ",
+    "superAdmin": "ସୁପର ଆଡମିନ"
+  },
+  "osd": {
+    "commerce-transport": "ବାଣିଜ୍ୟ ଓ ପରିବହନ",
+    "steel-mines": "ଷ୍ଟିଲ୍ ଓ ଖଣି",
+    "ganjam-district": "ଗଞ୍ଜାମ ଜିଲ୍ଲା"
+  },
+  "kpi": {
+    "total": "ମୋଟ ଅଭିଯୋଗ",
+    "open": "ଖୋଲା",
+    "closed": "ବନ୍ଦ",
+    "pending": "ସମୀକ୍ଷା ବାକି",
+    "pendingRedressal": "ନିଷ୍ପତ୍ତି ବାକି",
+    "resolutionRate": "ସମାଧାନ ହାର",
+    "overdueSla": "SLA ଅତିକ୍ରମ",
+    "whatsappInflow": "WhatsApp ପ୍ରବାହ (7d)"
+  },
+  "table": {
+    "reference": "ସନ୍ଦର୍ଭ",
+    "district": "ଜିଲ୍ଲା",
+    "category": "ବର୍ଗ",
+    "status": "ସ୍ଥିତି",
+    "created": "ଦାଖଲ ତାରିଖ",
+    "priority": "ଅଗ୍ରାଧିକାର",
+    "empty": "କୌଣସି ଅଭିଯୋଗ ମିଳିଲା ନାହିଁ।",
+    "actions": "କାର୍ଯ୍ୟ",
+    "view": "ଦେଖନ୍ତୁ"
+  },
+  "filters": {
+    "title": "ଫିଲ୍ଟର",
+    "status": "ସ୍ଥିତି",
+    "district": "ଜିଲ୍ଲା",
+    "category": "ବର୍ଗ",
+    "search": "ସନ୍ଦର୍ଭ କିମ୍ବା ଶୀର୍ଷକ ଖୋଜନ୍ତୁ",
+    "apply": "ଲାଗୁ କରନ୍ତୁ",
+    "clear": "ସଫା"
+  },
+  "grievance": {
+    "detail": "ଅଭିଯୋଗ ବିବରଣୀ",
+    "timeline": "ସମୟରେଖା",
+    "audit": "ଅଡିଟ୍ ଟ୍ରେଲ୍",
+    "respond": "ପ୍ରତିକ୍ରିୟା ଦାଖଲ",
+    "responseText": "ପ୍ରତିକ୍ରିୟା ପାଠ",
+    "submitResponse": "ପ୍ରତିକ୍ରିୟା ଜମା",
+    "updateStatus": "ସ୍ଥିତି ଅପଡେଟ୍",
+    "forward": "ବିଭାଗକୁ ପ୍ରେରଣ",
+    "remarks": "ମନ୍ତବ୍ୟ",
+    "priority": "ଅଗ୍ରାଧିକାର"
+  },
+  "analytics": {
+    "title": "ରିପୋର୍ଟ ଓ ବିଶ୍ଳେଷଣ",
+    "overview": "ସମୀକ୍ଷା",
+    "trends": "7-ଦିନ ପ୍ରବୃତ୍ତି",
+    "statusBreakdown": "ସ୍ଥିତି ଅନୁଯାୟୀ",
+    "feedback": "ନାଗରିକ ମତାମତ",
+    "avgRating": "ହାରାହାରି ରେଟିଂ"
+  },
+  "staff": {
+    "title": "କର୍ମଚାରୀ ଖାତା",
+    "create": "ଖାତା ସୃଷ୍ଟି",
+    "username": "ଉପଯୋଗକର୍ତ୍ତା ନାମ",
+    "role": "ଭୂମିକା",
+    "active": "ସକ୍ରିୟ",
+    "inactive": "ନିଷ୍କ୍ରିୟ",
+    "save": "ଖାତା ସଞ୍ଚୟ",
+    "deactivate": "ନିଷ୍କ୍ରିୟ",
+    "activate": "ସକ୍ରିୟ"
+  },
+  "departments": {
+    "title": "ବିଭାଗ ଯୋଗାଯୋଗ",
+    "create": "ବିଭାଗ ଯୋଡନ୍ତୁ",
+    "department": "ବିଭାଗ",
+    "officerName": "ଅଧିକାରୀ ନାମ",
+    "email": "ଇମେଲ୍",
+    "save": "ଯୋଗାଯୋଗ ସଞ୍ଚୟ",
+    "update": "ଯୋଗାଯୋଗ ଅପଡେଟ୍",
+    "empty": "କୌଣସି ବିଭାଗ ଯୋଗାଯୋଗ ନାହିଁ।",
+    "active": "ସକ୍ରିୟ",
+    "inactive": "ନିଷ୍କ୍ରିୟ",
+    "deactivate": "ନିଷ୍କ୍ରିୟ",
+    "activate": "ସକ୍ରିୟ"
+  },
+  "osdSummary": {
+    "pending": "ସମୀକ୍ଷା ବାକି",
+    "forwarded": "ଆଜି ପ୍ରେରିତ",
+    "actionPending": "ବିଭାଗ କାର୍ଯ୍ୟ ବାକି",
+    "closed": "ବନ୍ଦ"
+  }
+}

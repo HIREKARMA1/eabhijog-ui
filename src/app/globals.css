@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy-950: #0b1220;
+  --navy-900: #0f1b2d;
+  --navy-800: #162236;
+  --navy-700: #1e3a5f;
+  --navy-600: #2d4a6f;
+  --surface: #f4f6f9;
+  --surface-card: #ffffff;
+  --border: #e5e9f0;
+  --text-muted: #64748b;
+  --saffron: #ea580c;
+  --saffron-hover: #c2410c;
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --landing-blue: #2563eb;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-navy-950: var(--navy-950);
+  --color-navy-900: var(--navy-900);
+  --color-navy-800: var(--navy-800);
+  --color-navy-700: var(--navy-700);
+  --color-navy-600: var(--navy-600);
+  --color-surface: var(--surface);
+  --color-surface-card: var(--surface-card);
+  --color-border: var(--border);
+  --color-text-muted: var(--text-muted);
+  --color-saffron: var(--saffron);
+  --color-saffron-hover: var(--saffron-hover);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-landing-blue: var(--landing-blue);
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-oriya: "Noto Sans Oriya", "Segoe UI", system-ui, sans-serif;
+  --font-hindi: "Noto Sans Devanagari", "Segoe UI", system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  color: #0f172a;
+  font-family: var(--font-sans);
+}
+
+html[lang="or"] body {
+  font-family: var(--font-oriya);
+}
+
+html[lang="hi"] body {
+  font-family: var(--font-hindi);
 }

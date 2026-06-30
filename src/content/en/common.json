@@ -1,0 +1,29 @@
+{
+  "brand": {
+    "name": "e-Abhijog",
+    "govt": "Government of Odisha"
+  },
+  "lang": {
+    "en": "English",
+    "hi": "हिन्दी",
+    "or": "ଓଡ଼ିଆ"
+  },
+  "actions": {
+    "login": "Officer login",
+    "logout": "Logout",
+    "profile": "Profile",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…",
+    "retry": "Retry"
+  },
+  "nav": {
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Unable to reach the server. Check your connection."
+  }
+}

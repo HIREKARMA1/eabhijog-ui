@@ -1,0 +1,101 @@
+{
+  "nav": {
+    "main": "Main",
+    "dashboard": "Dashboard",
+    "grievances": "Grievances",
+    "reports": "Reports",
+    "staff": "Staff accounts",
+    "operational": "Operational",
+    "overview": "Overview",
+    "operationalCommand": "Operational Command",
+    "osd": "OSD",
+    "departments": "Departments",
+    "superAdmin": "Super Admin"
+  },
+  "osd": {
+    "commerce-transport": "Commerce & Transport",
+    "steel-mines": "Steel & Mines",
+    "ganjam-district": "Ganjam District"
+  },
+  "kpi": {
+    "total": "Total grievances",
+    "open": "Open",
+    "closed": "Closed",
+    "pending": "Pending review",
+    "pendingRedressal": "Pending redressal",
+    "resolutionRate": "Resolution rate",
+    "overdueSla": "Overdue SLA",
+    "whatsappInflow": "WhatsApp inflow (7d)"
+  },
+  "table": {
+    "reference": "Reference",
+    "district": "District",
+    "category": "Category",
+    "status": "Status",
+    "created": "Created",
+    "priority": "Priority",
+    "empty": "No grievances found.",
+    "actions": "Actions",
+    "view": "View"
+  },
+  "filters": {
+    "title": "Filters",
+    "status": "Status",
+    "district": "District",
+    "category": "Category",
+    "search": "Search reference or title",
+    "apply": "Apply filters",
+    "clear": "Clear"
+  },
+  "grievance": {
+    "detail": "Grievance detail",
+    "timeline": "Timeline",
+    "audit": "Audit trail",
+    "respond": "Record response",
+    "responseText": "Response text",
+    "submitResponse": "Submit response",
+    "updateStatus": "Update status",
+    "forward": "Forward to department",
+    "remarks": "Remarks",
+    "priority": "Priority"
+  },
+  "analytics": {
+    "title": "Reports & analytics",
+    "overview": "Overview",
+    "trends": "7-day trends",
+    "statusBreakdown": "By status",
+    "feedback": "Citizen feedback",
+    "avgRating": "Average rating"
+  },
+  "staff": {
+    "title": "Staff accounts",
+    "create": "Create account",
+    "username": "Username",
+    "role": "Role",
+    "active": "Active",
+    "inactive": "Inactive",
+    "save": "Save account",
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "departments": {
+    "title": "Department contacts",
+    "create": "Add department",
+    "department": "Department",
+    "officerName": "Officer name",
+    "email": "Email",
+    "save": "Save contact",
+    "update": "Update contact",
+    "empty": "No department contacts yet.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "deactivate": "Deactivate",
+    "activate": "Activate"
+  },
+  "osdSummary": {
+    "pending": "Pending review",
+    "forwarded": "Forwarded today",
+    "actionPending": "Department action pending",
+    "closed": "Closed"
+  }
+}

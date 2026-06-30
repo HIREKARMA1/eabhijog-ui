@@ -1,0 +1,71 @@
+/* Shared EN / Odia UI language toggle (all pages) */
+
+.lang-toggle {
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8);
+}
+
+.lang-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.2;
+}
+
+.lang-toggle-btn + .lang-toggle-btn {
+  border-left: 1px solid #e2e8f0;
+}
+
+.lang-toggle-btn.active {
+  background: #1e3a5f;
+  color: #fff;
+}
+
+.lang-toggle-btn:hover:not(.active) {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* Bilingual copy: show EN by default, Odia when body.ui-lang-or */
+.i18n-or { display: none !important; }
+
+body.ui-lang-or .i18n-en { display: none !important; }
+body.ui-lang-or .i18n-or { display: inline !important; }
+
+body:not(.ui-lang-or) .i18n-en.i18n-block { display: block !important; }
+body.ui-lang-or .i18n-or.i18n-block { display: block !important; }
+
+/* List items and table cells with block bilingual copy */
+body:not(.ui-lang-or) li .i18n-en.i18n-block,
+body:not(.ui-lang-or) .step-bubble-num .i18n-en.i18n-block { display: inline !important; }
+body.ui-lang-or li .i18n-or.i18n-block,
+body.ui-lang-or .step-bubble-num .i18n-or.i18n-block { display: inline !important; }
+
+body.ui-lang-or .step-bubble-num .i18n-step-num-en { display: none !important; }
+body:not(.ui-lang-or) .step-bubble-num .i18n-step-num-or { display: none !important; }
+
+/* Staff app — Odia typography */
+body.ui-lang-or.app-body {
+  font-family: "Noto Sans Oriya", "Segoe UI", system-ui, sans-serif;
+}
+
+/* Landing nav compact toggle */
+.landing-nav-actions .lang-toggle {
+  border-color: var(--landing-border, #e2e8f0);
+}
+
+/* Auth pages — toggle in header row */
+.auth-form-top .lang-toggle {
+  margin-right: auto;
+}
