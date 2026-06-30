@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# e-Abhijog UI
 
-## Getting Started
+Next.js frontend for the Odisha Grievance portal. Connects to the FastAPI backend in the sibling `eabhijog-server` repo.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router)
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Component-based** UI with JSON i18n (`en`, `hi`, `or`)
+
+## Folder structure
+
+```
+src/
+├── app/                 # Routes (pages)
+├── components/
+│   ├── ui/              # Reusable primitives (Button, Input, Table, …)
+│   ├── layout/          # App shell, sidebar
+│   ├── landing/         # Public landing sections
+│   ├── auth/            # Login
+│   ├── dashboard/       # Dashboard widgets
+│   └── i18n/            # Language switcher
+├── config/              # Theme tokens, env helpers
+├── content/             # All UI copy (JSON per locale)
+│   ├── en/
+│   ├── hi/
+│   └── or/
+├── lib/
+│   ├── api/             # API client (browser + server)
+│   └── i18n/            # Translation loader
+└── types/               # Shared TypeScript types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd eabhijog-ui
+cp .env.example .env.local
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Purpose |
+|----------|---------|
+| `API_BASE_URL` | FastAPI server (default `http://localhost:8000`) |
+| `NEXT_PUBLIC_API_PREFIX` | Browser proxy prefix (default `/backend`) |
+| `NEXT_PUBLIC_APP_URL` | This UI's public URL |
+| `NEXT_PUBLIC_DEFAULT_LOCALE` | `en`, `hi`, or `or` |
 
-## Learn More
+## Backend requirements
 
-To learn more about Next.js, take a look at the following resources:
+1. FastAPI server running with migrations applied.
+2. Set `CORS_ORIGINS=http://localhost:3000` in the **server** `.env` (for direct API calls from server components).
+3. New JSON endpoints used by this UI:
+   - `POST /api/auth/login`
+   - `POST /api/auth/logout`
+   - `GET /api/auth/me`
+   - `GET /api/public/portal`
+   - `GET /api/portal/dashboard`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Browser requests use `/backend/*` rewrites so session cookies stay on the UI origin.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Theming
 
-## Deploy on Vercel
+Edit `src/config/theme.ts` and CSS variables in `src/app/globals.css`.  
+All visible text lives in `src/content/{locale}/*.json` — not hardcoded in components.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy separately
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Service | Repo / folder | Example |
+|---------|---------------|---------|
+| API | `eabhijog-server` | `api.abhijog.odisha.gov.in` |
+| UI | `eabhijog-ui` | `abhijog.odisha.gov.in` |
+
+Set `API_BASE_URL` to the production API URL and `CORS_ORIGINS` on the server to the UI origin.
+
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Public landing |
+| `/login` | Officer sign-in |
+| `/forgot-password` | Password reset request |
+| `/reset-password?token=` | Set new password |
+| `/request-access` | Portal access request |
+| `/request-demo` | Demo request |
+| `/dashboard` | Admin overview |
+| `/dashboard/grievances` | Grievance list + filters |
+| `/dashboard/grievance/[ref]` | Grievance detail + respond |
+| `/dashboard/analytics` | Reports |
+| `/dashboard/staff` | Staff CRUD |
+| `/osd/[slug]/dashboard` | OSD KPI overview |
+| `/osd/[slug]/grievances` | OSD grievance list |
+| `/osd/[slug]/grievance/[ref]` | OSD detail, forward, status |
+| `/profile` | Staff profile |
+| `/logout` | Sign out |
+
+## API endpoints used
+
+```bash
+npm run dev      # http://localhost:3000
+npm run build
+npm run start
+npm run lint
+```
