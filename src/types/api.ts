@@ -213,3 +213,24 @@ export type StaffListData = {
   items: StaffAccount[];
   manageable_roles: string[];
 };
+
+export type DepartmentGrievanceView = {
+  reference_number: string;
+  status: string;
+  priority: string;
+  osd_category: string;
+  geographic_district: string;
+  title: string;
+  grievance_text: string;
+  area: string;
+  citizen_phone: string;
+  citizen_name: string;
+  sla_deadline_at: string | null;
+  recipient_department: string;
+  recipient_name: string;
+  forwarded_at: string;
+  token_expires_at: string | null;
+  department_action_at: string | null;
+  department_response_text: string | null;
+  allowed_actions: string[];
+};

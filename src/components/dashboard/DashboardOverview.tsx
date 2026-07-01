@@ -122,7 +122,7 @@ export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: Da
             <Bi en="View reports →" or="ରିପୋର୍ଟ ଦେଖନ୍ତୁ →" />
           </span>
         </Link>
-        <a href="/backend/dashboard/export" className="portal-action-card green">
+        <a href="/backend/api/portal/export" className="portal-action-card green">
           <span className="action-icon">📥</span>
           <span className="portal-action-title">
             <Bi en="Export CSV" or="CSV ରପ୍ତାନ" />
