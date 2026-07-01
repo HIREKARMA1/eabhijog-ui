@@ -25,6 +25,15 @@ export async function serverApiRequest<T>(path: string): Promise<ApiEnvelope<T>>
   const response = await fetch(url, {
     headers,
     cache: "no-store",
+  }).catch((err: unknown) => {
+    const cause = err instanceof Error && "cause" in err ? String(err.cause) : "";
+    const isRefused = cause.includes("ECONNREFUSED") || (err instanceof Error && err.message.includes("fetch failed"));
+    if (isRefused) {
+      throw new Error(
+        "API server unreachable. Start the backend: cd eabhijog-server && uvicorn app.main:app --reload --port 8000",
+      );
+    }
+    throw err;
   });
 
   const payload = (await response.json()) as ApiEnvelope<T> & {

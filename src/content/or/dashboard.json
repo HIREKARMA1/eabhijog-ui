@@ -59,6 +59,17 @@
     "remarks": "ମନ୍ତବ୍ୟ",
     "priority": "ଅଗ୍ରାଧିକାର"
   },
+  "forwardForm": {
+    "recipient": "ଗ୍ରହୀ",
+    "addDepartmentRecipient": "ବିଭାଗ ଗ୍ରହୀ ଯୋଡନ୍ତୁ",
+    "addManualRecipient": "ମାନୁଆଲ୍ ଇମେଲ୍ ଯୋଡନ୍ତୁ",
+    "removeRecipient": "ହଟାନ୍ତୁ",
+    "cc": "CC",
+    "bcc": "BCC",
+    "manualDepartmentHint": "ବିକଳ୍ପ — ସିଧା ଇମେଲ୍ ପାଇଁ ଖାଲି ଛାଡନ୍ତୁ",
+    "recipientRequired": "ଅତିକମରେ ଗୋଟିଏ ଗ୍ରହୀ ଇମେଲ୍ ଯୋଡନ୍ତୁ।",
+    "success": "ସମସ୍ତ ଗ୍ରହୀଙ୍କୁ ପ୍ରେରଣ ହୋଇଛି।"
+  },
   "analytics": {
     "title": "ରିପୋର୍ଟ ଓ ବିଶ୍ଳେଷଣ",
     "overview": "ସମୀକ୍ଷା",
