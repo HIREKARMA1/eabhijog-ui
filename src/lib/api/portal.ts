@@ -127,7 +127,12 @@ export async function updateOsdStatus(
 export async function forwardOsdGrievance(
   slug: string,
   ref: string,
-  payload: { remarks: string; recipients: Array<{ department: string; officer_name: string; email: string }> },
+  payload: {
+    remarks: string;
+    recipients: Array<{ department: string; officer_name: string; email: string }>;
+    cc?: string[];
+    bcc?: string[];
+  },
 ) {
   return apiRequest<null>(`/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/forward`, {
     method: "POST",

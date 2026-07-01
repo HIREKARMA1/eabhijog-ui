@@ -59,6 +59,17 @@
     "remarks": "Remarks",
     "priority": "Priority"
   },
+  "forwardForm": {
+    "recipient": "Recipient",
+    "addDepartmentRecipient": "Add department recipient",
+    "addManualRecipient": "Add manual email",
+    "removeRecipient": "Remove",
+    "cc": "CC",
+    "bcc": "BCC",
+    "manualDepartmentHint": "Optional — leave blank for direct email",
+    "recipientRequired": "Add at least one recipient email.",
+    "success": "Forwarded to all recipients."
+  },
   "analytics": {
     "title": "Reports & analytics",
     "overview": "Overview",
