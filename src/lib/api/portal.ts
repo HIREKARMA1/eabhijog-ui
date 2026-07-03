@@ -2,6 +2,8 @@ import { apiRequest } from "@/lib/api/client";
 import type {
   AuthLoginData,
   AuthStaff,
+  DepartmentActionData,
+  DepartmentGrievanceView,
   MetadataConstants,
   OsdDashboardData,
   OsdDepartmentContactRecord,
@@ -163,6 +165,35 @@ export async function updateOsdDepartment(
     method: "PATCH",
     body: payload,
   });
+}
+
+export async function fetchDepartmentGrievance(token: string, server = false) {
+  return apiRequest<DepartmentGrievanceView>(
+    `/api/department/grievances/${encodeURIComponent(token)}`,
+    { server },
+  );
+}
+
+export async function departmentAcknowledge(
+  token: string,
+  officerName: string,
+  remarks: string,
+) {
+  return apiRequest<DepartmentActionData>(
+    `/api/department/grievances/${encodeURIComponent(token)}/acknowledge`,
+    { method: "POST", body: { officer_name: officerName, remarks: remarks || null } },
+  );
+}
+
+export async function departmentRespond(
+  token: string,
+  officerName: string,
+  responseText: string,
+) {
+  return apiRequest<DepartmentActionData>(
+    `/api/department/grievances/${encodeURIComponent(token)}/respond`,
+    { method: "POST", body: { officer_name: officerName, response_text: responseText } },
+  );
 }
 
 export async function fetchStaffList(params: Record<string, string> = {}) {
