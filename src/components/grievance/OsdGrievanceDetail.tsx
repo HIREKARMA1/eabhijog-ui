@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { OsdForwardForm } from "@/components/grievance/OsdForwardForm";
+import Link from "next/link";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { updateOsdStatus } from "@/lib/api/portal";
@@ -52,6 +53,14 @@ export function OsdGrievanceDetailView({
 
   return (
     <div className="grid gap-5 lg:grid-cols-3">
+      <div className="mb-2 lg:col-span-3">
+        <Link
+          href={`/osd/${osdSlug}/grievance/${grievance.reference_number}/conversation`}
+          className="text-sm text-brand hover:underline"
+        >
+          Open WhatsApp conversation →
+        </Link>
+      </div>
       <Card title={grievance.reference_number} className="lg:col-span-2">
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>

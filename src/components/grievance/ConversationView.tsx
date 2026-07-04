@@ -1,0 +1,198 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
+import type { GrievanceConversationData } from "@/types/api";
+
+type Props = {
+  data: GrievanceConversationData;
+  onAddNote: (text: string) => Promise<void>;
+  onWhatsAppReply: (message: string) => Promise<void>;
+  onEscalate?: () => Promise<void>;
+};
+
+export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate }: Props) {
+  const router = useRouter();
+  const [noteText, setNoteText] = useState("");
+  const [replyText, setReplyText] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submitNote = useCallback(async () => {
+    if (!noteText.trim()) return;
+    setBusy(true);
+    try {
+      await onAddNote(noteText.trim());
+      setNoteText("");
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }, [noteText, onAddNote, router]);
+
+  const submitReply = useCallback(async () => {
+    if (!replyText.trim()) return;
+    setBusy(true);
+    try {
+      await onWhatsAppReply(replyText.trim());
+      setReplyText("");
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }, [replyText, onWhatsAppReply, router]);
+
+  const g = data.grievance;
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      {/* Left: WhatsApp chat */}
+      <div className="flex flex-col rounded-lg border border-border">
+        <div className="border-b border-border bg-surface-muted px-4 py-3">
+          <h2 className="font-medium">WhatsApp Conversation</h2>
+          <p className="text-xs text-text-muted">{g.citizen_phone}</p>
+        </div>
+        <div className="flex max-h-[520px] flex-1 flex-col gap-2 overflow-y-auto p-4">
+          {data.messages.length === 0 ? (
+            <p className="text-sm text-text-muted">No messages recorded yet.</p>
+          ) : (
+            data.messages.map((m) => (
+              <div
+                key={m.id}
+                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                  m.direction === "inbound"
+                    ? "self-start bg-surface-muted"
+                    : "self-end bg-brand/10"
+                }`}
+              >
+                <p className="text-xs text-text-muted">
+                  {m.sender_name || (m.direction === "inbound" ? "Citizen" : "Office")} ·{" "}
+                  {new Date(m.created_at).toLocaleString()}
+                </p>
+                {m.body && <p className="mt-1 whitespace-pre-wrap">{m.body}</p>}
+                {m.media_urls?.map((url) => (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 block text-xs text-brand underline"
+                  >
+                    Attachment
+                  </a>
+                ))}
+              </div>
+            ))
+          )}
+        </div>
+        <div className="border-t border-border p-3">
+          <Textarea
+            rows={2}
+            placeholder="Send WhatsApp reply to citizen..."
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+          />
+          <Button className="mt-2" disabled={busy || !replyText.trim()} onClick={submitReply}>
+            Send WhatsApp Reply
+          </Button>
+        </div>
+      </div>
+
+      {/* Right: Case details */}
+      <div className="space-y-4">
+        <div className="rounded-lg border border-border p-4">
+          <h2 className="font-medium">{g.reference_number}</h2>
+          <p className="text-sm text-text-muted">{g.title}</p>
+          {data.ai_summary && (
+            <div className="mt-3 rounded bg-surface-muted p-3 text-sm">
+              <p className="text-xs font-medium uppercase text-text-muted">AI Summary</p>
+              <p className="mt-1">{data.ai_summary}</p>
+            </div>
+          )}
+          <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <dt className="text-text-muted">Category</dt>
+              <dd>{g.category}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">OSD</dt>
+              <dd>{g.osd_category}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">District</dt>
+              <dd>{g.district}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">Constituency</dt>
+              <dd>{g.constituency || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">Department</dt>
+              <dd>{g.department}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">Priority</dt>
+              <dd>{g.priority}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">Status</dt>
+              <dd>{g.status.replace(/_/g, " ")}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">Received</dt>
+              <dd>{new Date(g.created_at).toLocaleString()}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="rounded-lg border border-border p-4">
+          <h3 className="text-sm font-medium">Timeline</h3>
+          <ul className="mt-2 max-h-40 space-y-2 overflow-y-auto text-sm">
+            {data.timeline.map((e) => (
+              <li key={e.id} className="border-l-2 border-brand/30 pl-3">
+                <p className="font-medium">{e.title}</p>
+                <p className="text-xs text-text-muted">
+                  {e.actor_name} · {new Date(e.created_at).toLocaleString()}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="rounded-lg border border-border p-4">
+          <h3 className="text-sm font-medium">Internal Notes</h3>
+          <ul className="mt-2 max-h-32 space-y-2 overflow-y-auto text-sm">
+            {data.internal_notes.map((n) => (
+              <li key={n.id} className="rounded bg-surface-muted p-2">
+                <p className="text-xs text-text-muted">
+                  {n.author_name} · {new Date(n.created_at).toLocaleString()}
+                </p>
+                <p>{n.note_text}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex gap-2">
+            <Input
+              placeholder="Add internal note..."
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+            />
+            <Button disabled={busy || !noteText.trim()} onClick={submitNote}>
+              Add
+            </Button>
+          </div>
+        </div>
+
+        {onEscalate && (
+          <Button variant="secondary" disabled={busy} onClick={onEscalate}>
+            Escalate to PS
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

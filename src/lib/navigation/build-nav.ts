@@ -60,3 +60,10 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
   }
   return items;
 }
+
+export function buildPsNav(): NavItem[] {
+  return [
+    { href: "/ps/dashboard", labelKey: "nav.psDashboard", icon: "📊", section: "nav.main" },
+    { href: "/ps/grievances", labelKey: "nav.grievances", icon: "📋" },
+  ];
+}
