@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useI18n } from "@/lib/i18n/context";
 import { Textarea } from "@/components/ui/Textarea";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import type { GrievanceConversationData } from "@/types/api";
@@ -18,6 +19,7 @@ type Props = {
 
 export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPanel }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const [noteText, setNoteText] = useState("");
   const [replyText, setReplyText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -73,7 +75,7 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
                     (m.direction === "inbound"
                       ? "Citizen"
                       : m.trigger === "bot"
-                        ? "eAbhijog Bot"
+                        ? t("common", "brand.bot")
                         : "Office")}{" "}
                   · {new Date(m.created_at).toLocaleString()}
                 </p>

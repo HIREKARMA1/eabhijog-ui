@@ -25,7 +25,9 @@ export function AuthPanel({
           <img src="/static/images/auth-konark-wheel.svg" alt="" width={32} height={32} />
         </span>
         <span>
-          <div className="auth-panel-name">e-Abhijog</div>
+          <div className="auth-panel-name">
+            <Bi en="Jana Samadhan" or="ଜନ ସମାଧାନ" />
+          </div>
           <div className="auth-panel-gov">
             <Bi en="Government of Odisha" or="ଓଡ଼ିଶା ସରକାର" />
           </div>

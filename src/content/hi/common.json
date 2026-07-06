@@ -1,7 +1,8 @@
 {
   "brand": {
-    "name": "e-Abhijog",
-    "govt": "ओडिशा सरकार"
+    "name": "जन समाधान",
+    "govt": "ओडिशा सरकार",
+    "bot": "जन समाधान बॉट"
   },
   "lang": {
     "en": "English",
@@ -21,6 +22,15 @@
   "nav": {
     "menu": "मेनू",
     "close": "बंद करें"
+  },
+  "navbar": {
+    "govTitle": "ओडिशा सरकार",
+    "govSubtitle": "Odisha Government",
+    "tagline": "शिकायत प्रबंधन पोर्टल",
+    "ministerName": "श्री बिभूति भूषण जेना",
+    "ministerSubtitle": "माननीय कैबिनेट मंत्री, ओडिशा",
+    "ministerAlt": "श्री बिभूति भूषण जेना, कैबिनेट मंत्री, ओडिशा सरकार",
+    "logoAlt": "ओडिशा सरकार प्रतीक"
   },
   "errors": {
     "generic": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",

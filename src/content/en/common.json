@@ -1,7 +1,8 @@
 {
   "brand": {
-    "name": "e-Abhijog",
-    "govt": "Government of Odisha"
+    "name": "Jana Samadhan",
+    "govt": "Government of Odisha",
+    "bot": "Jana Samadhan Bot"
   },
   "lang": {
     "en": "English",
@@ -21,6 +22,15 @@
   "nav": {
     "menu": "Menu",
     "close": "Close"
+  },
+  "navbar": {
+    "govTitle": "Government of Odisha",
+    "govSubtitle": "Odisha Government",
+    "tagline": "Grievance Management Portal",
+    "ministerName": "Shri Bibhuti Bhusan Jena",
+    "ministerSubtitle": "Honourable Cabinet Minister, Odisha",
+    "ministerAlt": "Shri Bibhuti Bhusan Jena, Cabinet Minister, Government of Odisha",
+    "logoAlt": "Government of Odisha emblem"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

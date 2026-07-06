@@ -17,8 +17,8 @@ const notoHindi = Noto_Sans_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "e-Abhijog",
-  description: "Odisha citizen grievance portal",
+  title: "Jana Samadhan",
+  description: "Odisha citizen grievance portal — Jana Samadhan",
 };
 
 export default function RootLayout({

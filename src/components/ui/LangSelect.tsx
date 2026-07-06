@@ -10,12 +10,23 @@ const localeLabels: Record<Locale, string> = {
   or: "ଓଡ଼",
 };
 
-export function LangSelect({ className }: { className?: string }) {
+export function LangSelect({
+  className,
+  tone = "light",
+}: {
+  className?: string;
+  tone?: "light" | "dark";
+}) {
   const { locale, setLocale, t } = useI18n();
+  const isDark = tone === "dark";
 
   return (
     <div
-      className={cn("inline-flex rounded-lg border border-border bg-white p-0.5", className)}
+      className={cn(
+        "inline-flex rounded-lg border p-0.5",
+        isDark ? "border-neutral-600 bg-neutral-800" : "border-border bg-white",
+        className,
+      )}
       role="group"
       aria-label="Language"
     >
@@ -26,8 +37,12 @@ export function LangSelect({ className }: { className?: string }) {
           className={cn(
             "rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
             locale === code
-              ? "bg-navy-700 text-white"
-              : "text-slate-600 hover:bg-surface-muted",
+              ? isDark
+                ? "bg-white text-neutral-900"
+                : "bg-navy-700 text-white"
+              : isDark
+                ? "text-neutral-200 hover:bg-neutral-700"
+                : "text-slate-600 hover:bg-surface-muted",
           )}
           aria-pressed={locale === code}
           lang={code}
