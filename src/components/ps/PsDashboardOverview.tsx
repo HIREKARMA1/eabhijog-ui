@@ -6,13 +6,19 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import type { PsDashboardData } from "@/types/api";
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value }: { label: string; value: number | string }) {
   return (
     <Card className="p-4">
       <p className="text-xs uppercase tracking-wide text-text-muted">{label}</p>
       <p className="mt-1 text-2xl font-semibold">{value}</p>
     </Card>
   );
+}
+
+function formatHours(hours: number): string {
+  if (!hours) return "—";
+  if (hours < 1) return `${Math.round(hours * 60)}m`;
+  return `${hours}h`;
 }
 
 export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
@@ -34,11 +40,15 @@ export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
     { label: "Escalated", value: summary.escalated },
   ];
 
-  const analyticsCards = [
+  const analyticsCards: Array<{ label: string; value: number | string }> = [
     { label: "Messages Today", value: analytics.messages_received_today },
     { label: "Unique Citizens", value: analytics.unique_citizens },
     { label: "Repeat Citizens", value: analytics.repeat_citizens },
     { label: "Active Conversations (7d)", value: analytics.active_conversations },
+    {
+      label: "Avg First Response Time",
+      value: formatHours(analytics.avg_first_response_hours),
+    },
     { label: "Avg Resolution (hrs)", value: analytics.avg_resolution_hours },
   ];
 
@@ -62,7 +72,7 @@ export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
         <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-text-muted">
           WhatsApp Analytics
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {analyticsCards.map((c) => (
             <StatCard key={c.label} label={c.label} value={c.value} />
           ))}
