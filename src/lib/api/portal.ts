@@ -294,3 +294,35 @@ export async function osdEscalateToPs(slug: string, ref: string) {
     { method: "POST" },
   );
 }
+
+export async function osdRequestMoreInfo(slug: string, ref: string, message = "") {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/request-info`,
+    { method: "POST", body: { message } },
+  );
+}
+
+export async function osdUploadAttachments(slug: string, ref: string, files: FileList | File[]) {
+  const form = new FormData();
+  for (const file of Array.from(files)) {
+    form.append("files", file);
+  }
+  return apiRequest<{ uploaded: number }>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/attachments`,
+    { method: "POST", body: form },
+  );
+}
+
+export async function osdMarkResolved(slug: string, ref: string) {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/resolve`,
+    { method: "POST" },
+  );
+}
+
+export async function osdReassignGrievance(slug: string, ref: string, osdCategory: string) {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/reassign`,
+    { method: "POST", body: { osd_category: osdCategory } },
+  );
+}
