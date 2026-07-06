@@ -35,6 +35,51 @@ function statusLabel(status: string): string {
 
 const COMPLETED_STATUSES = new Set(["action_taken", "closed", "resolved"]);
 
+const MAX_UPLOADS = 5;
+const ACCEPTED_UPLOAD_TYPES = "image/jpeg,image/png,video/mp4,video/3gpp";
+
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|3gp|3gpp|mov|webm)(\?|$)/i.test(url);
+}
+
+function FileField({
+  label,
+  files,
+  onChange,
+  inputId,
+}: {
+  label: string;
+  files: File[];
+  onChange: (files: File[]) => void;
+  inputId: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <input
+        id={inputId}
+        type="file"
+        multiple
+        accept={ACCEPTED_UPLOAD_TYPES}
+        onChange={(e) => onChange(Array.from(e.target.files ?? []).slice(0, MAX_UPLOADS))}
+        className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-navy-700/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-navy-700 hover:file:bg-navy-700/20"
+      />
+      <p className="text-xs text-text-muted">
+        Photos (jpg/png) or video (mp4/3gp) shared with the citizen on WhatsApp. Up to {MAX_UPLOADS} files.
+      </p>
+      {files.length > 0 ? (
+        <ul className="mt-1 space-y-1 text-xs text-slate-600">
+          {files.map((f) => (
+            <li key={f.name} className="truncate">
+              {f.name} ({(f.size / (1024 * 1024)).toFixed(2)} MB)
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function DepartmentPortal({ token }: { token: string }) {
   const [view, setView] = useState<DepartmentGrievanceView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +88,8 @@ export function DepartmentPortal({ token }: { token: string }) {
   const [officerName, setOfficerName] = useState("");
   const [remarks, setRemarks] = useState("");
   const [responseText, setResponseText] = useState("");
+  const [ackFiles, setAckFiles] = useState<File[]>([]);
+  const [respondFiles, setRespondFiles] = useState<File[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
@@ -79,9 +126,10 @@ export function DepartmentPortal({ token }: { token: string }) {
     setNotice("");
     setSubmitting(true);
     try {
-      await departmentAcknowledge(token, officerName, remarks);
+      await departmentAcknowledge(token, officerName, remarks, ackFiles);
       setRemarks("");
-      setNotice("Receipt acknowledged successfully.");
+      setAckFiles([]);
+      setNotice("Receipt acknowledged and shared with the citizen.");
       await load();
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Could not acknowledge. Please try again.");
@@ -96,8 +144,9 @@ export function DepartmentPortal({ token }: { token: string }) {
     setNotice("");
     setSubmitting(true);
     try {
-      await departmentRespond(token, officerName, responseText);
+      await departmentRespond(token, officerName, responseText, respondFiles);
       setResponseText("");
+      setRespondFiles([]);
       setNotice("Response recorded and shared with the citizen.");
       await load();
     } catch (err) {
@@ -190,6 +239,37 @@ export function DepartmentPortal({ token }: { token: string }) {
                     </p>
                   </div>
                 ) : null}
+                {view.department_attachments.length > 0 ? (
+                  <div className="border-t border-border pt-3">
+                    <span className="text-text-muted">Department attachments:</span>
+                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {view.department_attachments.map((url) =>
+                        isVideoUrl(url) ? (
+                          <video
+                            key={url}
+                            src={url}
+                            controls
+                            className="h-28 w-full rounded-lg border border-border object-cover"
+                          />
+                        ) : (
+                          <a
+                            key={url}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            <img
+                              src={url}
+                              alt="Department attachment"
+                              className="h-28 w-full rounded-lg border border-border object-cover"
+                            />
+                          </a>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </Card>
 
@@ -211,11 +291,17 @@ export function DepartmentPortal({ token }: { token: string }) {
                     minLength={2}
                   />
                   <Textarea
-                    label="Remarks (optional)"
+                    label="Remarks (shared with citizen)"
                     name="remarks"
                     rows={2}
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
+                  />
+                  <FileField
+                    label="Attach photos / video (optional)"
+                    inputId="ack_files"
+                    files={ackFiles}
+                    onChange={setAckFiles}
                   />
                   <Button type="submit" variant="secondary" disabled={submitting}>
                     {submitting ? <Spinner className="h-4 w-4" /> : null}
@@ -226,7 +312,19 @@ export function DepartmentPortal({ token }: { token: string }) {
             ) : null}
 
             {view.allowed_actions.includes("respond") ? (
-              <Card title="Submit Department Action">
+              <Card
+                title={
+                  view.status === "action_taken"
+                    ? "Submit Follow-up Update"
+                    : "Submit Department Action"
+                }
+              >
+                {view.status === "action_taken" ? (
+                  <p className="mb-3 text-sm text-text-muted">
+                    Action already recorded. You can post additional updates (with photos/video)
+                    — each one is shared with the citizen on WhatsApp.
+                  </p>
+                ) : null}
                 <form onSubmit={onRespond} className="space-y-3">
                   <Input
                     label="Officer name"
@@ -237,7 +335,7 @@ export function DepartmentPortal({ token }: { token: string }) {
                     minLength={2}
                   />
                   <Textarea
-                    label="Action taken"
+                    label={view.status === "action_taken" ? "Update details" : "Action taken"}
                     name="response_text"
                     rows={5}
                     required
@@ -246,9 +344,15 @@ export function DepartmentPortal({ token }: { token: string }) {
                     value={responseText}
                     onChange={(e) => setResponseText(e.target.value)}
                   />
+                  <FileField
+                    label="Attach photos / video (optional)"
+                    inputId="respond_files"
+                    files={respondFiles}
+                    onChange={setRespondFiles}
+                  />
                   <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
                     {submitting ? <Spinner className="h-4 w-4" /> : null}
-                    Submit Resolution
+                    {view.status === "action_taken" ? "Submit Update" : "Submit Resolution"}
                   </Button>
                 </form>
               </Card>

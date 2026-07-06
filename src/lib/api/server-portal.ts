@@ -1,6 +1,7 @@
 import { serverApiRequest } from "@/lib/api/server";
 import type {
   AuthStaff,
+  GrievanceConversationData,
   MetadataConstants,
   OsdDashboardData,
   OsdGrievanceDetailData,
@@ -9,6 +10,7 @@ import type {
   PortalGrievanceDetailData,
   PortalOperationalData,
   PortalPublicData,
+  PsDashboardData,
   StaffAccount,
 } from "@/types/api";
 
@@ -65,5 +67,24 @@ export async function getOsdGrievanceDetail(slug: string, ref: string) {
 
 export async function getProfile() {
   const result = await serverApiRequest<StaffAccount>("/api/profile");
+  return result.data;
+}
+
+export async function getPsDashboard() {
+  const result = await serverApiRequest<PsDashboardData>("/api/ps/dashboard");
+  return result.data;
+}
+
+export async function getPsConversation(ref: string) {
+  const result = await serverApiRequest<GrievanceConversationData>(
+    `/api/ps/grievances/${encodeURIComponent(ref)}/conversation`,
+  );
+  return result.data;
+}
+
+export async function getOsdConversation(slug: string, ref: string) {
+  const result = await serverApiRequest<GrievanceConversationData>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/conversation`,
+  );
   return result.data;
 }

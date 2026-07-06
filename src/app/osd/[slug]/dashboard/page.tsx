@@ -23,10 +23,13 @@ export default async function OsdDashboardPage({ params }: PageProps) {
   }
 
   const kpis = [
-    { labelKey: "osdSummary.pending", value: data.summary.pending ?? 0 },
-    { labelKey: "osdSummary.forwarded", value: data.summary.forwarded_today ?? 0 },
-    { labelKey: "osdSummary.actionPending", value: data.summary.action_pending ?? 0 },
-    { labelKey: "osdSummary.closed", value: data.summary.closed ?? 0 },
+    { labelKey: "osdSummary.assignedToday", value: data.summary.assigned_today ?? 0 },
+    { labelKey: "osdSummary.pendingAck", value: data.summary.pending_acknowledgement ?? data.summary.pending ?? 0 },
+    { labelKey: "osdSummary.waitingDept", value: data.summary.waiting_for_department ?? data.summary.action_pending ?? 0 },
+    { labelKey: "osdSummary.deptResponded", value: data.summary.department_responded ?? 0 },
+    { labelKey: "osdSummary.citizenWaiting", value: data.summary.citizen_waiting ?? 0 },
+    { labelKey: "osdSummary.resolvedToday", value: data.summary.resolved_today ?? 0 },
+    { labelKey: "osdSummary.overdue", value: data.summary.overdue_cases ?? 0 },
   ];
 
   return (
