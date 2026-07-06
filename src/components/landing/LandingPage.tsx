@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { LangSwitcher } from "@/components/i18n/LangSwitcher";
 import { Bi } from "@/lib/i18n/bi";
+import { useI18n } from "@/lib/i18n/context";
 import type { PortalDepartment, PortalGrievancePreview } from "@/types/api";
 
 type LandingPageProps = {
@@ -22,6 +23,7 @@ export function LandingPage({
   recentGrievances,
   stats,
 }: LandingPageProps) {
+  const { t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export function LandingPage({
                 OD
               </span>
               <span className="landing-logo-copy">
-                <span className="landing-logo-text">e-Abhijog</span>
+                <span className="landing-logo-text">{t("common", "brand.name")}</span>
                 <span className="landing-logo-sub">
                   <Bi en="Government of Odisha" or="ଓଡ଼ିଶା ସରକାର" />
                 </span>
@@ -335,7 +337,7 @@ export function LandingPage({
                   <span className="d-dot d-dot-r" />
                   <span className="d-dot d-dot-y" />
                   <span className="d-dot d-dot-g" />
-                  <span className="dashboard-url">e-abhijog.odisha.gov.in / dashboard</span>
+                  <span className="dashboard-url">janasamadhan.odisha.gov.in / dashboard</span>
                   <span className="dashboard-live-badge" id="dashboard-live-badge">
                     <span className="dashboard-live-dot" />
                     <span className="i18n-en">LIVE</span>
@@ -541,7 +543,7 @@ export function LandingPage({
                   OD
                 </span>
                 <span className="footer-logo-copy">
-                  <span className="footer-logo-text">e-Abhijog</span>
+                  <span className="footer-logo-text">{t("common", "brand.name")}</span>
                   <span className="footer-logo-sub">
                     <Bi en="Government of Odisha" or="ଓଡ଼ିଶା ସରକାର" />
                   </span>

@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/lib/i18n/context";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
@@ -81,6 +82,7 @@ function FileField({
 }
 
 export function DepartmentPortal({ token }: { token: string }) {
+  const { t } = useI18n();
   const [view, setView] = useState<DepartmentGrievanceView | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -161,7 +163,7 @@ export function DepartmentPortal({ token }: { token: string }) {
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <div>
-            <div className="text-lg font-bold text-navy-700">e-Abhijog</div>
+            <div className="text-lg font-bold text-navy-700">{t("common", "brand.name")}</div>
             <div className="text-xs text-text-muted">
               Department Grievance Portal · Govt. of Odisha
             </div>

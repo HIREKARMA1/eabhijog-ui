@@ -32,6 +32,69 @@
   --slate-900: #0f172a;
 }
 
+@layer components {
+  .auth-page-bg {
+    background-color: #fffaf5;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(234 88 12 / 0.08), transparent),
+      radial-gradient(circle at 1px 1px, rgb(234 88 12 / 0.12) 1px, transparent 0);
+    background-size: auto, 28px 28px;
+  }
+
+  .auth-page-bg input:focus {
+    border-color: var(--saffron);
+    --tw-ring-color: rgb(234 88 12 / 0.15);
+  }
+
+  .auth-login-card-wrap {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .auth-login-card-accent {
+    position: absolute;
+    width: 4.5rem;
+    height: 4.5rem;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .auth-login-card-accent-tl {
+    top: -0.625rem;
+    left: -0.625rem;
+    border-top: 0.75rem solid #fbbf24;
+    border-left: 0.75rem solid #fbbf24;
+    border-top-left-radius: 1.25rem;
+  }
+
+  .auth-login-card-accent-br {
+    right: -0.625rem;
+    bottom: -0.625rem;
+    border-right: 0.75rem solid var(--saffron);
+    border-bottom: 0.75rem solid var(--saffron);
+    border-bottom-right-radius: 1.25rem;
+  }
+
+  .auth-login-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    border-radius: 1.25rem;
+    border: 1px solid rgb(234 88 12 / 0.1);
+    background: var(--white);
+    padding: 1.5rem;
+    box-shadow:
+      0 1px 2px rgb(15 23 42 / 0.04),
+      0 12px 32px rgb(234 88 12 / 0.1);
+  }
+
+  @media (min-width: 640px) {
+    .auth-login-card {
+      padding: 2rem;
+    }
+  }
+}
+
 @theme inline {
   --color-navy-950: var(--navy-950);
   --color-navy-900: var(--navy-900);

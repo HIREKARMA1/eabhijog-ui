@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import { Icon } from "@/components/icons/Icon";
-import { LangSelect } from "@/components/ui/LangSelect";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -31,7 +30,6 @@ export function Topbar({ breadcrumb, onMenuClick }: TopbarProps) {
         <div className="min-w-0 text-sm text-text-muted">{breadcrumb}</div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <LangSelect />
         <Link
           href="/profile"
           className="hidden rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-surface sm:inline-block"
