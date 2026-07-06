@@ -10,9 +10,10 @@ type Props = {
   basePath: string;
   constants: MetadataConstants;
   current: Record<string, string>;
+  hideOsdCategory?: boolean;
 };
 
-export function PsGrievanceFilters({ basePath, constants, current }: Props) {
+export function PsGrievanceFilters({ basePath, constants, current, hideOsdCategory = false }: Props) {
   const router = useRouter();
   const isCustomRange = current.date_preset === "custom";
 
@@ -82,15 +83,17 @@ export function PsGrievanceFilters({ basePath, constants, current }: Props) {
             ...constants.grievance_categories.map((c) => ({ value: c, label: c })),
           ]}
         />
-        <Select
-          value={current.osd_category || ""}
-          onChange={(e) => update("osd_category", e.target.value)}
-          className="min-w-[160px]"
-          options={[
-            { value: "", label: "All OSDs" },
-            ...constants.osd_categories.map((c) => ({ value: c, label: `OSD ${c}` })),
-          ]}
-        />
+        {!hideOsdCategory ? (
+          <Select
+            value={current.osd_category || ""}
+            onChange={(e) => update("osd_category", e.target.value)}
+            className="min-w-[160px]"
+            options={[
+              { value: "", label: "All OSDs" },
+              ...constants.osd_categories.map((c) => ({ value: c, label: `OSD ${c}` })),
+            ]}
+          />
+        ) : null}
         <Select
           value={current.status || ""}
           onChange={(e) => update("status", e.target.value)}

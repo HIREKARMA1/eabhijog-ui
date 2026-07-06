@@ -1,0 +1,45 @@
+{
+  "title": "निजी सचिव डैशबोर्ड",
+  "subtitle": "शिकायतों और WhatsApp गतिविधि का अवलोकन",
+  "sections": {
+    "summary": "सारांश",
+    "analytics": "WhatsApp विश्लेषण",
+    "recent": "हाल की शिकायतें"
+  },
+  "summary": {
+    "whatsappMessages": "WhatsApp संदेश",
+    "validGrievances": "वैध शिकायतें",
+    "todaysGrievances": "आज की शिकायतें",
+    "pendingAck": "पुष्टि लंबित",
+    "assigned": "आवंटित",
+    "inProgress": "प्रगति पर",
+    "waitingDept": "विभाग की प्रतीक्षा",
+    "deptResponded": "विभाग ने जवाब दिया",
+    "citizenUpdated": "नागरिक अपडेट",
+    "resolved": "समाधान",
+    "closed": "बंद",
+    "discarded": "खारिज",
+    "escalated": "एस्केलेटेड"
+  },
+  "analytics": {
+    "messagesToday": "आज के संदेश",
+    "uniqueCitizens": "अद्वितीय नागरिक",
+    "repeatCitizens": "दोहराए नागरिक",
+    "activeConversations": "सक्रिय वार्तालाप (7दि)",
+    "avgFirstResponse": "औसत प्रथम प्रतिक्रिया",
+    "avgResolution": "औसत समाधान (घंटे)"
+  },
+  "recent": {
+    "viewAll": "सभी शिकायतें देखें",
+    "open": "खोलें",
+    "empty": "कोई हालिया शिकायत नहीं।"
+  },
+  "grievances": {
+    "title": "शिकायत रजिस्टर",
+    "total": "कुल {count}"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "grievances": "शिकायतें"
+  }
+}

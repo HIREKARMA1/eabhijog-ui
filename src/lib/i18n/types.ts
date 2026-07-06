@@ -6,7 +6,8 @@ export type ContentNamespace =
   | "common"
   | "landing"
   | "auth"
-  | "dashboard";
+  | "dashboard"
+  | "ps";
 
 export type ContentValue = string | { [key: string]: ContentValue };
 

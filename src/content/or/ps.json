@@ -1,0 +1,45 @@
+{
+  "title": "ବ୍ୟକ୍ତିଗତ ସଚିବ ଡ୍ୟାସବୋର୍ଡ",
+  "subtitle": "ଅଭିଯୋଗ ଏବଂ WhatsApp କାର୍ଯ୍ୟକଳାପର ସମୀକ୍ଷା",
+  "sections": {
+    "summary": "ସାରାଂଶ",
+    "analytics": "WhatsApp ବିଶ୍ଳେଷଣ",
+    "recent": "ସାମ୍ପ୍ରତିକ ଅଭିଯୋଗ"
+  },
+  "summary": {
+    "whatsappMessages": "WhatsApp ବାର୍ତ୍ତା",
+    "validGrievances": "ବୈଧ ଅଭିଯୋଗ",
+    "todaysGrievances": "ଆଜିର ଅଭିଯୋଗ",
+    "pendingAck": "ସ୍ୱୀକୃତି ବିଳମ୍ବିତ",
+    "assigned": "ନିୟୋଜିତ",
+    "inProgress": "ଚାଲୁଅଛି",
+    "waitingDept": "ବିଭାଗ ଅପେକ୍ଷା",
+    "deptResponded": "ବିଭାଗ ଉତ୍ତର",
+    "citizenUpdated": "ନାଗରିକ ଅପଡେଟ୍",
+    "resolved": "ସମାଧାନ",
+    "closed": "ବନ୍ଦ",
+    "discarded": "ପ୍ରତ୍ୟାଖ୍ୟାନ",
+    "escalated": "ଏସ୍କାଲେଟେଡ୍"
+  },
+  "analytics": {
+    "messagesToday": "ଆଜିର ବାର୍ତ୍ତା",
+    "uniqueCitizens": "ଅନନ୍ୟ ନାଗରିକ",
+    "repeatCitizens": "ପୁନରାବୃତ୍ତ ନାଗରିକ",
+    "activeConversations": "ସକ୍ରିୟ କଥୋପକଥନ (7ଦି)",
+    "avgFirstResponse": "ହାରାହାରି ପ୍ରଥମ ପ୍ରତିକ୍ରିୟା",
+    "avgResolution": "ହାରାହାରି ସମାଧାନ (ଘଣ୍ଟା)"
+  },
+  "recent": {
+    "viewAll": "ସମସ୍ତ ଅଭିଯୋଗ ଦେଖନ୍ତୁ",
+    "open": "ଖୋଲନ୍ତୁ",
+    "empty": "କୌଣସି ସାମ୍ପ୍ରତିକ ଅଭିଯୋଗ ନାହିଁ।"
+  },
+  "grievances": {
+    "title": "ଅଭିଯୋଗ ରେଜିଷ୍ଟ୍ରି",
+    "total": "ମୋଟ {count}"
+  },
+  "nav": {
+    "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
+    "grievances": "ଅଭିଯୋଗ"
+  }
+}

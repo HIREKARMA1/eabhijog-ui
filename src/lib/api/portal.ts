@@ -15,8 +15,8 @@ import type {
   PortalPublicData,
   StaffAccount,
   StaffListData,
+  PsGrievanceRow,
 } from "@/types/api";
-import type { GrievanceRow } from "@/types/api";
 
 export async function login(username: string, password: string) {
   return apiRequest<AuthLoginData>("/api/auth/login", {
@@ -105,7 +105,7 @@ export async function fetchOsdDashboard(slug: string, server = false) {
 export async function fetchOsdGrievances(slug: string, params: Record<string, string> = {}, server = false) {
   const qs = new URLSearchParams(params).toString();
   const path = qs ? `/api/osd/${slug}/grievances?${qs}` : `/api/osd/${slug}/grievances`;
-  return apiRequest<GrievanceRow[]>(path, { server });
+  return apiRequest<{ items: PsGrievanceRow[]; total: number }>(path, { server });
 }
 
 export async function fetchOsdGrievanceDetail(slug: string, ref: string, server = false) {

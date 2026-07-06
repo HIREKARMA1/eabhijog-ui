@@ -48,6 +48,7 @@
     "clear": "Clear"
   },
   "grievance": {
+    "citizen": "Citizen",
     "detail": "Grievance detail",
     "timeline": "Timeline",
     "audit": "Audit trail",
@@ -104,6 +105,13 @@
     "activate": "Activate"
   },
   "osdSummary": {
+    "assignedToday": "Assigned today",
+    "pendingAck": "Pending acknowledgement",
+    "waitingDept": "Waiting for department",
+    "deptResponded": "Department responded",
+    "citizenWaiting": "Citizen awaiting reply",
+    "resolvedToday": "Resolved today",
+    "overdue": "Overdue cases",
     "pending": "Pending review",
     "forwarded": "Forwarded today",
     "actionPending": "Department action pending",

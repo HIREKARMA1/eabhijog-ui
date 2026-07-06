@@ -6,7 +6,7 @@ export default async function AnalyticsPage() {
   const data = await getPortalAnalytics();
 
   return (
-    <PortalLayout breadcrumb="Reports" extraCss={["analytics.css"]} bodyClass="analytics-page">
+    <PortalLayout breadcrumb="Reports">
       <AnalyticsOverview data={data} />
     </PortalLayout>
   );
