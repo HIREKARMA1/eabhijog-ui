@@ -69,8 +69,13 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
                 }`}
               >
                 <p className="text-xs text-text-muted">
-                  {m.sender_name || (m.direction === "inbound" ? "Citizen" : "Office")} ·{" "}
-                  {new Date(m.created_at).toLocaleString()}
+                  {m.sender_name ||
+                    (m.direction === "inbound"
+                      ? "Citizen"
+                      : m.trigger === "bot"
+                        ? "eAbhijog Bot"
+                        : "Office")}{" "}
+                  · {new Date(m.created_at).toLocaleString()}
                 </p>
                 {m.body && <p className="mt-1 whitespace-pre-wrap">{m.body}</p>}
                 {m.media_urls?.map((url) => (
