@@ -160,6 +160,7 @@ export type MetadataConstants = {
   districts: string[];
   grievance_categories: string[];
   constituencies: string[];
+  departments: string[];
   statuses: string[];
   priorities: string[];
   osd_workflow_statuses: string[];
