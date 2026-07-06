@@ -11,8 +11,8 @@ export default async function HomePage() {
   return (
     <div
       className="landing-body"
-      data-title-en="e-Abhijog — Government of Odisha"
-      data-title-or="e-Abhijog — ଓଡ଼ିଶା ସରକାର"
+      data-title-en="Jana Samadhan — Government of Odisha"
+      data-title-or="ଜନ ସମାଧାନ — ଓଡ଼ିଶା ସରକାର"
     >
       <LegacyStyles sheets={["landing.css", "lang-toggle.css"]} />
       <LandingPage

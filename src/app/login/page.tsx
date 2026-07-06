@@ -1,30 +1,21 @@
-import { AuthPanel } from "@/components/auth/AuthPanel";
+import { redirect } from "next/navigation";
+
+import { LoginAuthGuard } from "@/components/auth/LoginAuthGuard";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { LegacyScripts } from "@/components/legacy/LegacyScripts";
-import { LegacyStyles } from "@/components/legacy/LegacyStyles";
-import { portalStatsToDisplay } from "@/lib/portal/stats";
-import { getPublicPortal } from "@/lib/api/server-portal";
+import { getCurrentUser } from "@/lib/api/server-portal";
+import { homePathFor } from "@/lib/auth/roles";
 
 export default async function LoginPage() {
-  let stats = portalStatsToDisplay(null);
-  let appVersion = "2.0.0";
-
   try {
-    const portal = await getPublicPortal();
-    stats = portalStatsToDisplay(portal);
-    appVersion = portal.app_version;
+    const staff = await getCurrentUser();
+    redirect(homePathFor(staff));
   } catch {
-    // use fallback stats
+    // Session missing or expired — show login form.
   }
 
   return (
-    <div className="auth-body">
-      <LegacyStyles sheets={["auth.css", "lang-toggle.css"]} />
-      <div className="auth-page">
-        <AuthPanel stats={stats} appVersion={appVersion} />
-        <LoginForm stats={stats} />
-      </div>
-      <LegacyScripts scripts={["lang-toggle.js", "auth.js"]} />
-    </div>
+    <LoginAuthGuard>
+      <LoginForm />
+    </LoginAuthGuard>
   );
 }
