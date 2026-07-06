@@ -160,6 +160,7 @@ export type MetadataConstants = {
   districts: string[];
   grievance_categories: string[];
   constituencies: string[];
+  departments: string[];
   statuses: string[];
   priorities: string[];
   osd_workflow_statuses: string[];
@@ -323,4 +324,14 @@ export type GrievanceConversationData = {
   timeline: TimelineEvent[];
   internal_notes: InternalNoteItem[];
   ai_summary: string | null;
+  attachments?: GrievanceAttachment[];
+  actions?: OsdConversationActions;
+};
+
+export type OsdConversationActions = {
+  can_reassign: boolean;
+  allowed_statuses: string[];
+  priorities: string[];
+  osd_categories: string[];
+  can_mark_resolved: boolean;
 };

@@ -5,18 +5,18 @@ import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import type { GrievanceConversationData } from "@/types/api";
 
 type Props = {
   data: GrievanceConversationData;
   onAddNote: (text: string) => Promise<void>;
   onWhatsAppReply: (message: string) => Promise<void>;
-  onEscalate?: () => Promise<void>;
+  actionsPanel?: React.ReactNode;
 };
 
-export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate }: Props) {
+export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPanel }: Props) {
   const router = useRouter();
   const [noteText, setNoteText] = useState("");
   const [replyText, setReplyText] = useState("");
@@ -50,7 +50,6 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate 
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      {/* Left: WhatsApp chat */}
       <div className="flex flex-col rounded-lg border border-border">
         <div className="border-b border-border bg-surface-muted px-4 py-3">
           <h2 className="font-medium">WhatsApp Conversation</h2>
@@ -70,8 +69,13 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate 
                 }`}
               >
                 <p className="text-xs text-text-muted">
-                  {m.sender_name || (m.direction === "inbound" ? "Citizen" : "Office")} ·{" "}
-                  {new Date(m.created_at).toLocaleString()}
+                  {m.sender_name ||
+                    (m.direction === "inbound"
+                      ? "Citizen"
+                      : m.trigger === "bot"
+                        ? "eAbhijog Bot"
+                        : "Office")}{" "}
+                  · {new Date(m.created_at).toLocaleString()}
                 </p>
                 {m.body && <p className="mt-1 whitespace-pre-wrap">{m.body}</p>}
                 {m.media_urls?.map((url) => (
@@ -102,17 +106,10 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate 
         </div>
       </div>
 
-      {/* Right: Case details */}
       <div className="space-y-4">
         <div className="rounded-lg border border-border p-4">
           <h2 className="font-medium">{g.reference_number}</h2>
           <p className="text-sm text-text-muted">{g.title}</p>
-          {data.ai_summary && (
-            <div className="mt-3 rounded bg-surface-muted p-3 text-sm">
-              <p className="text-xs font-medium uppercase text-text-muted">AI Summary</p>
-              <p className="mt-1">{data.ai_summary}</p>
-            </div>
-          )}
           <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
             <div>
               <dt className="text-text-muted">Category</dt>
@@ -132,7 +129,7 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate 
             </div>
             <div>
               <dt className="text-text-muted">Department</dt>
-              <dd>{g.department}</dd>
+              <dd>{g.department || "—"}</dd>
             </div>
             <div>
               <dt className="text-text-muted">Priority</dt>
@@ -148,6 +145,12 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate 
             </div>
           </dl>
         </div>
+
+        {data.attachments?.length ? (
+          <div className="rounded-lg border border-border p-4">
+            <GrievanceAttachments attachments={data.attachments} />
+          </div>
+        ) : null}
 
         <div className="rounded-lg border border-border p-4">
           <h3 className="text-sm font-medium">Timeline</h3>
@@ -187,11 +190,7 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, onEscalate 
           </div>
         </div>
 
-        {onEscalate && (
-          <Button variant="secondary" disabled={busy} onClick={onEscalate}>
-            Escalate to PS
-          </Button>
-        )}
+        {actionsPanel}
       </div>
     </div>
   );
