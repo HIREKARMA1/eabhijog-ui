@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import { osdAddNote, osdEscalateToPs, osdWhatsAppReply } from "@/lib/api/portal";
+import { OsdActionsPanel } from "@/components/grievance/OsdActionsPanel";
+import { osdAddNote, osdWhatsAppReply } from "@/lib/api/portal";
 import { ConversationView } from "@/components/grievance/ConversationView";
 import type { GrievanceConversationData } from "@/types/api";
 
@@ -13,8 +12,6 @@ export function OsdConversationPanel({
   data: GrievanceConversationData;
   osdSlug: string;
 }) {
-  const router = useRouter();
-
   return (
     <ConversationView
       data={data}
@@ -22,11 +19,7 @@ export function OsdConversationPanel({
       onWhatsAppReply={(message) =>
         osdWhatsAppReply(osdSlug, data.reference_number, message).then(() => undefined)
       }
-      onEscalate={() =>
-        osdEscalateToPs(osdSlug, data.reference_number).then(() => {
-          router.refresh();
-        })
-      }
+      actionsPanel={<OsdActionsPanel data={data} osdSlug={osdSlug} />}
     />
   );
 }
