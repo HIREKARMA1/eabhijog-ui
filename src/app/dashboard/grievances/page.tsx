@@ -31,7 +31,7 @@ export default async function GrievancesPage({ searchParams }: PageProps) {
   ];
 
   return (
-    <PortalLayout breadcrumb="Grievances" extraCss={["ops-command.css"]} bodyClass="ops-command-page">
+    <PortalLayout breadcrumb="Grievances">
       <div className="space-y-5">
         <KpiGrid items={kpis} />
         <Suspense fallback={null}>

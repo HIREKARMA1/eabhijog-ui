@@ -104,6 +104,13 @@
     "activate": "ସକ୍ରିୟ"
   },
   "osdSummary": {
+    "assignedToday": "ଆଜି ନିଯୋଜିତ",
+    "pendingAck": "ସ୍ୱୀକୃତି ବାକି",
+    "waitingDept": "ବିଭାଗ ପ୍ରତିକ୍ଷା",
+    "deptResponded": "ବିଭାଗ ପ୍ରତିକ୍ରିୟା",
+    "citizenWaiting": "ନାଗରିକ ପ୍ରତିକ୍ଷା",
+    "resolvedToday": "ଆଜି ସମାଧାନ",
+    "overdue": "ଅତିଦେୟ ମାମଲା",
     "pending": "ସମୀକ୍ଷା ବାକି",
     "forwarded": "ଆଜି ପ୍ରେରିତ",
     "actionPending": "ବିଭାଗ କାର୍ଯ୍ୟ ବାକି",

@@ -1,0 +1,26 @@
+{
+  "total": 1,
+  "items": [
+    {
+      "reference_number": "GR-202607-00060",
+      "citizen_phone": "+918144496407",
+      "citizen_name": "Citizen",
+      "created_at": "2026-07-06T08:45:00.000Z",
+      "last_message_at": "2026-07-06T09:18:00.000Z",
+      "category": "Commerce & Transport",
+      "district": "Khordha",
+      "constituency": "Bhubaneswar",
+      "osd_category": "Commerce & Transport",
+      "assigned_osd": "Commerce & Transport",
+      "department": "Transport Commissioner",
+      "priority": "high",
+      "status": "pending_review",
+      "response_from": null,
+      "updated_at": "2026-07-06T09:18:00.000Z",
+      "conversation_count": 22,
+      "resolution_hours": null,
+      "title": "Road repair request",
+      "ai_summary": null
+    }
+  ]
+}

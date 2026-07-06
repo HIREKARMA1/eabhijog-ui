@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "total_whatsapp_messages": 128,
+    "total_valid_grievances": 34,
+    "todays_grievances": 5,
+    "pending_acknowledgement": 3,
+    "assigned": 8,
+    "in_progress": 6,
+    "waiting_for_department": 4,
+    "department_responded": 2,
+    "citizen_updated": 1,
+    "resolved": 7,
+    "closed": 2,
+    "discarded": 0,
+    "escalated": 1
+  },
+  "analytics": {
+    "messages_received_today": 12,
+    "unique_citizens": 28,
+    "repeat_citizens": 6,
+    "active_conversations": 9,
+    "avg_first_response_hours": 2.4,
+    "avg_resolution_hours": 18.5
+  },
+  "recent_grievances": [
+    {
+      "reference_number": "GR-202607-00060",
+      "citizen_phone": "+918144496407",
+      "citizen_name": "Citizen",
+      "created_at": "2026-07-06T08:45:00.000Z",
+      "last_message_at": "2026-07-06T09:18:00.000Z",
+      "category": "Commerce & Transport",
+      "district": "Khordha",
+      "constituency": "Bhubaneswar",
+      "osd_category": "Commerce & Transport",
+      "assigned_osd": "Commerce & Transport",
+      "department": "Transport Commissioner",
+      "priority": "high",
+      "status": "pending_review",
+      "response_from": null,
+      "updated_at": "2026-07-06T09:18:00.000Z",
+      "conversation_count": 22,
+      "resolution_hours": null,
+      "title": "Road repair request",
+      "ai_summary": null
+    }
+  ]
+}

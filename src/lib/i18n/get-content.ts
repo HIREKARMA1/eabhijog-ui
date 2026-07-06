@@ -1,5 +1,8 @@
 import type { ContentNamespace, ContentTree, ContentValue, Locale } from "./types";
 
+import psEn from "@/content/en/ps.json";
+import psHi from "@/content/hi/ps.json";
+import psOr from "@/content/or/ps.json";
 import authEn from "@/content/en/auth.json";
 import authHi from "@/content/hi/auth.json";
 import authOr from "@/content/or/auth.json";
@@ -19,18 +22,21 @@ const bundles: Record<Locale, Record<ContentNamespace, ContentTree>> = {
     landing: landingEn,
     auth: authEn,
     dashboard: dashboardEn,
+    ps: psEn,
   },
   hi: {
     common: commonHi,
     landing: landingHi,
     auth: authHi,
     dashboard: dashboardHi,
+    ps: psHi,
   },
   or: {
     common: commonOr,
     landing: landingOr,
     auth: authOr,
     dashboard: dashboardOr,
+    ps: psOr,
   },
 };
 
@@ -48,8 +54,18 @@ export function resolvePath(tree: ContentTree, path: string): string | undefined
   return typeof node === "string" ? node : undefined;
 }
 
-export function translate(locale: Locale, namespace: ContentNamespace, key: string): string {
-  const value = resolvePath(getNamespace(locale, namespace), key);
+export function translate(
+  locale: Locale,
+  namespace: ContentNamespace,
+  key: string,
+  params?: Record<string, string | number>,
+): string {
+  let value = resolvePath(getNamespace(locale, namespace), key);
   if (!value) return key;
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      value = value.replace(`{${k}}`, String(v));
+    }
+  }
   return value;
 }

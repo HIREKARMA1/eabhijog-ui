@@ -1,0 +1,45 @@
+{
+  "title": "Private Secretary Dashboard",
+  "subtitle": "Overview of grievances and WhatsApp activity",
+  "sections": {
+    "summary": "Summary",
+    "analytics": "WhatsApp Analytics",
+    "recent": "Recent Grievances"
+  },
+  "summary": {
+    "whatsappMessages": "WhatsApp Messages",
+    "validGrievances": "Valid Grievances",
+    "todaysGrievances": "Today's Grievances",
+    "pendingAck": "Pending Acknowledgement",
+    "assigned": "Assigned",
+    "inProgress": "In Progress",
+    "waitingDept": "Waiting for Department",
+    "deptResponded": "Department Responded",
+    "citizenUpdated": "Citizen Updated",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "discarded": "Discarded",
+    "escalated": "Escalated"
+  },
+  "analytics": {
+    "messagesToday": "Messages Today",
+    "uniqueCitizens": "Unique Citizens",
+    "repeatCitizens": "Repeat Citizens",
+    "activeConversations": "Active Conversations (7d)",
+    "avgFirstResponse": "Avg First Response Time",
+    "avgResolution": "Avg Resolution (hrs)"
+  },
+  "recent": {
+    "viewAll": "View all grievances",
+    "open": "Open",
+    "empty": "No recent grievances."
+  },
+  "grievances": {
+    "title": "Grievance Registry",
+    "total": "{count} total"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "grievances": "Grievances"
+  }
+}
