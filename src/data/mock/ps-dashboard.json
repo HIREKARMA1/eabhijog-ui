@@ -1,18 +1,15 @@
 {
   "summary": {
-    "total_whatsapp_messages": 128,
-    "total_valid_grievances": 34,
-    "todays_grievances": 5,
-    "pending_acknowledgement": 3,
-    "assigned": 8,
-    "in_progress": 6,
-    "waiting_for_department": 4,
-    "department_responded": 2,
-    "citizen_updated": 1,
+    "total_grievances": 34,
+    "new_today": 5,
+    "pending_review": 3,
+    "under_osd_review": 12,
+    "forwarded_to_department": 2,
+    "waiting_for_department_response": 4,
     "resolved": 7,
     "closed": 2,
-    "discarded": 0,
-    "escalated": 1
+    "high_priority": 6,
+    "overdue_cases": 3
   },
   "analytics": {
     "messages_received_today": 12,
