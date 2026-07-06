@@ -9,6 +9,7 @@
     "overview": "अवलोकन",
     "operationalCommand": "परिचालन कमांड",
     "osd": "OSD",
+    "departments": "विभाग",
     "superAdmin": "सुपर एडमिन"
   },
   "osd": {
@@ -78,6 +79,13 @@
     "activate": "सक्रिय करें"
   },
   "osdSummary": {
+    "assignedToday": "आज नियुक्त",
+    "pendingAck": "पावती लंबित",
+    "waitingDept": "विभाग की प्रतीक्षा",
+    "deptResponded": "विभाग ने जवाब दिया",
+    "citizenWaiting": "नागरिक प्रतिक्रिया की प्रतीक्षा",
+    "resolvedToday": "आज समाधान",
+    "overdue": "अतिदेय मामले",
     "pending": "समीक्षा लंबित",
     "forwarded": "आज अग्रेषित",
     "actionPending": "विभाग कार्रवाई लंबित",

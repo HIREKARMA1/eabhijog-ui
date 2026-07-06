@@ -20,7 +20,7 @@ const STORAGE_KEY = "abhijog-ui-lang";
 type I18nContextValue = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (namespace: ContentNamespace, key: string) => string;
+  t: (namespace: ContentNamespace, key: string, params?: Record<string, string | number>) => string;
 };
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -32,38 +32,17 @@ function readStoredLocale(): Locale {
   return env.defaultLocale;
 }
 
+function applyDocumentLocale(locale: Locale) {
+  document.documentElement.lang = locale;
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(env.defaultLocale);
 
   useEffect(() => {
-    function applyFromStorage() {
-      try {
-        const saved = window.localStorage.getItem(STORAGE_KEY);
-        if (saved === "or" || saved === "en") {
-          setLocaleState(saved);
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-
-    applyFromStorage();
-
-    function onLangChange(event: Event) {
-      const detail = (event as CustomEvent<{ lang: string }>).detail;
-      if (detail?.lang === "or" || detail?.lang === "en") {
-        setLocaleState(detail.lang);
-      }
-    }
-
-    window.addEventListener("ui-lang-change", onLangChange);
-    return () => window.removeEventListener("ui-lang-change", onLangChange);
+    setLocaleState(readStoredLocale());
+    applyDocumentLocale(readStoredLocale());
   }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    document.body.classList.toggle("ui-lang-or", locale === "or");
-  }, [locale]);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
@@ -72,14 +51,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
-    const isOr = next === "or";
-    document.body.classList.toggle("ui-lang-or", isOr);
-    document.documentElement.lang = isOr ? "or" : next === "hi" ? "hi" : "en";
-    document.dispatchEvent(new CustomEvent("ui-lang-change", { detail: { lang: next } }));
+    applyDocumentLocale(next);
+    window.dispatchEvent(new CustomEvent("ui-lang-change", { detail: { lang: next } }));
   }, []);
 
   const t = useCallback(
-    (namespace: ContentNamespace, key: string) => translate(locale, namespace, key),
+    (namespace: ContentNamespace, key: string, params?: Record<string, string | number>) =>
+      translate(locale, namespace, key, params),
     [locale],
   );
 

@@ -18,7 +18,13 @@ function cell(value: string | null | undefined): string {
   return value?.trim() ? value : "—";
 }
 
-export function PsGrievanceTable({ items }: { items: PsGrievanceRow[] }) {
+export function PsGrievanceTable({
+  items,
+  detailHrefPrefix = "/ps/grievance/",
+}: {
+  items: PsGrievanceRow[];
+  detailHrefPrefix?: string;
+}) {
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
       <table className="min-w-full text-sm">
@@ -66,7 +72,7 @@ export function PsGrievanceTable({ items }: { items: PsGrievanceRow[] }) {
               <td className="whitespace-nowrap px-3 py-2 text-xs">{formatResolutionHours(g.resolution_hours)}</td>
               <td className="whitespace-nowrap px-3 py-2">
                 <Link
-                  href={`/ps/grievance/${g.reference_number}`}
+                  href={`${detailHrefPrefix}${encodeURIComponent(g.reference_number)}`}
                   className="text-brand hover:underline"
                 >
                   View

@@ -3,7 +3,7 @@ import { StaffManagementPanel } from "@/components/staff/StaffManagementPanel";
 
 export default function StaffPage() {
   return (
-    <PortalLayout breadcrumb="Staff" extraCss={["staff_management.css"]} bodyClass="staff-management-page">
+    <PortalLayout breadcrumb="Staff">
       <StaffManagementPanel />
     </PortalLayout>
   );

@@ -13,10 +13,10 @@ export function KpiGrid({ items }: KpiGridProps) {
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item) => (
         <Card key={item.labelKey}>
-          <p className="text-xs uppercase tracking-wide text-text-muted">
+          <p className="text-xs font-medium tracking-wide text-text-muted">
             {t("dashboard", item.labelKey)}
           </p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{item.value}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{item.value}</p>
         </Card>
       ))}
     </div>

@@ -1,3 +1,5 @@
+import { isMockDataMode } from "@/config/env";
+import { getMockPsDashboard } from "@/lib/data/mock-loader";
 import { serverApiRequest } from "@/lib/api/server";
 import type {
   AuthStaff,
@@ -71,6 +73,9 @@ export async function getProfile() {
 }
 
 export async function getPsDashboard() {
+  if (isMockDataMode()) {
+    return getMockPsDashboard();
+  }
   const result = await serverApiRequest<PsDashboardData>("/api/ps/dashboard");
   return result.data;
 }
