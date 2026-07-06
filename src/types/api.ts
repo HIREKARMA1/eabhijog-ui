@@ -248,19 +248,16 @@ export type DepartmentActionData = {
 };
 
 export type PsSummaryCards = {
-  total_whatsapp_messages: number;
-  total_valid_grievances: number;
-  todays_grievances: number;
-  pending_acknowledgement: number;
-  assigned: number;
-  in_progress: number;
-  waiting_for_department: number;
-  department_responded: number;
-  citizen_updated: number;
+  total_grievances: number;
+  new_today: number;
+  pending_review: number;
+  under_osd_review: number;
+  forwarded_to_department: number;
+  waiting_for_department_response: number;
   resolved: number;
   closed: number;
-  discarded: number;
-  escalated: number;
+  high_priority: number;
+  overdue_cases: number;
 };
 
 export type PsWhatsAppAnalytics = {

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { useI18n } from "@/lib/i18n/context";
 import type { MetadataConstants } from "@/types/api";
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 
 export function PsGrievanceFilters({ basePath, constants, current, hideOsdCategory = false }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const isCustomRange = current.date_preset === "custom";
 
   function navigate(next: Record<string, string>) {
@@ -38,6 +40,11 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
     navigate(next);
   }
 
+  function statusLabel(bucket: string): string {
+    const translated = t("ps", `statusBuckets.${bucket}`);
+    return translated === `statusBuckets.${bucket}` ? bucket.replace(/_/g, " ") : translated;
+  }
+
   return (
     <div className="space-y-3 rounded-lg border border-border bg-surface-muted/50 p-4">
       <div className="flex flex-wrap gap-3">
@@ -46,12 +53,12 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("date_preset", e.target.value)}
           className="min-w-[140px]"
           options={[
-            { value: "", label: "All dates" },
-            { value: "today", label: "Today" },
-            { value: "yesterday", label: "Yesterday" },
-            { value: "last_7_days", label: "Last 7 Days" },
-            { value: "last_30_days", label: "Last 30 Days" },
-            { value: "custom", label: "Custom Range" },
+            { value: "", label: t("ps", "filters.allDates") },
+            { value: "today", label: t("ps", "filters.today") },
+            { value: "yesterday", label: t("ps", "filters.yesterday") },
+            { value: "last_7_days", label: t("ps", "filters.last7Days") },
+            { value: "last_30_days", label: t("ps", "filters.last30Days") },
+            { value: "custom", label: t("ps", "filters.customRange") },
           ]}
         />
         {isCustomRange ? (
@@ -79,7 +86,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("category", e.target.value)}
           className="min-w-[160px]"
           options={[
-            { value: "", label: "All categories" },
+            { value: "", label: t("ps", "filters.allCategories") },
             ...constants.grievance_categories.map((c) => ({ value: c, label: c })),
           ]}
         />
@@ -89,7 +96,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
             onChange={(e) => update("osd_category", e.target.value)}
             className="min-w-[160px]"
             options={[
-              { value: "", label: "All OSDs" },
+              { value: "", label: t("ps", "filters.allOsds") },
               ...constants.osd_categories.map((c) => ({ value: c, label: `OSD ${c}` })),
             ]}
           />
@@ -99,10 +106,10 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("status", e.target.value)}
           className="min-w-[160px]"
           options={[
-            { value: "", label: "All statuses" },
+            { value: "", label: t("ps", "filters.allStatuses") },
             ...constants.ps_status_buckets.map((s) => ({
               value: s,
-              label: s.replace(/_/g, " "),
+              label: statusLabel(s),
             })),
           ]}
         />
@@ -111,7 +118,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("district", e.target.value)}
           className="min-w-[140px]"
           options={[
-            { value: "", label: "All districts" },
+            { value: "", label: t("ps", "filters.allDistricts") },
             ...constants.districts.map((d) => ({ value: d, label: d })),
           ]}
         />
@@ -120,7 +127,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("constituency", e.target.value)}
           className="min-w-[140px]"
           options={[
-            { value: "", label: "All constituencies" },
+            { value: "", label: t("ps", "filters.allConstituencies") },
             ...constants.constituencies.map((c) => ({ value: c, label: c })),
           ]}
         />
@@ -129,7 +136,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("department", e.target.value)}
           className="min-w-[160px]"
           options={[
-            { value: "", label: "All departments" },
+            { value: "", label: t("ps", "filters.allDepartments") },
             ...(constants.departments ?? []).map((d) => ({ value: d, label: d })),
           ]}
         />
@@ -138,11 +145,21 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           onChange={(e) => update("priority", e.target.value)}
           className="min-w-[120px]"
           options={[
-            { value: "", label: "All priorities" },
-            { value: "critical", label: "Critical" },
-            { value: "high", label: "High" },
-            { value: "medium", label: "Medium" },
-            { value: "low", label: "Low" },
+            { value: "", label: t("ps", "filters.allPriorities") },
+            { value: "critical", label: t("ps", "filters.critical") },
+            { value: "high", label: t("ps", "filters.high") },
+            { value: "high_priority", label: t("ps", "filters.highPriority") },
+            { value: "medium", label: t("ps", "filters.medium") },
+            { value: "low", label: t("ps", "filters.low") },
+          ]}
+        />
+        <Select
+          value={current.overdue || ""}
+          onChange={(e) => update("overdue", e.target.value)}
+          className="min-w-[140px]"
+          options={[
+            { value: "", label: t("ps", "filters.allCases") },
+            { value: "true", label: t("ps", "filters.overdueOnly") },
           ]}
         />
       </div>
