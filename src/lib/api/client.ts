@@ -36,8 +36,13 @@ export async function apiRequest<T>(
   };
 
   if (options.body !== undefined) {
-    headers["Content-Type"] = "application/json";
-    init.body = JSON.stringify(options.body);
+    if (options.body instanceof FormData) {
+      // Let the browser set the multipart boundary; do not force Content-Type.
+      init.body = options.body;
+    } else {
+      headers["Content-Type"] = "application/json";
+      init.body = JSON.stringify(options.body);
+    }
   }
 
   let response: Response;

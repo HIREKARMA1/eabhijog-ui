@@ -2,6 +2,8 @@ import { apiRequest } from "@/lib/api/client";
 import type {
   AuthLoginData,
   AuthStaff,
+  DepartmentActionData,
+  DepartmentGrievanceView,
   MetadataConstants,
   OsdDashboardData,
   OsdDepartmentContactRecord,
@@ -165,6 +167,45 @@ export async function updateOsdDepartment(
   });
 }
 
+export async function fetchDepartmentGrievance(token: string, server = false) {
+  return apiRequest<DepartmentGrievanceView>(
+    `/api/department/grievances/${encodeURIComponent(token)}`,
+    { server },
+  );
+}
+
+export async function departmentAcknowledge(
+  token: string,
+  officerName: string,
+  remarks: string,
+  files: File[] = [],
+) {
+  const form = new FormData();
+  form.append("officer_name", officerName);
+  if (remarks) form.append("remarks", remarks);
+  files.forEach((file) => form.append("files", file));
+  return apiRequest<DepartmentActionData>(
+    `/api/department/grievances/${encodeURIComponent(token)}/acknowledge`,
+    { method: "POST", body: form },
+  );
+}
+
+export async function departmentRespond(
+  token: string,
+  officerName: string,
+  responseText: string,
+  files: File[] = [],
+) {
+  const form = new FormData();
+  form.append("officer_name", officerName);
+  form.append("response_text", responseText);
+  files.forEach((file) => form.append("files", file));
+  return apiRequest<DepartmentActionData>(
+    `/api/department/grievances/${encodeURIComponent(token)}/respond`,
+    { method: "POST", body: form },
+  );
+}
+
 export async function fetchStaffList(params: Record<string, string> = {}) {
   const qs = new URLSearchParams(params).toString();
   const path = qs ? `/api/staff?${qs}` : "/api/staff";
@@ -189,4 +230,67 @@ export async function deactivateStaffAccount(id: number) {
 
 export async function activateStaffAccount(id: number) {
   return apiRequest<StaffAccount>(`/api/staff/${id}/activate`, { method: "POST" });
+}
+
+// ── Private Secretary API ──
+
+export async function fetchPsDashboard(server = false) {
+  return apiRequest<import("@/types/api").PsDashboardData>("/api/ps/dashboard", { server });
+}
+
+export async function fetchPsGrievances(params: Record<string, string> = {}, server = false) {
+  const qs = new URLSearchParams(params).toString();
+  const path = qs ? `/api/ps/grievances?${qs}` : "/api/ps/grievances";
+  return apiRequest<{ items: import("@/types/api").PsGrievanceRow[]; total: number }>(path, {
+    server,
+  });
+}
+
+export async function fetchPsConversation(ref: string, server = false) {
+  return apiRequest<import("@/types/api").GrievanceConversationData>(
+    `/api/ps/grievances/${encodeURIComponent(ref)}/conversation`,
+    { server },
+  );
+}
+
+export async function psAddNote(ref: string, noteText: string) {
+  return apiRequest<{ id: number; created_at: string }>(
+    `/api/ps/grievances/${encodeURIComponent(ref)}/notes`,
+    { method: "POST", body: { note_text: noteText } },
+  );
+}
+
+export async function psWhatsAppReply(ref: string, message: string) {
+  return apiRequest<null>(`/api/ps/grievances/${encodeURIComponent(ref)}/whatsapp-reply`, {
+    method: "POST",
+    body: { message },
+  });
+}
+
+export async function fetchOsdConversation(slug: string, ref: string, server = false) {
+  return apiRequest<import("@/types/api").GrievanceConversationData>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/conversation`,
+    { server },
+  );
+}
+
+export async function osdAddNote(slug: string, ref: string, noteText: string) {
+  return apiRequest<{ id: number; created_at: string }>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/notes`,
+    { method: "POST", body: { note_text: noteText } },
+  );
+}
+
+export async function osdWhatsAppReply(slug: string, ref: string, message: string) {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/whatsapp-reply`,
+    { method: "POST", body: { message } },
+  );
+}
+
+export async function osdEscalateToPs(slug: string, ref: string) {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/escalate`,
+    { method: "POST" },
+  );
 }

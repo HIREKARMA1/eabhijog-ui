@@ -159,9 +159,12 @@ export type MetadataConstants = {
   osd_slugs: Record<string, string>;
   districts: string[];
   grievance_categories: string[];
+  constituencies: string[];
   statuses: string[];
   priorities: string[];
   osd_workflow_statuses: string[];
+  ps_status_buckets: string[];
+  date_presets: string[];
 };
 
 export type OsdDashboardData = {
@@ -212,4 +215,112 @@ export type StaffAccount = {
 export type StaffListData = {
   items: StaffAccount[];
   manageable_roles: string[];
+};
+
+export type DepartmentGrievanceView = {
+  reference_number: string;
+  status: string;
+  priority: string;
+  osd_category: string;
+  geographic_district: string;
+  title: string;
+  grievance_text: string;
+  area: string;
+  citizen_phone: string;
+  citizen_name: string;
+  sla_deadline_at: string | null;
+  recipient_department: string;
+  recipient_name: string;
+  forwarded_at: string;
+  token_expires_at: string | null;
+  department_action_at: string | null;
+  department_response_text: string | null;
+  department_attachments: string[];
+  allowed_actions: string[];
+};
+
+export type DepartmentActionData = {
+  reference_number: string;
+  status: string;
+  priority: string;
+  response_text: string | null;
+};
+
+export type PsSummaryCards = {
+  total_whatsapp_messages: number;
+  total_valid_grievances: number;
+  todays_grievances: number;
+  pending_acknowledgement: number;
+  assigned: number;
+  in_progress: number;
+  waiting_for_department: number;
+  department_responded: number;
+  citizen_updated: number;
+  resolved: number;
+  closed: number;
+  discarded: number;
+  escalated: number;
+};
+
+export type PsWhatsAppAnalytics = {
+  messages_received_today: number;
+  unique_citizens: number;
+  repeat_citizens: number;
+  active_conversations: number;
+  avg_first_response_hours: number;
+  avg_resolution_hours: number;
+};
+
+export type PsGrievanceRow = {
+  reference_number: string;
+  citizen_phone: string;
+  citizen_name: string;
+  created_at: string;
+  last_message_at: string | null;
+  category: string;
+  district: string | null;
+  constituency: string | null;
+  osd_category: string;
+  assigned_osd: string;
+  department: string;
+  priority: string;
+  status: string;
+  response_from: string | null;
+  updated_at: string;
+  conversation_count: number;
+  resolution_hours: number | null;
+  title: string | null;
+  ai_summary: string | null;
+};
+
+export type PsDashboardData = {
+  summary: PsSummaryCards;
+  analytics: PsWhatsAppAnalytics;
+  recent_grievances: PsGrievanceRow[];
+};
+
+export type WhatsAppMessageItem = {
+  id: number;
+  direction: string;
+  body: string;
+  media_urls: string[];
+  sender_name: string | null;
+  trigger: string | null;
+  created_at: string;
+};
+
+export type InternalNoteItem = {
+  id: number;
+  author_name: string;
+  note_text: string;
+  created_at: string;
+};
+
+export type GrievanceConversationData = {
+  reference_number: string;
+  grievance: PsGrievanceRow;
+  messages: WhatsAppMessageItem[];
+  timeline: TimelineEvent[];
+  internal_notes: InternalNoteItem[];
+  ai_summary: string | null;
 };
