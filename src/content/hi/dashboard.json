@@ -106,5 +106,9 @@
     "forwarded": "आज अग्रेषित",
     "actionPending": "विभाग कार्रवाई लंबित",
     "closed": "बंद"
+  },
+  "osdDashboard": {
+    "recent": "हाल की शिकायतें",
+    "viewAll": "सभी शिकायतें देखें"
   }
 }
