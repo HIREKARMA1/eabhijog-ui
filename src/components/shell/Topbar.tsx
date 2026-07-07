@@ -13,7 +13,7 @@ export function Topbar({ breadcrumb, onMenuClick }: TopbarProps) {
   const { t } = useI18n();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-surface-card px-4 md:px-6">
+    <header className="z-30 flex min-h-14 items-center gap-3 border-b border-border bg-surface-card px-4 py-2 md:px-6 lg:sticky lg:top-[var(--portal-navbar-height)]">
       <Button
         type="button"
         variant="ghost"

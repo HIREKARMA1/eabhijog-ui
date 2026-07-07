@@ -34,12 +34,18 @@ export function OsdDashboardOverview({ data, osdSlug }: OsdDashboardOverviewProp
 
   return (
     <div className="space-y-8">
-      <p className="text-sm text-text-muted">{data.osd_category}</p>
+      <div className="rounded-2xl border border-border bg-white/90 px-5 py-4 shadow-sm">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-saffron">OSD Desk</p>
+        <p className="mt-2 text-sm text-text-muted">{data.osd_category}</p>
+      </div>
 
-      <KpiGrid items={kpis} />
+      <div className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70">
+        <KpiGrid items={kpis} />
+      </div>
 
       <Section
         title={t("dashboard", "osdDashboard.recent")}
+        className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
         action={
           <Link
             href={`/osd/${osdSlug}/grievances`}

@@ -45,13 +45,14 @@ export function PsSummaryGrid({ summary }: { summary: PsSummaryCards }) {
   const { t } = useI18n();
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {SUMMARY_CARD_FILTERS.map((card) => (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+      {SUMMARY_CARD_FILTERS.map((card, index) => (
         <StatCard
           key={card.key}
           label={t("ps", `summary.${card.labelKey}`)}
           value={summary[card.key] ?? 0}
           href={card.href}
+          tone={index}
         />
       ))}
     </div>

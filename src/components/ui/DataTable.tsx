@@ -26,17 +26,22 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface-card px-4 py-10 text-center text-sm text-text-muted">
+      <div className="rounded-2xl border border-border bg-surface-card px-4 py-10 text-center text-sm text-text-muted shadow-sm">
         {emptyMessage}
       </div>
     );
   }
 
   return (
-    <div className={cn("overflow-x-auto rounded-xl border border-border bg-surface-card", className)}>
+    <div
+      className={cn(
+        "overflow-x-auto rounded-2xl border border-border bg-surface-card shadow-sm",
+        className,
+      )}
+    >
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="border-b border-border bg-surface-muted text-left text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+          <tr className="border-b border-violet-200/70 bg-gradient-to-r from-blue-600 to-violet-500 text-left text-[11px] font-semibold uppercase tracking-wide text-white">
             {columns.map((col) => (
               <th key={col.key} className={cn("whitespace-nowrap px-3 py-2.5", col.className)}>
                 {col.header}
@@ -45,10 +50,13 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <tr
               key={rowKey(row)}
-              className="border-b border-border last:border-0 hover:bg-surface-muted/60"
+              className={cn(
+                "border-b border-border/80 last:border-0 hover:bg-sky-50/50",
+                index % 2 === 0 ? "bg-white" : "bg-slate-50/50",
+              )}
             >
               {columns.map((col) => (
                 <td key={col.key} className={cn("whitespace-nowrap px-3 py-2.5", col.className)}>

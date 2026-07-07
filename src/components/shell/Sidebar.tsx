@@ -28,7 +28,6 @@ export function Sidebar({
 }: SidebarProps) {
   const { t } = useI18n();
   const pathname = usePathname();
-  let lastSection = "";
 
   return (
     <>
@@ -47,11 +46,10 @@ export function Sidebar({
           open ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
-        <nav className="flex-1 overflow-hidden px-3 py-4 pt-5">
-          {nav.map((item) => {
-            const section =
-              item.section && item.section !== lastSection ? item.section : null;
-            if (section) lastSection = item.section ?? lastSection;
+        <nav className="flex-1 overflow-y-auto px-3 py-4 pt-5">
+          {nav.map((item, index) => {
+            const prevSection = index > 0 ? nav[index - 1]?.section : null;
+            const section = item.section && item.section !== prevSection ? item.section : null;
 
             const label = item.labelKey.startsWith("osd.")
               ? t("dashboard", item.labelKey)
@@ -98,7 +96,7 @@ export function Sidebar({
           })}
         </nav>
 
-        <div className="mt-auto shrink-0">
+        <div className="shrink-0 border-t border-navy-800/80 bg-navy-900/95">
           <SidebarProfileMenu
             staffName={staffName}
             staffRole={staffRole}
