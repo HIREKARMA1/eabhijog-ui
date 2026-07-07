@@ -65,7 +65,20 @@
   },
   "grievances": {
     "title": "ଅଭିଯୋଗ ରେଜିଷ୍ଟ୍ରି",
-    "total": "ମୋଟ {count}"
+    "total": "ମୋଟ {count}",
+    "table": {
+      "grievanceId": "ଅଭିଯୋଗ ID",
+      "citizenName": "ନାଗରିକଙ୍କ ନାମ",
+      "category": "ବର୍ଗ",
+      "district": "ଜିଲ୍ଲା",
+      "assignedOsd": "ନିୟୋଜିତ OSD",
+      "currentStatus": "ବର୍ତ୍ତମାନ ସ୍ଥିତି",
+      "priority": "ପ୍ରାଥମିକତା",
+      "daysPending": "ବିଳମ୍ବିତ ଦିନ",
+      "lastUpdated": "ଶେଷ ଅପଡେଟ୍",
+      "actions": "କାର୍ଯ୍ୟ",
+      "view": "ଦେଖନ୍ତୁ"
+    }
   },
   "nav": {
     "dashboard": "ଡ୍ୟାସବୋର୍ଡ",

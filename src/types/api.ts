@@ -173,6 +173,7 @@ export type OsdDashboardData = {
   osd_category: string;
   summary: Record<string, number>;
   pending_count: number;
+  recent_grievances: PsGrievanceRow[];
 };
 
 export type OsdDepartmentContact = {
