@@ -50,6 +50,8 @@
     "low": "Low",
     "highPriority": "High Priority",
     "button": "Filters",
+    "searchLabel": "Quick search",
+    "searchPlaceholder": "Search ID, name, mobile, or district",
     "more": "More filters",
     "less": "Less filters",
     "reset": "Reset"

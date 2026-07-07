@@ -38,10 +38,31 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
     [draft],
   );
   const [showFilters, setShowFilters] = useState(false);
+  const [searchDraft, setSearchDraft] = useState(current.search ?? "");
 
   useEffect(() => {
     setDraft(current);
   }, [current]);
+
+  useEffect(() => {
+    setSearchDraft(current.search ?? "");
+  }, [current.search]);
+
+  useEffect(() => {
+    const trimmed = searchDraft.trim();
+    const currentTerm = (current.search ?? "").trim();
+    if (trimmed === currentTerm) return;
+
+    const timer = window.setTimeout(() => {
+      const next = { ...current };
+      if (trimmed) next.search = trimmed;
+      else delete next.search;
+      delete next.page;
+      navigate(next);
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [searchDraft, current]);
 
   function navigate(next: Record<string, string>) {
     const params = new URLSearchParams();
@@ -73,6 +94,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
 
   function resetFilters() {
     setDraft({});
+    setSearchDraft("");
     setShowFilters(false);
     startTransition(() => {
       router.replace(basePath);
@@ -80,7 +102,11 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
   }
 
   function applyFilters() {
-    navigate(draft);
+    const next = { ...draft };
+    const trimmed = searchDraft.trim();
+    if (trimmed) next.search = trimmed;
+    else delete next.search;
+    navigate(next);
     setShowFilters(false);
   }
 
@@ -91,12 +117,37 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
 
   return (
     <div className="space-y-3" aria-busy={isPending}>
-      <div className="flex justify-end">
+      <div className="flex items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <svg
+            aria-hidden
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <Input
+            disabled={isPending}
+            type="search"
+            name="search"
+            value={searchDraft}
+            onChange={(e) => setSearchDraft(e.target.value)}
+            placeholder={t("ps", "filters.searchPlaceholder")}
+            aria-label={t("ps", "filters.searchLabel")}
+            className="w-full py-2 pl-9"
+          />
+        </div>
         <Button
           type="button"
           variant="outline"
           size="md"
-          className="min-w-28"
+          className="shrink-0 min-w-28"
           onClick={() => setShowFilters((v) => !v)}
         >
           <Icon name="filter" size={16} />
