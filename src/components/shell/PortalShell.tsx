@@ -36,8 +36,12 @@ export function PortalShell({ staff, homeHref, nav, breadcrumb, children }: Port
     <div className="flex min-h-screen flex-col bg-surface">
       <GovtNavbar homeHref={homeHref} onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex min-h-0 flex-1">
+        <div
+          className="hidden shrink-0 lg:block"
+          style={{ width: "var(--portal-sidebar-width)" }}
+          aria-hidden="true"
+        />
         <Sidebar
-          homeHref={homeHref}
           nav={nav}
           staffName={staff.name}
           staffRole={formatRole(staff.role)}
