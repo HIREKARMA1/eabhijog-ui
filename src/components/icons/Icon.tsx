@@ -6,6 +6,7 @@ export type IconName =
   | "reports"
   | "staff"
   | "departments"
+  | "filter"
   | "back"
   | "menu"
   | "close"
@@ -52,6 +53,13 @@ const paths: Record<IconName, ReactNode> = {
       <path d="M3 21h18" />
       <path d="M6 21V7l6-4 6 4v14" />
       <path d="M10 21v-6h4v6" />
+    </>
+  ),
+  filter: (
+    <>
+      <path d="M4 6h16" />
+      <path d="M7 12h10" />
+      <path d="M10 18h4" />
     </>
   ),
   back: (

@@ -48,7 +48,11 @@
     "high": "ଉଚ୍ଚ",
     "medium": "ମଧ୍ୟମ",
     "low": "ନିମ୍ନ",
-    "highPriority": "ଉଚ୍ଚ ପ୍ରାଥମିକତା"
+    "highPriority": "ଉଚ୍ଚ ପ୍ରାଥମିକତା",
+    "button": "ଫିଲ୍ଟର",
+    "more": "ଅଧିକ ଫିଲ୍ଟର",
+    "less": "କମ୍ ଫିଲ୍ଟର",
+    "reset": "ରିସେଟ୍"
   },
   "analytics": {
     "messagesToday": "ଆଜିର ବାର୍ତ୍ତା",
@@ -82,6 +86,41 @@
   },
   "nav": {
     "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
-    "grievances": "ଅଭିଯୋଗ"
+    "grievances": "ଅଭିଯୋଗ",
+    "osd": "OSD ଖାତା"
+  },
+  "osd": {
+    "title": "OSD ଖାତା",
+    "subtitle": "Commerce & Transport, Steel & Mines ଓ Ganjam District ପାଇଁ OSD ଲଗଇନ ପରିଚାଳନା କରନ୍ତୁ।",
+    "allDesks": "ସମସ୍ତ ଡେସ୍କ",
+    "add": "OSD ଖାତା ଯୋଡ଼ନ୍ତୁ",
+    "edit": "OSD ଖାତା ସମ୍ପାଦନ",
+    "create": "ଖାତା ସୃଷ୍ଟି",
+    "save": "ପରିବର୍ତ୍ତନ ସଞ୍ଚୟ",
+    "cancel": "ବାତିଲ",
+    "username": "ୟୁଜରନେମ",
+    "password": "ଆରମ୍ଭିକ ପାସୱାର୍ଡ",
+    "newPassword": "ନୂଆ ପାସୱାର୍ଡ (ଇଚ୍ଛାଧୀନ)",
+    "desk": "OSD ଡେସ୍କ",
+    "fullName": "ପୂରା ନାମ",
+    "email": "ଅଧିକାରତ୍ତ୍ୱ ଇମେଲ",
+    "designation": "ପଦବୀ",
+    "district": "ଜିଲ୍ଲା / କ୍ଷେତ୍ର",
+    "phone": "ଫୋନ",
+    "whatsappAlerts": "ଏହି ବର୍ଗରେ ନୂଆ ଅଭିଯୋଗ ପାଇଁ WhatsApp ସତର୍କତା",
+    "status": "ସ୍ଥିତି",
+    "actions": "କାର୍ଯ୍ୟ",
+    "active": "ସକ୍ରିୟ",
+    "inactive": "ନିଷ୍କ୍ରିୟ",
+    "activate": "ସକ୍ରିୟ କରନ୍ତୁ",
+    "deactivate": "ନିଷ୍କ୍ରିୟ କରନ୍ତୁ",
+    "empty": "ଏହି ଡେସ୍କ ପାଇଁ କୌଣସି OSD ଖାତା ନାହିଁ।",
+    "created": "OSD ଖାତା ସୃଷ୍ଟି ହେଲା।",
+    "updated": "OSD ଖାତା ଅପଡେଟ୍ ହେଲା।",
+    "activated": "OSD ଖାତା ସକ୍ରିୟ ହେଲା।",
+    "deactivated": "OSD ଖାତା ନିଷ୍କ୍ରିୟ ହେଲା।",
+    "delete": "ଡିଲିଟ୍",
+    "deleteConfirm": "{name} ({username}) ସ୍ଥାୟୀ ଭାବରେ ଡିଲିଟ୍ କରିବେ? ଏହା ପୁଣି ଫେରାଇ ହେବ ନାହିଁ।",
+    "deleted": "OSD ଖାତା ସ୍ଥାୟୀ ଭାବରେ ଡିଲିଟ୍ ହେଲା।"
   }
 }

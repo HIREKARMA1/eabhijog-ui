@@ -12,6 +12,7 @@ type PageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 };
+const PAGE_SIZE = 10;
 
 export default async function OsdGrievancesPage({ params, searchParams }: PageProps) {
   const { slug: rawSlug } = await params;
@@ -26,8 +27,13 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
   for (const [key, value] of Object.entries(query)) {
     if (value) filters[key] = value;
   }
+  const currentPage = Math.max(1, Number(filters.page || "1") || 1);
+  const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const qs = new URLSearchParams(filters).toString();
+  const requestFilters = new URLSearchParams(filters);
+  requestFilters.set("limit", String(PAGE_SIZE));
+  requestFilters.set("offset", String(offset));
+  const qs = requestFilters.toString();
   const path = qs
     ? `/api/osd/${slug}/grievances?${qs}`
     : `/api/osd/${slug}/grievances`;
@@ -56,6 +62,8 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
           basePath={`/osd/${slug}/grievances`}
           detailHrefPrefix={`/osd/${slug}/grievance/`}
           hideOsdCategory
+          currentPage={currentPage}
+          pageSize={PAGE_SIZE}
         />
       </Suspense>
     </OsdLayout>

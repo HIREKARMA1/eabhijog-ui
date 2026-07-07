@@ -1,24 +1,22 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { AppShell } from "@/components/layout/AppShell";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { fetchCurrentUser, fetchProfile, updateProfile } from "@/lib/api/portal";
-import { buildPortalNav } from "@/lib/navigation/build-nav";
+import { ProfilePanel } from "@/components/profile/ProfilePanel";
+import { PortalShell } from "@/components/shell/PortalShell";
+import { fetchCurrentUser, fetchProfile } from "@/lib/api/portal";
+import { homePathFor, isOsdRole, isPortalAdmin, isPrivateSecretary, formatStaffRole } from "@/lib/auth/roles";
 import { useI18n } from "@/lib/i18n/context";
+import { buildNavForStaff } from "@/lib/navigation/build-nav";
 import type { AuthStaff, StaffAccount } from "@/types/api";
-import { homePathFor, isPortalAdmin } from "@/lib/auth/roles";
 
 export default function ProfilePage() {
   const { t } = useI18n();
+  const router = useRouter();
   const [staff, setStaff] = useState<AuthStaff | null>(null);
   const [account, setAccount] = useState<StaffAccount | null>(null);
-  const [message, setMessage] = useState("");
-
-  const router = useRouter();
 
   useEffect(() => {
     Promise.all([fetchCurrentUser(), fetchProfile()])
@@ -29,37 +27,42 @@ export default function ProfilePage() {
       .catch(() => router.replace("/login"));
   }, [router]);
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!account) return;
-    const res = await updateProfile({
-      name: account.name,
-      designation: account.designation,
-      district: account.district,
-      email: account.email,
-      phone: account.phone,
-    });
-    setAccount(res.data);
-    setMessage(t("auth", "profile.success"));
+  if (!staff || !account) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
+      </div>
+    );
   }
 
-  if (!staff || !account) return null;
-
-  const nav = isPortalAdmin(staff)
-    ? buildPortalNav(staff, 0, {})
-    : [{ href: homePathFor(staff), labelKey: "nav.dashboard" }];
+  const homeHref = homePathFor(staff);
+  const nav = buildNavForStaff(staff);
+  const dashboardLabel = isPrivateSecretary(staff)
+    ? t("ps", "title")
+    : isPortalAdmin(staff)
+      ? t("dashboard", "nav.dashboard")
+      : (staff.osd_category ?? formatStaffRole(staff.role));
 
   return (
-    <AppShell staff={staff} homeHref={homePathFor(staff)} nav={nav} breadcrumb="Profile">
-      <form onSubmit={onSubmit} className="mx-auto max-w-lg space-y-4 rounded-xl border border-border bg-white p-5">
-        <h1 className="text-xl font-bold">{t("auth", "profile.title")}</h1>
-        <Input label="Name" value={account.name} onChange={(e) => setAccount({ ...account, name: e.target.value })} />
-        <Input label="Email" value={account.email} onChange={(e) => setAccount({ ...account, email: e.target.value })} />
-        <Input label="Designation" value={account.designation} onChange={(e) => setAccount({ ...account, designation: e.target.value })} />
-        <Input label="District" value={account.district} onChange={(e) => setAccount({ ...account, district: e.target.value })} />
-        {message ? <p className="text-sm text-success">{message}</p> : null}
-        <Button type="submit">{t("auth", "profile.save")}</Button>
-      </form>
-    </AppShell>
+    <PortalShell
+      staff={staff}
+      homeHref={homeHref}
+      nav={nav}
+      breadcrumb={
+        <>
+          <Link href={homeHref} className="hover:text-slate-900 hover:underline">
+            {dashboardLabel}
+          </Link>
+          {" > "}
+          <strong className="text-slate-900">{t("common", "actions.profile")}</strong>
+        </>
+      }
+    >
+      <ProfilePanel
+        key={account.id}
+        initialAccount={account}
+        isOsd={isOsdRole(account.role)}
+      />
+    </PortalShell>
   );
 }
