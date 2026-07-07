@@ -48,7 +48,11 @@
     "high": "High",
     "medium": "Medium",
     "low": "Low",
-    "highPriority": "High Priority"
+    "highPriority": "High Priority",
+    "button": "Filters",
+    "more": "More filters",
+    "less": "Less filters",
+    "reset": "Reset"
   },
   "analytics": {
     "messagesToday": "Messages Today",
@@ -82,6 +86,41 @@
   },
   "nav": {
     "dashboard": "Dashboard",
-    "grievances": "Grievances"
+    "grievances": "Grievances",
+    "osd": "OSD Accounts"
+  },
+  "osd": {
+    "title": "OSD Accounts",
+    "subtitle": "Manage Officer on Special Duty logins for Commerce & Transport, Steel & Mines, and Ganjam District.",
+    "allDesks": "All desks",
+    "add": "Add OSD account",
+    "edit": "Edit OSD account",
+    "create": "Create account",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "username": "Username",
+    "password": "Initial password",
+    "newPassword": "New password (optional)",
+    "desk": "OSD desk",
+    "fullName": "Full name",
+    "email": "Official email",
+    "designation": "Designation",
+    "district": "District / scope",
+    "phone": "Phone",
+    "whatsappAlerts": "Send WhatsApp alerts for new grievances in this category",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "empty": "No OSD accounts found for this desk.",
+    "created": "OSD account created.",
+    "updated": "OSD account updated.",
+    "activated": "OSD account activated.",
+    "deactivated": "OSD account deactivated.",
+    "delete": "Delete",
+    "deleteConfirm": "Permanently delete {name} ({username})? This cannot be undone.",
+    "deleted": "OSD account permanently deleted."
   }
 }
