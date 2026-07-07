@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { useI18n } from "@/lib/i18n/context";
 
 type KpiGridProps = {
-  items: Array<{ labelKey: string; value: number | string }>;
+  items: Array<{ labelKey: string; value: number | string | null | undefined }>;
 };
 
 export function KpiGrid({ items }: KpiGridProps) {
@@ -16,7 +16,7 @@ export function KpiGrid({ items }: KpiGridProps) {
           <p className="text-xs font-medium tracking-wide text-text-muted">
             {t("dashboard", item.labelKey)}
           </p>
-          <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{item.value}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-slate-900">{item.value ?? 0}</p>
         </Card>
       ))}
     </div>
