@@ -1,7 +1,11 @@
 import type { IconName } from "@/components/icons/Icon";
+import {
+  isPortalAdmin,
+  isPrivateSecretary,
+  isStaffManager,
+  isSuperAdmin,
+} from "@/lib/auth/roles";
 import type { AuthStaff } from "@/types/api";
-import { isPortalAdmin, isStaffManager, isSuperAdmin } from "@/lib/auth/roles";
-
 export type NavItem = {
   href: string;
   labelKey: string;
@@ -76,5 +80,21 @@ export function buildPsNav(): NavItem[] {
       section: "nav.main",
     },
     { href: "/ps/grievances", labelKey: "ps.nav.grievances", icon: "grievances" },
+    { href: "/ps/osd", labelKey: "ps.nav.osd", icon: "staff" },
   ];
+}
+
+export function buildNavForStaff(
+  staff: AuthStaff,
+  opts: { pendingCount?: number; osdSlugs?: Record<string, string> } = {},
+): NavItem[] {
+  const { pendingCount = 0, osdSlugs = {} } = opts;
+
+  if (isPortalAdmin(staff)) {
+    return buildPortalNav(staff, pendingCount, osdSlugs);
+  }
+  if (isPrivateSecretary(staff)) {
+    return buildPsNav();
+  }
+  return buildOsdNav(staff.dashboard_slug, pendingCount, staff);
 }

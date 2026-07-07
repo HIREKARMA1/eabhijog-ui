@@ -48,7 +48,11 @@
     "high": "उच्च",
     "medium": "मध्यम",
     "low": "निम्न",
-    "highPriority": "उच्च प्राथमिकता"
+    "highPriority": "उच्च प्राथमिकता",
+    "button": "फ़िल्टर",
+    "more": "और फ़िल्टर",
+    "less": "कम फ़िल्टर",
+    "reset": "रीसेट"
   },
   "analytics": {
     "messagesToday": "आज के संदेश",
@@ -82,6 +86,41 @@
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
-    "grievances": "शिकायतें"
+    "grievances": "शिकायतें",
+    "osd": "OSD खाते"
+  },
+  "osd": {
+    "title": "OSD खाते",
+    "subtitle": "Commerce & Transport, Steel & Mines और Ganjam District के OSD लॉगिन प्रबंधित करें।",
+    "allDesks": "सभी डेस्क",
+    "add": "OSD खाता जोड़ें",
+    "edit": "OSD खाता संपादित करें",
+    "create": "खाता बनाएं",
+    "save": "परिवर्तन सहेजें",
+    "cancel": "रद्द करें",
+    "username": "उपयोगकर्ता नाम",
+    "password": "प्रारंभिक पासवर्ड",
+    "newPassword": "नया पासवर्ड (वैकल्पिक)",
+    "desk": "OSD डेस्क",
+    "fullName": "पूरा नाम",
+    "email": "आधिकारिक ईमेल",
+    "designation": "पदनाम",
+    "district": "जिला / क्षेत्र",
+    "phone": "फ़ोन",
+    "whatsappAlerts": "इस श्रेणी में नई शिकायतों के लिए WhatsApp अलर्ट भेजें",
+    "status": "स्थिति",
+    "actions": "कार्रवाई",
+    "active": "सक्रिय",
+    "inactive": "निष्क्रिय",
+    "activate": "सक्रिय करें",
+    "deactivate": "निष्क्रिय करें",
+    "empty": "इस डेस्क के लिए कोई OSD खाता नहीं मिला।",
+    "created": "OSD खाता बनाया गया।",
+    "updated": "OSD खाता अपडेट हो गया।",
+    "activated": "OSD खाता सक्रिय हो गया।",
+    "deactivated": "OSD खाता निष्क्रिय हो गया।",
+    "delete": "हटाएं",
+    "deleteConfirm": "{name} ({username}) को स्थायी रूप से हटाएं? यह वापस नहीं किया जा सकता।",
+    "deleted": "OSD खाता स्थायी रूप से हटा दिया गया।"
   }
 }

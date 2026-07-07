@@ -228,6 +228,10 @@ export async function deactivateStaffAccount(id: number) {
   return apiRequest<null>(`/api/staff/${id}`, { method: "DELETE" });
 }
 
+export async function deleteStaffAccountPermanently(id: number) {
+  return apiRequest<StaffAccount>(`/api/staff/${id}/permanent`, { method: "DELETE" });
+}
+
 export async function activateStaffAccount(id: number) {
   return apiRequest<StaffAccount>(`/api/staff/${id}/activate`, { method: "POST" });
 }
