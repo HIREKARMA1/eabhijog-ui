@@ -48,6 +48,9 @@
     "clear": "साफ़ करें"
   },
   "grievance": {
+    "citizen": "नागरिक",
+    "citizenName": "नागरिक का नाम",
+    "whatsappNumber": "WhatsApp नंबर",
     "detail": "शिकायत विवरण",
     "timeline": "समयरेखा",
     "audit": "ऑडिट ट्रेल",
@@ -57,7 +60,20 @@
     "updateStatus": "स्थिति अपडेट करें",
     "forward": "विभाग को अग्रेषित",
     "remarks": "टिप्पणी",
-    "priority": "प्राथमिकता"
+    "priority": "प्राथमिकता",
+    "category": "श्रेणी",
+    "district": "जिला",
+    "constituency": "निर्वाचन क्षेत्र",
+    "department": "विभाग",
+    "assignedOsd": "नियुक्त OSD",
+    "status": "स्थिति",
+    "received": "प्राप्ति तिथि",
+    "lastMessageAt": "अंतिम संदेश समय",
+    "lastUpdated": "अंतिम अपडेट",
+    "responseFrom": "प्रतिक्रिया प्राप्त",
+    "conversationCount": "वार्तालाप संख्या",
+    "resolutionTime": "समाधान समय",
+    "daysPending": "लंबित दिन"
   },
   "analytics": {
     "title": "रिपोर्ट और विश्लेषण",

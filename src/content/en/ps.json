@@ -65,7 +65,20 @@
   },
   "grievances": {
     "title": "Grievance Registry",
-    "total": "{count} total"
+    "total": "{count} total",
+    "table": {
+      "grievanceId": "Grievance ID",
+      "citizenName": "Citizen Name",
+      "category": "Category",
+      "district": "District",
+      "assignedOsd": "Assigned OSD",
+      "currentStatus": "Current Status",
+      "priority": "Priority",
+      "daysPending": "Days Pending",
+      "lastUpdated": "Last Updated",
+      "actions": "Actions",
+      "view": "View"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",

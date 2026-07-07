@@ -49,6 +49,8 @@
   },
   "grievance": {
     "citizen": "Citizen",
+    "citizenName": "Citizen name",
+    "whatsappNumber": "WhatsApp number",
     "detail": "Grievance detail",
     "timeline": "Timeline",
     "audit": "Audit trail",
@@ -58,7 +60,20 @@
     "updateStatus": "Update status",
     "forward": "Forward to department",
     "remarks": "Remarks",
-    "priority": "Priority"
+    "priority": "Priority",
+    "category": "Category",
+    "district": "District",
+    "constituency": "Constituency",
+    "department": "Department",
+    "assignedOsd": "Assigned OSD",
+    "status": "Status",
+    "received": "Date received",
+    "lastMessageAt": "Last message time",
+    "lastUpdated": "Last updated",
+    "responseFrom": "Response received from",
+    "conversationCount": "Conversation count",
+    "resolutionTime": "Resolution time",
+    "daysPending": "Days pending"
   },
   "forwardForm": {
     "recipient": "Recipient",

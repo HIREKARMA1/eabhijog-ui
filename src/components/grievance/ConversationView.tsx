@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/Input";
 import { useI18n } from "@/lib/i18n/context";
 import { Textarea } from "@/components/ui/Textarea";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
+import {
+  cell,
+  formatDateTime,
+  formatDaysPending,
+  formatResolutionHours,
+  formatStatusLabel,
+} from "@/lib/grievance/display";
 import type { GrievanceConversationData } from "@/types/api";
 
 type Props = {
@@ -112,38 +119,70 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
         <div className="rounded-lg border border-border p-4">
           <h2 className="font-medium">{g.reference_number}</h2>
           <p className="text-sm text-text-muted">{g.title}</p>
-          <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+          <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
-              <dt className="text-text-muted">Category</dt>
+              <dt className="text-text-muted">{t("dashboard", "grievance.citizenName")}</dt>
+              <dd>{cell(g.citizen_name)}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.whatsappNumber")}</dt>
+              <dd>{g.citizen_phone}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.category")}</dt>
               <dd>{g.category}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">OSD</dt>
-              <dd>{g.osd_category}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.assignedOsd")}</dt>
+              <dd>{cell(g.assigned_osd || g.osd_category)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">District</dt>
-              <dd>{g.district}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.district")}</dt>
+              <dd>{cell(g.district)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Constituency</dt>
-              <dd>{g.constituency || "—"}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.constituency")}</dt>
+              <dd>{cell(g.constituency)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Department</dt>
-              <dd>{g.department || "—"}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.department")}</dt>
+              <dd>{cell(g.department)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Priority</dt>
-              <dd>{g.priority}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.priority")}</dt>
+              <dd className="capitalize">{g.priority}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Status</dt>
-              <dd>{g.status.replace(/_/g, " ")}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.status")}</dt>
+              <dd>{formatStatusLabel(g.status)}</dd>
             </div>
             <div>
-              <dt className="text-text-muted">Received</dt>
-              <dd>{new Date(g.created_at).toLocaleString()}</dd>
+              <dt className="text-text-muted">{t("dashboard", "grievance.daysPending")}</dt>
+              <dd>{formatDaysPending(g.created_at, g.status)}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.received")}</dt>
+              <dd>{formatDateTime(g.created_at)}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.lastMessageAt")}</dt>
+              <dd>{formatDateTime(g.last_message_at)}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.lastUpdated")}</dt>
+              <dd>{formatDateTime(g.updated_at)}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.responseFrom")}</dt>
+              <dd>{cell(g.response_from)}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.conversationCount")}</dt>
+              <dd>{g.conversation_count}</dd>
+            </div>
+            <div>
+              <dt className="text-text-muted">{t("dashboard", "grievance.resolutionTime")}</dt>
+              <dd>{formatResolutionHours(g.resolution_hours)}</dd>
             </div>
           </dl>
         </div>
@@ -155,7 +194,7 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
         ) : null}
 
         <div className="rounded-lg border border-border p-4">
-          <h3 className="text-sm font-medium">Timeline</h3>
+          <h3 className="text-sm font-medium">{t("dashboard", "grievance.timeline")}</h3>
           <ul className="mt-2 max-h-40 space-y-2 overflow-y-auto text-sm">
             {data.timeline.map((e) => (
               <li key={e.id} className="border-l-2 border-brand/30 pl-3">

@@ -65,7 +65,20 @@
   },
   "grievances": {
     "title": "शिकायत रजिस्टर",
-    "total": "कुल {count}"
+    "total": "कुल {count}",
+    "table": {
+      "grievanceId": "शिकायत ID",
+      "citizenName": "नागरिक का नाम",
+      "category": "श्रेणी",
+      "district": "जिला",
+      "assignedOsd": "नियुक्त OSD",
+      "currentStatus": "वर्तमान स्थिति",
+      "priority": "प्राथमिकता",
+      "daysPending": "लंबित दिन",
+      "lastUpdated": "अंतिम अपडेट",
+      "actions": "कार्रवाई",
+      "view": "देखें"
+    }
   },
   "nav": {
     "dashboard": "डैशबोर्ड",

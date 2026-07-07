@@ -48,6 +48,9 @@
     "clear": "ସଫା"
   },
   "grievance": {
+    "citizen": "ନାଗରିକ",
+    "citizenName": "ନାଗରିକଙ୍କ ନାମ",
+    "whatsappNumber": "WhatsApp ନମ୍ବର",
     "detail": "ଅଭିଯୋଗ ବିବରଣୀ",
     "timeline": "ସମୟରେଖା",
     "audit": "ଅଡିଟ୍ ଟ୍ରେଲ୍",
@@ -57,7 +60,20 @@
     "updateStatus": "ସ୍ଥିତି ଅପଡେଟ୍",
     "forward": "ବିଭାଗକୁ ପ୍ରେରଣ",
     "remarks": "ମନ୍ତବ୍ୟ",
-    "priority": "ଅଗ୍ରାଧିକାର"
+    "priority": "ଅଗ୍ରାଧିକାର",
+    "category": "ବର୍ଗ",
+    "district": "ଜିଲ୍ଲା",
+    "constituency": "ନିର୍ବାଚନ ମଣ୍ଡଳୀ",
+    "department": "ବିଭାଗ",
+    "assignedOsd": "ନିୟୋଜିତ OSD",
+    "status": "ସ୍ଥିତି",
+    "received": "ଗ୍ରହଣ ତାରିଖ",
+    "lastMessageAt": "ଶେଷ ବାର୍ତ୍ତା ସମୟ",
+    "lastUpdated": "ଶେଷ ଅପଡେଟ୍",
+    "responseFrom": "ପ୍ରତିକ୍ରିୟା ଗ୍ରହୀ",
+    "conversationCount": "କଥୋପକଥନ ସଂଖ୍ୟା",
+    "resolutionTime": "ସମାଧାନ ସମୟ",
+    "daysPending": "ବିଳମ୍ବିତ ଦିନ"
   },
   "forwardForm": {
     "recipient": "ଗ୍ରହୀ",
