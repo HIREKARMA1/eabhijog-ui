@@ -4,13 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Icon, type IconName } from "@/components/icons/Icon";
-import { BrandMark } from "@/components/shell/BrandMark";
+import { SidebarProfileMenu } from "@/components/shell/SidebarProfileMenu";
 import { useI18n } from "@/lib/i18n/context";
 import type { NavItem } from "@/lib/navigation/build-nav";
 import { cn } from "@/lib/utils/cn";
 
 type SidebarProps = {
-  homeHref: string;
   nav: NavItem[];
   staffName: string;
   staffRole: string;
@@ -20,7 +19,6 @@ type SidebarProps = {
 };
 
 export function Sidebar({
-  homeHref,
   nav,
   staffName,
   staffRole,
@@ -44,15 +42,12 @@ export function Sidebar({
       />
       <aside
         className={cn(
-          "portal-sidebar fixed inset-y-0 left-0 z-50 flex w-[16.25rem] flex-col border-r border-navy-800 bg-navy-900 transition-transform lg:static lg:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full",
+          "portal-sidebar fixed bottom-0 left-0 top-0 z-50 flex flex-col overflow-hidden border-r border-navy-800 bg-navy-900 transition-transform lg:top-[var(--portal-navbar-height)]",
+          "w-[var(--portal-sidebar-width)]",
+          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
-        <div className="border-b border-navy-800 px-4 py-4">
-          <BrandMark href={homeHref} />
-        </div>
-
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <nav className="flex-1 overflow-hidden px-3 py-4 pt-5">
           {nav.map((item) => {
             const section =
               item.section && item.section !== lastSection ? item.section : null;
@@ -103,19 +98,14 @@ export function Sidebar({
           })}
         </nav>
 
-        <Link
-          href="/profile"
-          onClick={onClose}
-          className="sidebar-nav-link mx-3 mb-4 flex items-center gap-3 rounded-lg border border-navy-800 bg-navy-950/40 px-3 py-3 transition-colors hover:bg-navy-800"
-        >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-700 text-xs font-semibold text-white">
-            {staffInitials}
-          </span>
-          <span className="min-w-0">
-            <span className="sidebar-brand-title block truncate text-sm font-medium">{staffName}</span>
-            <span className="sidebar-role block truncate text-xs">{staffRole}</span>
-          </span>
-        </Link>
+        <div className="mt-auto shrink-0">
+          <SidebarProfileMenu
+            staffName={staffName}
+            staffRole={staffRole}
+            staffInitials={staffInitials}
+            onNavigate={onClose}
+          />
+        </div>
       </aside>
     </>
   );
