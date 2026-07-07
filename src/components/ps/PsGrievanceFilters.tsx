@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/Input";
@@ -17,6 +18,7 @@ type Props = {
 export function PsGrievanceFilters({ basePath, constants, current, hideOsdCategory = false }: Props) {
   const router = useRouter();
   const { t } = useI18n();
+  const [isPending, startTransition] = useTransition();
   const isCustomRange = current.date_preset === "custom";
 
   function navigate(next: Record<string, string>) {
@@ -24,7 +26,9 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
     for (const [key, value] of Object.entries(next)) {
       if (value) params.set(key, value);
     }
-    router.push(`${basePath}?${params.toString()}`);
+    startTransition(() => {
+      router.replace(`${basePath}?${params.toString()}`);
+    });
   }
 
   function update(key: string, value: string) {
@@ -46,12 +50,16 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-surface-muted/50 p-4">
-      <div className="flex flex-wrap gap-3">
+    <div
+      className="space-y-3 rounded-lg border border-border bg-surface-muted/50 p-4 transition-opacity duration-150"
+      aria-busy={isPending}
+    >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Select
+          disabled={isPending}
           value={current.date_preset || ""}
           onChange={(e) => update("date_preset", e.target.value)}
-          className="min-w-[140px]"
+          className="w-full sm:min-w-35"
           options={[
             { value: "", label: t("ps", "filters.allDates") },
             { value: "today", label: t("ps", "filters.today") },
@@ -64,27 +72,30 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
         {isCustomRange ? (
           <>
             <Input
+              disabled={isPending}
               type="date"
               name="date_from"
               value={current.date_from || ""}
               onChange={(e) => update("date_from", e.target.value)}
-              className="min-w-[140px] py-2"
+              className="w-full py-2 sm:min-w-35"
               aria-label="From date"
             />
             <Input
+              disabled={isPending}
               type="date"
               name="date_to"
               value={current.date_to || ""}
               onChange={(e) => update("date_to", e.target.value)}
-              className="min-w-[140px] py-2"
+              className="w-full py-2 sm:min-w-35"
               aria-label="To date"
             />
           </>
         ) : null}
         <Select
+          disabled={isPending}
           value={current.category || ""}
           onChange={(e) => update("category", e.target.value)}
-          className="min-w-[160px]"
+          className="w-full sm:min-w-40"
           options={[
             { value: "", label: t("ps", "filters.allCategories") },
             ...constants.grievance_categories.map((c) => ({ value: c, label: c })),
@@ -92,9 +103,10 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
         />
         {!hideOsdCategory ? (
           <Select
+            disabled={isPending}
             value={current.osd_category || ""}
             onChange={(e) => update("osd_category", e.target.value)}
-            className="min-w-[160px]"
+            className="w-full sm:min-w-40"
             options={[
               { value: "", label: t("ps", "filters.allOsds") },
               ...constants.osd_categories.map((c) => ({ value: c, label: `OSD ${c}` })),
@@ -102,9 +114,10 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           />
         ) : null}
         <Select
+          disabled={isPending}
           value={current.status || ""}
           onChange={(e) => update("status", e.target.value)}
-          className="min-w-[160px]"
+          className="w-full sm:min-w-40"
           options={[
             { value: "", label: t("ps", "filters.allStatuses") },
             ...constants.ps_status_buckets.map((s) => ({
@@ -114,36 +127,40 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           ]}
         />
         <Select
+          disabled={isPending}
           value={current.district || ""}
           onChange={(e) => update("district", e.target.value)}
-          className="min-w-[140px]"
+          className="w-full sm:min-w-35"
           options={[
             { value: "", label: t("ps", "filters.allDistricts") },
             ...constants.districts.map((d) => ({ value: d, label: d })),
           ]}
         />
         <Select
+          disabled={isPending}
           value={current.constituency || ""}
           onChange={(e) => update("constituency", e.target.value)}
-          className="min-w-[140px]"
+          className="w-full sm:min-w-35"
           options={[
             { value: "", label: t("ps", "filters.allConstituencies") },
             ...constants.constituencies.map((c) => ({ value: c, label: c })),
           ]}
         />
         <Select
+          disabled={isPending}
           value={current.department || ""}
           onChange={(e) => update("department", e.target.value)}
-          className="min-w-[160px]"
+          className="w-full sm:min-w-40"
           options={[
             { value: "", label: t("ps", "filters.allDepartments") },
             ...(constants.departments ?? []).map((d) => ({ value: d, label: d })),
           ]}
         />
         <Select
+          disabled={isPending}
           value={current.priority || ""}
           onChange={(e) => update("priority", e.target.value)}
-          className="min-w-[120px]"
+          className="w-full sm:min-w-30"
           options={[
             { value: "", label: t("ps", "filters.allPriorities") },
             { value: "critical", label: t("ps", "filters.critical") },
@@ -154,9 +171,10 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
           ]}
         />
         <Select
+          disabled={isPending}
           value={current.overdue || ""}
           onChange={(e) => update("overdue", e.target.value)}
-          className="min-w-[140px]"
+          className="w-full sm:min-w-35"
           options={[
             { value: "", label: t("ps", "filters.allCases") },
             { value: "true", label: t("ps", "filters.overdueOnly") },

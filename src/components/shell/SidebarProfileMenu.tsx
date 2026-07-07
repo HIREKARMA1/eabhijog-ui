@@ -54,7 +54,7 @@ export function SidebarProfileMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-lg border border-navy-700 bg-navy-950 shadow-lg"
+          className="absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-lg border border-navy-700 bg-navy-950 shadow-lg transition-all duration-150 ease-out"
         >
           <Link
             href="/profile"
@@ -81,7 +81,7 @@ export function SidebarProfileMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         className={cn(
-          "sidebar-nav-link flex w-full items-center gap-3 rounded-lg border border-navy-800 bg-navy-950/40 px-3 py-3 text-left transition-colors hover:bg-navy-800",
+          "sidebar-nav-link flex w-full items-center gap-3 rounded-lg border border-navy-800 bg-navy-950/40 px-3 py-3 text-left transition-all duration-150 ease-out hover:bg-navy-800 active:scale-[0.99]",
           open && "bg-navy-800",
         )}
       >
