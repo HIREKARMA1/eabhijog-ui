@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils/cn";
 
 type StatCardProps = {
   label: string;
-  value: string | number;
+  value: string | number | null | undefined;
   className?: string;
   href?: string;
 };
 
 export function StatCard({ label, value, className, href }: StatCardProps) {
+  const displayValue = value ?? 0;
   const card = (
     <div
       className={cn(
@@ -20,7 +21,7 @@ export function StatCard({ label, value, className, href }: StatCardProps) {
       )}
     >
       <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">{label}</p>
-      <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900">{value}</p>
+      <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900">{displayValue}</p>
     </div>
   );
 

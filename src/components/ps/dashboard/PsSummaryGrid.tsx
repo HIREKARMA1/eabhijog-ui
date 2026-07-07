@@ -50,7 +50,7 @@ export function PsSummaryGrid({ summary }: { summary: PsSummaryCards }) {
         <StatCard
           key={card.key}
           label={t("ps", `summary.${card.labelKey}`)}
-          value={summary[card.key]}
+          value={summary[card.key] ?? 0}
           href={card.href}
         />
       ))}
