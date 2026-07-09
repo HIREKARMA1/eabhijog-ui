@@ -6,23 +6,24 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
+import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { respondToGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n/context";
-import type { GrievanceRow } from "@/types/api";
+import type { GrievanceRow, JourneyEvent } from "@/types/api";
 
 type PortalGrievanceDetailProps = {
   grievance: GrievanceRow;
   allowedStatuses: string[];
-  timeline: Array<{ title: string; description: string; created_at: string; actor_name: string | null }>;
+  journey: JourneyEvent[];
 };
 
 export function PortalGrievanceDetail({
   grievance,
   allowedStatuses,
-  timeline,
+  journey,
 }: PortalGrievanceDetailProps) {
   const { t } = useI18n();
   const router = useRouter();
@@ -96,19 +97,7 @@ export function PortalGrievanceDetail({
         </form>
       </Card>
 
-      <Card title={t("dashboard", "grievance.timeline")} className="lg:col-span-3">
-        <ul className="space-y-3">
-          {timeline.map((event, idx) => (
-            <li key={`${event.created_at}-${idx}`} className="border-l-2 border-border pl-4">
-              <p className="font-semibold text-slate-900">{event.title}</p>
-              <p className="text-sm text-text-muted">{event.description}</p>
-              <p className="mt-1 text-xs text-text-muted">
-                {event.actor_name ?? "System"} · {new Date(event.created_at).toLocaleString()}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </Card>
+      <GrievanceJourneyTimeline events={journey} className="lg:col-span-3" />
     </div>
   );
 }

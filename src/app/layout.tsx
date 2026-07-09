@@ -27,8 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${notoOriya.variable} ${notoHindi.variable} h-full`}>
-      <body className="min-h-full antialiased">
+    <html
+      lang="en"
+      className={`${notoOriya.variable} ${notoHindi.variable} h-full`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -80,6 +80,7 @@ export function buildPsNav(): NavItem[] {
       section: "nav.main",
     },
     { href: "/ps/grievances", labelKey: "ps.nav.grievances", icon: "grievances" },
+    { href: "/ps/taxonomy", labelKey: "ps.nav.taxonomy", icon: "departments" },
     { href: "/ps/osd", labelKey: "ps.nav.osd", icon: "staff" },
   ];
 }

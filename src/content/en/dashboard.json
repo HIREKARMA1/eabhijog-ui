@@ -75,6 +75,15 @@
     "resolutionTime": "Resolution time",
     "daysPending": "Days pending"
   },
+  "journey": {
+    "title": "Grievance Journey",
+    "date": "Date",
+    "time": "Time",
+    "user": "User",
+    "action": "Action",
+    "remarks": "Remarks",
+    "empty": "No journey events recorded yet."
+  },
   "forwardForm": {
     "recipient": "Recipient",
     "addDepartmentRecipient": "Add department recipient",
@@ -108,16 +117,29 @@
   "departments": {
     "title": "Department contacts",
     "create": "Add department",
+    "category": "Service category",
     "department": "Department",
+    "subDepartment": "Sub-department",
     "officerName": "Officer name",
     "email": "Email",
+    "whatsappNumber": "WhatsApp number",
+    "isOther": "Mark as Other (manual forward only)",
     "save": "Save contact",
     "update": "Update contact",
     "empty": "No department contacts yet.",
     "active": "Active",
     "inactive": "Inactive",
     "deactivate": "Deactivate",
-    "activate": "Activate"
+    "activate": "Activate",
+    "bulkTitle": "Bulk upload (CSV)",
+    "bulkHint": "CSV columns: department, sub_department, officer_name, email, whatsapp_number, is_other, sort_order, is_active. For PS bulk across categories include osd_category.",
+    "bulkUpload": "Import CSV",
+    "bulkResult": "Imported: {created} created, {updated} updated, {skipped} skipped.",
+    "treeTitle": "Department hierarchy",
+    "organization": "Organization / office",
+    "addOrg": "Add organization",
+    "updateOrg": "Update organization",
+    "treeBulkHint": "CSV: department, sub_department, organization, officer_name, email, whatsapp_number"
   },
   "osdSummary": {
     "assignedToday": "Assigned today",
