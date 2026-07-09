@@ -20,6 +20,7 @@ type RecipientRow = {
   department: string;
   officer_name: string;
   email: string;
+  whatsapp_number: string;
 };
 
 type OsdForwardFormProps = {
@@ -40,6 +41,7 @@ function newDepartmentRow(
     department: contact?.department ?? "",
     officer_name: contact?.officer_name ?? "",
     email: contact?.email ?? "",
+    whatsapp_number: contact?.whatsapp_number ?? "",
   };
 }
 
@@ -51,6 +53,7 @@ function newManualRow(): RecipientRow {
     department: "",
     officer_name: "",
     email: "",
+    whatsapp_number: "",
   };
 }
 
@@ -90,6 +93,7 @@ export function OsdForwardForm({
       department: contact.department,
       officer_name: contact.officer_name,
       email: contact.email,
+      whatsapp_number: contact.whatsapp_number,
     });
   }
 
@@ -115,6 +119,7 @@ export function OsdForwardForm({
         department: row.department.trim(),
         officer_name: row.officer_name.trim(),
         email: row.email.trim(),
+        whatsapp_number: row.whatsapp_number.trim(),
       }))
       .filter((row) => row.email);
 
@@ -160,7 +165,7 @@ export function OsdForwardForm({
                 ) : null}
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-4">
                 {row.mode === "department" && suggestedRecipients.length > 0 ? (
                   <Select
                     label={t("dashboard", "departments.department")}
@@ -192,6 +197,14 @@ export function OsdForwardForm({
                   value={row.email}
                   onChange={(e) => updateRow(row.key, { email: e.target.value, mode: "manual" })}
                   required
+                />
+                <Input
+                  label={t("dashboard", "departments.whatsappNumber")}
+                  value={row.whatsapp_number}
+                  onChange={(e) =>
+                    updateRow(row.key, { whatsapp_number: e.target.value, mode: "manual" })
+                  }
+                  placeholder="+91XXXXXXXXXX"
                 />
               </div>
             </div>

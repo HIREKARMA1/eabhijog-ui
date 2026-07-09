@@ -75,6 +75,15 @@
     "resolutionTime": "ସମାଧାନ ସମୟ",
     "daysPending": "ବିଳମ୍ବିତ ଦିନ"
   },
+  "journey": {
+    "title": "ଅଭିଯୋଗ ଯାତ୍ରା",
+    "date": "ତାରିଖ",
+    "time": "ସମୟ",
+    "user": "ବ୍ୟବହାରକାରୀ",
+    "action": "କାର୍ଯ୍ୟ",
+    "remarks": "ମନ୍ତବ୍ୟ",
+    "empty": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଯାତ୍ରା ଘଟଣା ରେକର୍ଡ ହୋଇନାହିଁ।"
+  },
   "forwardForm": {
     "recipient": "ଗ୍ରହୀ",
     "addDepartmentRecipient": "ବିଭାଗ ଗ୍ରହୀ ଯୋଡନ୍ତୁ",
@@ -108,16 +117,24 @@
   "departments": {
     "title": "ବିଭାଗ ଯୋଗାଯୋଗ",
     "create": "ବିଭାଗ ଯୋଡନ୍ତୁ",
+    "category": "ସେବା ବର୍ଗ",
     "department": "ବିଭାଗ",
+    "subDepartment": "ଉପ-ବିଭାଗ",
     "officerName": "ଅଧିକାରୀ ନାମ",
     "email": "ଇମେଲ୍",
+    "whatsappNumber": "WhatsApp ନମ୍ବର",
+    "isOther": "Other ଭାବେ ଚିହ୍ନଟ (କେବଳ ମାନୁଆଲ୍ ଫରୱାର୍ଡ)",
     "save": "ଯୋଗାଯୋଗ ସଞ୍ଚୟ",
     "update": "ଯୋଗାଯୋଗ ଅପଡେଟ୍",
     "empty": "କୌଣସି ବିଭାଗ ଯୋଗାଯୋଗ ନାହିଁ।",
     "active": "ସକ୍ରିୟ",
     "inactive": "ନିଷ୍କ୍ରିୟ",
     "deactivate": "ନିଷ୍କ୍ରିୟ",
-    "activate": "ସକ୍ରିୟ"
+    "activate": "ସକ୍ରିୟ",
+    "bulkTitle": "ବଲ୍କ ଅପଲୋଡ୍ (CSV)",
+    "bulkHint": "CSV କଲମ: department, sub_department, officer_name, email, whatsapp_number, is_other",
+    "bulkUpload": "CSV ଆମଦାନୀ",
+    "bulkResult": "ଆମଦାନୀ: {created} ସୃଷ୍ଟି, {updated} ଅପଡେଟ୍, {skipped} ଛାଡ଼ା ଗଲା।"
   },
   "osdSummary": {
     "assignedToday": "ଆଜି ନିଯୋଜିତ",

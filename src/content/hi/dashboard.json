@@ -75,6 +75,15 @@
     "resolutionTime": "समाधान समय",
     "daysPending": "लंबित दिन"
   },
+  "journey": {
+    "title": "शिकायत यात्रा",
+    "date": "तिथि",
+    "time": "समय",
+    "user": "उपयोगकर्ता",
+    "action": "कार्रवाई",
+    "remarks": "टिप्पणी",
+    "empty": "अभी तक कोई यात्रा घटना दर्ज नहीं है।"
+  },
   "analytics": {
     "title": "रिपोर्ट और विश्लेषण",
     "overview": "अवलोकन",
@@ -91,6 +100,21 @@
     "active": "सक्रिय",
     "inactive": "निष्क्रिय",
     "save": "खाता सहेजें",
+    "deactivate": "निष्क्रिय करें",
+    "activate": "सक्रिय करें"
+  },
+  "departments": {
+    "title": "विभाग संपर्क",
+    "create": "विभाग जोड़ें",
+    "department": "विभाग",
+    "officerName": "अधिकारी का नाम",
+    "email": "ईमेल",
+    "whatsappNumber": "WhatsApp नंबर",
+    "save": "संपर्क सहेजें",
+    "update": "संपर्क अपडेट करें",
+    "empty": "अभी तक कोई विभाग संपर्क नहीं है।",
+    "active": "सक्रिय",
+    "inactive": "निष्क्रिय",
     "deactivate": "निष्क्रिय करें",
     "activate": "सक्रिय करें"
   },

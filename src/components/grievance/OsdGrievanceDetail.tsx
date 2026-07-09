@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
+import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import { OsdForwardForm } from "@/components/grievance/OsdForwardForm";
 import Link from "next/link";
 import { Select } from "@/components/ui/Select";
@@ -13,7 +14,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { updateOsdStatus } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n/context";
-import type { GrievanceRow, OsdDepartmentContact } from "@/types/api";
+import type { GrievanceRow, JourneyEvent, OsdDepartmentContact } from "@/types/api";
 
 type OsdGrievanceDetailProps = {
   osdSlug: string;
@@ -21,7 +22,7 @@ type OsdGrievanceDetailProps = {
   allowedStatuses: string[];
   priorities: string[];
   suggestedRecipients: OsdDepartmentContact[];
-  timeline: Array<{ title: string; description: string; created_at: string }>;
+  journey: JourneyEvent[];
 };
 
 export function OsdGrievanceDetailView({
@@ -30,7 +31,7 @@ export function OsdGrievanceDetailView({
   allowedStatuses,
   priorities,
   suggestedRecipients,
-  timeline,
+  journey,
 }: OsdGrievanceDetailProps) {
   const { t } = useI18n();
   const router = useRouter();
@@ -112,16 +113,7 @@ export function OsdGrievanceDetailView({
         />
       </div>
 
-      <Card title={t("dashboard", "grievance.timeline")} className="lg:col-span-3">
-        <ul className="space-y-3">
-          {timeline.map((event, idx) => (
-            <li key={idx} className="border-l-2 border-border pl-4">
-              <p className="font-semibold">{event.title}</p>
-              <p className="text-sm text-text-muted">{event.description}</p>
-            </li>
-          ))}
-        </ul>
-      </Card>
+      <GrievanceJourneyTimeline events={journey} className="lg:col-span-3" />
     </div>
   );
 }

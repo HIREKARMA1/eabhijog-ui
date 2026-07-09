@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { useI18n } from "@/lib/i18n/context";
 import { Textarea } from "@/components/ui/Textarea";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
+import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import {
   cell,
   formatDateTime,
@@ -58,7 +59,8 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
   const g = data.grievance;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2">
       <div className="flex flex-col rounded-lg border border-border">
         <div className="border-b border-border bg-surface-muted px-4 py-3">
           <h2 className="font-medium">WhatsApp Conversation</h2>
@@ -194,20 +196,6 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
         ) : null}
 
         <div className="rounded-lg border border-border p-4">
-          <h3 className="text-sm font-medium">{t("dashboard", "grievance.timeline")}</h3>
-          <ul className="mt-2 max-h-40 space-y-2 overflow-y-auto text-sm">
-            {data.timeline.map((e) => (
-              <li key={e.id} className="border-l-2 border-brand/30 pl-3">
-                <p className="font-medium">{e.title}</p>
-                <p className="text-xs text-text-muted">
-                  {e.actor_name} · {new Date(e.created_at).toLocaleString()}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-lg border border-border p-4">
           <h3 className="text-sm font-medium">Internal Notes</h3>
           <ul className="mt-2 max-h-32 space-y-2 overflow-y-auto text-sm">
             {data.internal_notes.map((n) => (
@@ -233,6 +221,9 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
 
         {actionsPanel}
       </div>
+      </div>
+
+      <GrievanceJourneyTimeline events={data.journey ?? []} />
     </div>
   );
 }
