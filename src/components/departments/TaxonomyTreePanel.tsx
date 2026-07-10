@@ -90,11 +90,12 @@ function SpocFields({
         value={form.email}
         onChange={(e) => onChange({ ...form, email: e.target.value })}
       />
-      <Input
-        label={t("dashboard", "departments.whatsappNumber")}
-        value={form.whatsapp_number}
-        onChange={(e) => onChange({ ...form, whatsapp_number: e.target.value })}
-      />
+            <Input
+              label={t("dashboard", "departments.whatsappNumber")}
+              value={form.whatsapp_number}
+              onChange={(e) => onChange({ ...form, whatsapp_number: e.target.value })}
+              placeholder="+918144496407"
+            />
     </div>
   );
 }
