@@ -211,6 +211,7 @@ export type TaxonomyOrganization = {
   id: number;
   name: string;
   officer_name: string;
+  designation: string;
   email: string;
   whatsapp_number: string;
   sort_order: number;
@@ -221,6 +222,10 @@ export type TaxonomyOrganization = {
 export type TaxonomySubDepartment = {
   id: number;
   name: string;
+  officer_name: string;
+  designation: string;
+  email: string;
+  whatsapp_number: string;
   sort_order: number;
   is_other: boolean;
   is_active: boolean;
@@ -230,6 +235,10 @@ export type TaxonomySubDepartment = {
 export type TaxonomyDepartment = {
   id: number;
   name: string;
+  officer_name: string;
+  designation: string;
+  email: string;
+  whatsapp_number: string;
   sort_order: number;
   is_other: boolean;
   is_active: boolean;

@@ -16,7 +16,9 @@ import type {
   StaffAccount,
   StaffListData,
   PsGrievanceRow,
+  TaxonomyDepartment,
   TaxonomyOrganization,
+  TaxonomySubDepartment,
   TaxonomyTree,
 } from "@/types/api";
 
@@ -257,11 +259,62 @@ export async function bulkPsTaxonomyTree(csvText: string, category: string) {
   );
 }
 
+export async function createPsTaxonomyDepartment(
+  category: string,
+  payload: { name: string; sort_order?: number; is_other?: boolean },
+) {
+  return apiRequest<{ id: number; name: string }>(
+    `/api/ps/taxonomy/tree/departments?category=${encodeURIComponent(category)}`,
+    { method: "POST", body: payload },
+  );
+}
+
+export async function createPsTaxonomySubDepartment(
+  departmentId: number,
+  payload: { name: string; sort_order?: number; is_other?: boolean },
+) {
+  return apiRequest<{ id: number; name: string }>(
+    `/api/ps/taxonomy/departments/${departmentId}/sub-departments`,
+    { method: "POST", body: payload },
+  );
+}
+
+export async function updatePsTaxonomyDepartmentSpoc(
+  departmentId: number,
+  payload: {
+    officer_name?: string;
+    designation?: string;
+    email?: string;
+    whatsapp_number?: string;
+  },
+) {
+  return apiRequest<TaxonomyDepartment>(
+    `/api/ps/taxonomy/departments/${departmentId}`,
+    { method: "PATCH", body: payload },
+  );
+}
+
+export async function updatePsTaxonomySubDepartmentSpoc(
+  subDepartmentId: number,
+  payload: {
+    officer_name?: string;
+    designation?: string;
+    email?: string;
+    whatsapp_number?: string;
+  },
+) {
+  return apiRequest<TaxonomySubDepartment>(
+    `/api/ps/taxonomy/sub-departments/${subDepartmentId}`,
+    { method: "PATCH", body: payload },
+  );
+}
+
 export async function createPsOrganization(
   subDepartmentId: number,
   payload: {
     name: string;
     officer_name?: string;
+    designation?: string;
     email?: string;
     whatsapp_number?: string;
   },
@@ -277,6 +330,7 @@ export async function updatePsOrganization(
   payload: Partial<{
     name: string;
     officer_name: string;
+    designation: string;
     email: string;
     whatsapp_number: string;
     is_active: boolean;
