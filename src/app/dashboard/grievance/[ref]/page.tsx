@@ -13,7 +13,7 @@ export default async function GrievanceDetailPage({ params }: PageProps) {
       <PortalGrievanceDetail
         grievance={data.grievance}
         allowedStatuses={data.allowed_statuses}
-        timeline={data.timeline}
+        journey={data.journey ?? []}
       />
     </PortalLayout>
   );

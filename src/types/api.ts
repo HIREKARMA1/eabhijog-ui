@@ -124,10 +124,20 @@ export type TimelineEvent = {
   created_at: string;
 };
 
+export type JourneyEvent = {
+  id: string;
+  step_key: string;
+  action: string;
+  user: string;
+  remarks: string;
+  occurred_at: string;
+};
+
 export type PortalGrievanceDetailData = {
   grievance: GrievanceRow;
   allowed_statuses: string[];
   timeline: TimelineEvent[];
+  journey: JourneyEvent[];
   audit_trail: Array<Record<string, unknown>>;
 };
 
@@ -181,15 +191,63 @@ export type OsdDepartmentContact = {
   department: string;
   officer_name: string;
   email: string;
+  whatsapp_number: string;
 };
 
 export type OsdDepartmentContactRecord = {
   id: number;
   osd_category: string;
   department: string;
+  sub_department?: string;
   officer_name: string;
   email: string;
+  whatsapp_number: string;
+  is_other?: boolean;
+  sort_order?: number;
   is_active: boolean;
+};
+
+export type TaxonomyOrganization = {
+  id: number;
+  name: string;
+  officer_name: string;
+  designation: string;
+  email: string;
+  whatsapp_number: string;
+  sort_order: number;
+  is_other: boolean;
+  is_active: boolean;
+};
+
+export type TaxonomySubDepartment = {
+  id: number;
+  name: string;
+  officer_name: string;
+  designation: string;
+  email: string;
+  whatsapp_number: string;
+  sort_order: number;
+  is_other: boolean;
+  is_active: boolean;
+  organizations: TaxonomyOrganization[];
+};
+
+export type TaxonomyDepartment = {
+  id: number;
+  name: string;
+  officer_name: string;
+  designation: string;
+  email: string;
+  whatsapp_number: string;
+  sort_order: number;
+  is_other: boolean;
+  is_active: boolean;
+  sub_departments: TaxonomySubDepartment[];
+};
+
+export type TaxonomyTree = {
+  osd_category: string;
+  departments: TaxonomyDepartment[];
 };
 
 export type OsdGrievanceDetailData = {
@@ -197,6 +255,7 @@ export type OsdGrievanceDetailData = {
   allowed_statuses: string[];
   suggested_recipients: OsdDepartmentContact[];
   timeline: TimelineEvent[];
+  journey: JourneyEvent[];
   forwards: Array<Record<string, unknown>>;
 };
 
@@ -320,6 +379,7 @@ export type GrievanceConversationData = {
   grievance: PsGrievanceRow;
   messages: WhatsAppMessageItem[];
   timeline: TimelineEvent[];
+  journey: JourneyEvent[];
   internal_notes: InternalNoteItem[];
   ai_summary: string | null;
   attachments?: GrievanceAttachment[];

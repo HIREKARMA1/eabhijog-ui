@@ -16,6 +16,10 @@ import type {
   StaffAccount,
   StaffListData,
   PsGrievanceRow,
+  TaxonomyDepartment,
+  TaxonomyOrganization,
+  TaxonomySubDepartment,
+  TaxonomyTree,
 } from "@/types/api";
 
 export async function login(username: string, password: string) {
@@ -131,7 +135,7 @@ export async function forwardOsdGrievance(
   ref: string,
   payload: {
     remarks: string;
-    recipients: Array<{ department: string; officer_name: string; email: string }>;
+    recipients: Array<{ department: string; officer_name: string; email: string; whatsapp_number: string }>;
     cc?: string[];
     bcc?: string[];
   },
@@ -148,7 +152,15 @@ export async function fetchOsdDepartments(slug: string) {
 
 export async function createOsdDepartment(
   slug: string,
-  payload: { department: string; officer_name: string; email: string },
+  payload: {
+    department: string;
+    sub_department?: string;
+    officer_name: string;
+    email: string;
+    whatsapp_number: string;
+    is_other?: boolean;
+    sort_order?: number;
+  },
 ) {
   return apiRequest<OsdDepartmentContactRecord>(`/api/osd/${slug}/departments`, {
     method: "POST",
@@ -159,12 +171,175 @@ export async function createOsdDepartment(
 export async function updateOsdDepartment(
   slug: string,
   id: number,
-  payload: Partial<{ department: string; officer_name: string; email: string; is_active: boolean }>,
+  payload: Partial<{
+    department: string;
+    sub_department: string;
+    officer_name: string;
+    email: string;
+    whatsapp_number: string;
+    is_other: boolean;
+    sort_order: number;
+    is_active: boolean;
+  }>,
 ) {
   return apiRequest<OsdDepartmentContactRecord>(`/api/osd/${slug}/departments/${id}`, {
     method: "PATCH",
     body: payload,
   });
+}
+
+export async function bulkOsdDepartments(slug: string, csvText: string) {
+  return apiRequest<{ created: number; updated: number; skipped: number }>(
+    `/api/osd/${slug}/departments/bulk`,
+    { method: "POST", body: { csv_text: csvText } },
+  );
+}
+
+export async function fetchPsTaxonomy(category?: string) {
+  const query = category ? `?category=${encodeURIComponent(category)}` : "";
+  return apiRequest<{ items: OsdDepartmentContactRecord[] }>(`/api/ps/taxonomy${query}`);
+}
+
+export async function createPsTaxonomy(
+  category: string,
+  payload: {
+    department: string;
+    sub_department?: string;
+    officer_name: string;
+    email: string;
+    whatsapp_number?: string;
+    is_other?: boolean;
+    sort_order?: number;
+  },
+) {
+  return apiRequest<OsdDepartmentContactRecord>(`/api/ps/taxonomy/${encodeURIComponent(category)}`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function updatePsTaxonomy(
+  category: string,
+  id: number,
+  payload: Partial<{
+    department: string;
+    sub_department: string;
+    officer_name: string;
+    email: string;
+    whatsapp_number: string;
+    is_other: boolean;
+    sort_order: number;
+    is_active: boolean;
+  }>,
+) {
+  return apiRequest<OsdDepartmentContactRecord>(
+    `/api/ps/taxonomy/${encodeURIComponent(category)}/${id}`,
+    { method: "PATCH", body: payload },
+  );
+}
+
+export async function bulkPsTaxonomy(csvText: string, category?: string) {
+  const query = category ? `?category=${encodeURIComponent(category)}` : "";
+  return apiRequest<{ created: number; updated: number; skipped: number }>(
+    `/api/ps/taxonomy/bulk${query}`,
+    { method: "POST", body: { csv_text: csvText } },
+  );
+}
+
+export async function fetchPsTaxonomyTree(category: string) {
+  return apiRequest<TaxonomyTree>(
+    `/api/ps/taxonomy/tree?category=${encodeURIComponent(category)}`,
+  );
+}
+
+export async function bulkPsTaxonomyTree(csvText: string, category: string) {
+  return apiRequest<{ created: number; updated: number; skipped: number }>(
+    `/api/ps/taxonomy/tree/bulk?category=${encodeURIComponent(category)}`,
+    { method: "POST", body: { csv_text: csvText } },
+  );
+}
+
+export async function createPsTaxonomyDepartment(
+  category: string,
+  payload: { name: string; sort_order?: number; is_other?: boolean },
+) {
+  return apiRequest<{ id: number; name: string }>(
+    `/api/ps/taxonomy/tree/departments?category=${encodeURIComponent(category)}`,
+    { method: "POST", body: payload },
+  );
+}
+
+export async function createPsTaxonomySubDepartment(
+  departmentId: number,
+  payload: { name: string; sort_order?: number; is_other?: boolean },
+) {
+  return apiRequest<{ id: number; name: string }>(
+    `/api/ps/taxonomy/departments/${departmentId}/sub-departments`,
+    { method: "POST", body: payload },
+  );
+}
+
+export async function updatePsTaxonomyDepartmentSpoc(
+  departmentId: number,
+  payload: {
+    officer_name?: string;
+    designation?: string;
+    email?: string;
+    whatsapp_number?: string;
+  },
+) {
+  return apiRequest<TaxonomyDepartment>(
+    `/api/ps/taxonomy/departments/${departmentId}`,
+    { method: "PATCH", body: payload },
+  );
+}
+
+export async function updatePsTaxonomySubDepartmentSpoc(
+  subDepartmentId: number,
+  payload: {
+    officer_name?: string;
+    designation?: string;
+    email?: string;
+    whatsapp_number?: string;
+  },
+) {
+  return apiRequest<TaxonomySubDepartment>(
+    `/api/ps/taxonomy/sub-departments/${subDepartmentId}`,
+    { method: "PATCH", body: payload },
+  );
+}
+
+export async function createPsOrganization(
+  subDepartmentId: number,
+  payload: {
+    name: string;
+    officer_name?: string;
+    designation?: string;
+    email?: string;
+    whatsapp_number?: string;
+  },
+) {
+  return apiRequest<TaxonomyOrganization>(
+    `/api/ps/taxonomy/sub-departments/${subDepartmentId}/organizations`,
+    { method: "POST", body: payload },
+  );
+}
+
+export async function updatePsOrganization(
+  organizationId: number,
+  payload: Partial<{
+    name: string;
+    officer_name: string;
+    designation: string;
+    email: string;
+    whatsapp_number: string;
+    is_active: boolean;
+  }>,
+) {
+  return apiRequest<TaxonomyOrganization>(
+    `/api/ps/taxonomy/organizations/${organizationId}`,
+    { method: "PATCH", body: payload },
+  );
 }
 
 export async function fetchDepartmentGrievance(token: string, server = false) {
