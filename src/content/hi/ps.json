@@ -89,6 +89,11 @@
   "nav": {
     "dashboard": "डैशबोर्ड",
     "grievances": "शिकायतें",
+    "intelligence": "प्रेस इंटेलिजेंस",
+    "intelligenceQueue": "समीक्षा कतार",
+    "intelligenceIncidents": "घटनाएँ",
+    "intelligenceAnalytics": "विश्लेषण",
+    "intelligenceJobs": "जॉब और अपलोड",
     "osd": "OSD खाते"
   },
   "osd": {

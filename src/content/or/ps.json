@@ -89,6 +89,11 @@
   "nav": {
     "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
     "grievances": "ଅଭିଯୋଗ",
+    "intelligence": "ପ୍ରେସ୍ ବୁଦ୍ଧିମତ୍ତା",
+    "intelligenceQueue": "ସମୀକ୍ଷା ଧାଡ଼ି",
+    "intelligenceIncidents": "ଘଟଣା",
+    "intelligenceAnalytics": "ବିଶ୍ଳେଷଣ",
+    "intelligenceJobs": "ଜବ୍ ଓ ଅପଲୋଡ୍",
     "taxonomy": "ବିଭାଗ ଟ୍ୟାକ୍ସୋନୋମି",
     "osd": "OSD ଖାତା"
   },
