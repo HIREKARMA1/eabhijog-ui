@@ -89,6 +89,11 @@
   "nav": {
     "dashboard": "Dashboard",
     "grievances": "Grievances",
+    "intelligence": "Press Intelligence",
+    "intelligenceQueue": "Review queue",
+    "intelligenceIncidents": "Incidents",
+    "intelligenceAnalytics": "Analytics",
+    "intelligenceJobs": "Jobs & uploads",
     "taxonomy": "Department Taxonomy",
     "osd": "OSD Accounts"
   },

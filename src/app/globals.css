@@ -120,6 +120,9 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-link: var(--link);
+  --color-primary: var(--saffron);
+  --color-ink: var(--text-primary);
+  --color-muted: var(--text-muted);
   --color-brand: var(--link);
   --color-sidebar: var(--sidebar-text);
   --color-sidebar-muted: var(--sidebar-text-muted);
