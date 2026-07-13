@@ -4,6 +4,7 @@ import {
   isPrivateSecretary,
   isStaffManager,
   isSuperAdmin,
+  isTransportIntelligenceOfficer,
 } from "@/lib/auth/roles";
 import type { AuthStaff } from "@/types/api";
 export type NavItem = {
@@ -32,6 +33,15 @@ export function buildPortalNav(
 
   if (isStaffManager(staff)) {
     items.push({ href: "/dashboard/staff", labelKey: "nav.staff", icon: "staff" });
+  }
+
+  if (isPortalAdmin(staff)) {
+    items.push({
+      href: "/ps/intelligence",
+      labelKey: "ps.nav.intelligence",
+      icon: "reports",
+      section: "nav.operational",
+    });
   }
 
   if (isSuperAdmin(staff)) {
@@ -65,6 +75,13 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
     },
     { href: `${base}/departments`, labelKey: "nav.departments", icon: "departments" },
   ];
+  if (osdSlug === "commerce-transport") {
+    items.push({
+      href: "/ps/intelligence",
+      labelKey: "ps.nav.intelligence",
+      icon: "reports",
+    });
+  }
   if (isPortalAdmin(staff)) {
     items.push({ href: "/dashboard", labelKey: "nav.superAdmin", icon: "back" });
   }
@@ -80,9 +97,52 @@ export function buildPsNav(): NavItem[] {
       section: "nav.main",
     },
     { href: "/ps/grievances", labelKey: "ps.nav.grievances", icon: "grievances" },
+    ...buildIntelligenceNavItems(),
     { href: "/ps/taxonomy", labelKey: "ps.nav.taxonomy", icon: "departments" },
     { href: "/ps/osd", labelKey: "ps.nav.osd", icon: "staff" },
   ];
+}
+
+function buildIntelligenceNavItems(): NavItem[] {
+  return [
+    { href: "/ps/intelligence", labelKey: "ps.nav.intelligence", icon: "reports" },
+    { href: "/ps/intelligence/candidates", labelKey: "ps.nav.intelligenceQueue", icon: "grievances" },
+    { href: "/ps/intelligence/incidents", labelKey: "ps.nav.intelligenceIncidents", icon: "departments" },
+    { href: "/ps/intelligence/analytics", labelKey: "ps.nav.intelligenceAnalytics", icon: "reports" },
+    { href: "/ps/intelligence/jobs", labelKey: "ps.nav.intelligenceJobs", icon: "staff" },
+  ];
+}
+
+export function intelligenceHomeHref(staff: AuthStaff): string {
+  if (staff.role === "osd_commerce_transport") {
+    return "/ps/intelligence";
+  }
+  return "/ps/intelligence";
+}
+
+export function buildIntelligenceNav(staff: AuthStaff): NavItem[] {
+  if (staff.role === "transport_intelligence_officer") {
+    return buildIntelligenceNavItems();
+  }
+  if (staff.role === "osd_commerce_transport") {
+    return [
+      { href: "/ps/intelligence", labelKey: "ps.nav.intelligence", icon: "reports" },
+      { href: "/ps/intelligence/candidates", labelKey: "ps.nav.intelligenceQueue", icon: "grievances" },
+      { href: "/ps/intelligence/incidents", labelKey: "ps.nav.intelligenceIncidents", icon: "departments" },
+      { href: "/ps/intelligence/analytics", labelKey: "ps.nav.intelligenceAnalytics", icon: "reports" },
+    ];
+  }
+  if (isPortalAdmin(staff)) {
+    return buildIntelligenceNavItems();
+  }
+  return buildIntelligenceNavItems();
+}
+
+export function buildNavForIntelligencePage(staff: AuthStaff): NavItem[] {
+  if (isPrivateSecretary(staff)) {
+    return buildPsNav();
+  }
+  return buildIntelligenceNav(staff);
 }
 
 export function buildNavForStaff(
@@ -96,6 +156,9 @@ export function buildNavForStaff(
   }
   if (isPrivateSecretary(staff)) {
     return buildPsNav();
+  }
+  if (isTransportIntelligenceOfficer(staff)) {
+    return buildIntelligenceNav(staff);
   }
   return buildOsdNav(staff.dashboard_slug, pendingCount, staff);
 }
