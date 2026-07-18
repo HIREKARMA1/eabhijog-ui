@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { fetchIntelligenceIncidents, type IntelligenceIncident } from "@/lib/api/ps-intelligence";
+import { SectionLoader } from "@/components/ui/Spinner";
 
 import { IntelligencePageIntro } from "./IntelligencePageIntro";
 import { intelCard } from "./intelligence-styles";
@@ -13,6 +14,7 @@ export function PsIntelligenceIncidents() {
   const [openCount, setOpenCount] = useState(0);
   const [highCount, setHighCount] = useState(0);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchIntelligenceIncidents()
@@ -21,11 +23,26 @@ export function PsIntelligenceIncidents() {
         setOpenCount(res.open_count ?? 0);
         setHighCount(res.high_count ?? 0);
       })
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   if (error) {
     return <p className="text-sm font-medium text-red-700">{error}</p>;
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <IntelligencePageIntro
+          title="Incidents"
+          description="Grouped Transport issues from multiple clips. Optional — use after reviewing the main queue."
+        />
+        <div className={intelCard}>
+          <SectionLoader label="Loading incidents…" />
+        </div>
+      </div>
+    );
   }
 
   return (

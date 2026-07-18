@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { SectionLoader } from "@/components/ui/Spinner";
 import {
   bulkOsdDepartments,
   bulkPsTaxonomy,
@@ -36,6 +37,7 @@ export function DepartmentManagementPanel({ osdSlug, psMode = false }: Departmen
   const { t } = useI18n();
   const [items, setItems] = useState<OsdDepartmentContactRecord[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [bulkMessage, setBulkMessage] = useState("");
   const [category, setCategory] = useState(PS_CATEGORIES[0]);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -61,7 +63,10 @@ export function DepartmentManagementPanel({ osdSlug, psMode = false }: Departmen
   }
 
   useEffect(() => {
-    load().catch(() => setError(t("common", "errors.generic")));
+    setLoading(true);
+    load()
+      .catch(() => setError(t("common", "errors.generic")))
+      .finally(() => setLoading(false));
   }, [osdSlug, psMode, category]);
 
   function resetForm() {
@@ -244,7 +249,9 @@ export function DepartmentManagementPanel({ osdSlug, psMode = false }: Departmen
       </Card>
 
       <Card title={t("dashboard", "departments.title")}>
-        {items.length === 0 ? (
+        {loading ? (
+          <SectionLoader label={t("common", "actions.loading")} />
+        ) : items.length === 0 ? (
           <p className="text-sm text-text-muted">{t("dashboard", "departments.empty")}</p>
         ) : (
           <ul className="divide-y divide-border">

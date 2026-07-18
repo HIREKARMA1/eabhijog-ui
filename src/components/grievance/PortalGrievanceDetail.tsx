@@ -91,7 +91,7 @@ export function PortalGrievanceDetail({
             options={allowedStatuses.map((s) => ({ value: s, label: s.replace(/_/g, " ") }))}
           />
           {error ? <p className="text-sm text-danger">{error}</p> : null}
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" loading={loading} className="w-full">
             {t("dashboard", "grievance.submitResponse")}
           </Button>
         </form>
