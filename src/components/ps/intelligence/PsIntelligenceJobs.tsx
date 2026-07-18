@@ -235,7 +235,8 @@ export function PsIntelligenceJobs() {
           <Button
             type="button"
             onClick={runEpaper}
-            disabled={selected.length === 0 || !canManage || statusKind === "running"}
+            loading={statusKind === "running"}
+            disabled={selected.length === 0 || !canManage}
           >
             {statusKind === "running" ? "Analysis in progress…" : "Run e-paper analysis"}
           </Button>
@@ -271,7 +272,7 @@ export function PsIntelligenceJobs() {
           <p className="font-medium">{status}</p>
           {statusKind === "success" && lastJobId ? (
             <div className="flex flex-wrap items-center gap-3">
-              <Button type="button" onClick={downloadBriefing} disabled={downloadingPdf}>
+              <Button type="button" onClick={downloadBriefing} loading={downloadingPdf}>
                 {downloadingPdf ? "Preparing PDF…" : "Download department briefing PDF"}
               </Button>
               <span className="text-xs text-slate-600">

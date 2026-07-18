@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/lib/utils/cn";
+import { Spinner } from "@/components/ui/Spinner";
 
 type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
@@ -19,19 +20,27 @@ const sizeClasses: Record<Size, string> = {
   lg: "px-5 py-2.5 text-base",
 };
 
+// White spinner reads correctly on the filled (primary/secondary/danger) buttons.
+const spinnerOnDark = "border-white/40 border-t-white";
+
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
+  loading?: boolean;
   children: ReactNode;
 };
 
 export function Button({
   variant = "primary",
   size = "md",
+  loading = false,
   className,
   children,
+  disabled,
   ...props
 }: ButtonProps) {
+  const spinnerClass =
+    variant === "outline" || variant === "ghost" ? undefined : spinnerOnDark;
   return (
     <button
       className={cn(
@@ -40,8 +49,11 @@ export function Button({
         sizeClasses[size],
         className,
       )}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
     >
+      {loading ? <Spinner size="xs" className={spinnerClass} /> : null}
       {children}
     </button>
   );

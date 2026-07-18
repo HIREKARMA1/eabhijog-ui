@@ -9,6 +9,8 @@ import {
   type IntelligenceIncident,
 } from "@/lib/api/ps-intelligence";
 
+import { SectionLoader } from "@/components/ui/Spinner";
+
 import { intelCard, intelLink, intelMuted } from "./intelligence-styles";
 
 export function PsIntelligenceIncidentDetail({ id }: { id: number }) {
@@ -30,7 +32,7 @@ export function PsIntelligenceIncidentDetail({ id }: { id: number }) {
   }
 
   if (!incident) {
-    return <p className={intelMuted}>Loading incident...</p>;
+    return <SectionLoader label="Loading incident…" />;
   }
 
   return (

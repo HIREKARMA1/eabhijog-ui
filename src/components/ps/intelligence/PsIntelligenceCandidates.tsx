@@ -7,6 +7,7 @@ import {
   fetchIntelligenceCandidates,
   type IntelligenceCandidate,
 } from "@/lib/api/ps-intelligence";
+import { SectionLoader } from "@/components/ui/Spinner";
 
 import { intelCard } from "./intelligence-styles";
 
@@ -19,18 +20,29 @@ export function PsIntelligenceCandidates({
 }) {
   const [rows, setRows] = useState<IntelligenceCandidate[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const params: Record<string, string> = { status: "new" };
     if (queue) params.queue = queue;
     if (channel) params.channel = channel;
+    setLoading(true);
     fetchIntelligenceCandidates(params)
       .then((res) => setRows(res.data ?? []))
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
   }, [queue, channel]);
 
   if (error) {
     return <p className="text-sm font-medium text-red-700">{error}</p>;
+  }
+
+  if (loading) {
+    return (
+      <div className={intelCard}>
+        <SectionLoader label="Loading queue…" />
+      </div>
+    );
   }
 
   return (
