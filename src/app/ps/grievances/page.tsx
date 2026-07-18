@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { PsLayout } from "@/components/layout/PsLayout";
 import { PsGrievancesView } from "@/components/ps/PsGrievancesView";
@@ -20,26 +21,31 @@ export default async function PsGrievancesPage({ searchParams }: PageProps) {
   const currentPage = Math.max(1, Number(filters.page || "1") || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const constants = await getConstants();
-
+  let constants;
   let items: PsGrievanceRow[];
   let total: number;
 
-  if (isMockDataMode()) {
-    const mock = await getMockPsGrievances();
-    items = mock.items.slice(offset, offset + PAGE_SIZE);
-    total = mock.total;
-  } else {
-    const requestFilters = new URLSearchParams(filters);
-    requestFilters.set("limit", String(PAGE_SIZE));
-    requestFilters.set("offset", String(offset));
-    const qs = requestFilters.toString();
-    const path = qs ? `/api/ps/grievances?${qs}` : "/api/ps/grievances";
-    const grievancesResult = await serverApiRequest<{ items: PsGrievanceRow[]; total: number }>(
-      path,
-    );
-    items = grievancesResult.data.items;
-    total = grievancesResult.data.total;
+  try {
+    constants = await getConstants();
+
+    if (isMockDataMode()) {
+      const mock = await getMockPsGrievances();
+      items = mock.items.slice(offset, offset + PAGE_SIZE);
+      total = mock.total;
+    } else {
+      const requestFilters = new URLSearchParams(filters);
+      requestFilters.set("limit", String(PAGE_SIZE));
+      requestFilters.set("offset", String(offset));
+      const qs = requestFilters.toString();
+      const path = qs ? `/api/ps/grievances?${qs}` : "/api/ps/grievances";
+      const grievancesResult = await serverApiRequest<{ items: PsGrievanceRow[]; total: number }>(
+        path,
+      );
+      items = grievancesResult.data.items;
+      total = grievancesResult.data.total;
+    }
+  } catch {
+    redirect("/login");
   }
 
   return (

@@ -132,6 +132,35 @@ export function intelligencePageImageUrl(candidateId: number): string {
   return `/backend/api/ps/intelligence/candidates/${candidateId}/page-image`;
 }
 
+export function intelligenceBriefingPdfUrl(jobId: number): string {
+  return `/backend/api/ps/intelligence/jobs/${jobId}/briefing-pdf`;
+}
+
+export async function downloadIntelligenceBriefingPdf(jobId: number): Promise<void> {
+  const base = getClientApiBase();
+  const res = await fetch(`${base}/api/ps/intelligence/jobs/${jobId}/briefing-pdf`, {
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (payload as { error?: { message?: string }; message?: string }).error?.message
+        ?? (payload as { message?: string }).message
+        ?? "Could not download briefing PDF",
+      res.status,
+    );
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `department_briefing_job_${jobId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export type IntelligenceIncident = {
   id: number;
   title?: string | null;

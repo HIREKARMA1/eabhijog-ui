@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { LinkButton } from "@/components/ui/LinkButton";
 import {
+  downloadIntelligenceBriefingPdf,
   fetchIntelligenceMeta,
   fetchIntelligenceProgress,
   runIntelligenceJob,
@@ -17,6 +18,7 @@ import { intelCard, intelMuted } from "./intelligence-styles";
 
 type ProgressSnap = {
   running?: boolean;
+  job_id?: number | null;
   status?: string;
   phase?: string;
   phase_label?: string;
@@ -25,6 +27,7 @@ type ProgressSnap = {
   pages_total?: number;
   pages_ocr?: number;
   candidates_found?: number;
+  briefing_pdf?: string | null;
   error?: string | null;
   sources?: string[];
 };
@@ -84,6 +87,9 @@ export function PsIntelligenceJobs() {
   const [statusKind, setStatusKind] = useState<"idle" | "running" | "success" | "error">("idle");
   const [error, setError] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
+  const [lastJobId, setLastJobId] = useState<number | null>(null);
+  const [briefingReady, setBriefingReady] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const refreshProgress = useCallback(() => {
     fetchIntelligenceProgress()
@@ -91,17 +97,35 @@ export function PsIntelligenceJobs() {
         const p = raw as ProgressSnap;
         const kind = jobKindFromProgress(p);
         const msg = formatProgressMessage(p, kind);
+        if (typeof p.job_id === "number") {
+          setLastJobId(p.job_id);
+        }
         if (p.running) {
           setStatusKind("running");
           setStatus(msg || "Running analysis…");
+          setBriefingReady(false);
         } else if (msg && p.running === false && kind !== "idle") {
           const st = (p.status || "").toLowerCase();
           setStatusKind(st === "failed" ? "error" : "success");
           setStatus(msg);
+          setBriefingReady(st !== "failed" && Boolean(p.job_id || p.briefing_pdf));
         }
       })
       .catch(() => {});
   }, []);
+
+  async function downloadBriefing() {
+    if (!lastJobId) return;
+    setDownloadingPdf(true);
+    setError("");
+    try {
+      await downloadIntelligenceBriefingPdf(lastJobId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF download failed");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  }
 
   useEffect(() => {
     fetchIntelligenceMeta()
@@ -163,13 +187,15 @@ export function PsIntelligenceJobs() {
   const statusBoxClass =
     statusKind === "running"
       ? "border-amber-200 bg-amber-50 text-amber-950"
-      : "border-red-200 bg-red-50 text-red-900";
+      : statusKind === "success"
+        ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+        : "border-red-200 bg-red-50 text-red-900";
 
   return (
     <div className="space-y-6">
       <IntelligencePageIntro
         title="Step 1 — Collect clips"
-        description="Choose one option: run today's e-papers (slow, automatic) or upload a citizen PDF/scan (fast). When done, go to Step 2 — Review queue."
+        description="Run e-papers or upload a scan. After analysis finishes, download the Department Information PDF (Commerce & Transport + Steel & Mines) for PS reading — then use Review queue for actionable Transport grievances."
         action={
           <LinkButton href="/ps/intelligence/candidates" variant="outline">
             Next: Review queue →
@@ -240,9 +266,20 @@ export function PsIntelligenceJobs() {
         </div>
       </section>
 
-      {status && (statusKind === "running" || statusKind === "error") ? (
-        <div className={`rounded-xl border p-4 text-sm ${statusBoxClass}`}>
+      {status && (statusKind === "running" || statusKind === "error" || statusKind === "success") ? (
+        <div className={`space-y-3 rounded-xl border p-4 text-sm ${statusBoxClass}`}>
           <p className="font-medium">{status}</p>
+          {statusKind === "success" && lastJobId ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" onClick={downloadBriefing} disabled={downloadingPdf}>
+                {downloadingPdf ? "Preparing PDF…" : "Download department briefing PDF"}
+              </Button>
+              <span className="text-xs text-slate-600">
+                Job #{lastJobId}
+                {briefingReady ? " · Commerce & Transport + Steel & Mines" : ""}
+              </span>
+            </div>
+          ) : null}
         </div>
       ) : null}
       {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
