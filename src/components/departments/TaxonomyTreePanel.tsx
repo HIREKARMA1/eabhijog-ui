@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { SectionLoader } from "@/components/ui/Spinner";
 import {
   bulkPsTaxonomyTree,
   fetchPsTaxonomyTree,
@@ -105,6 +106,7 @@ export function TaxonomyTreePanel() {
   const [category, setCategory] = useState(PS_CATEGORIES[0]);
   const [tree, setTree] = useState<TaxonomyTree | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [bulkMessage, setBulkMessage] = useState("");
   const [csvText, setCsvText] = useState("");
@@ -127,7 +129,10 @@ export function TaxonomyTreePanel() {
   }
 
   useEffect(() => {
-    load().catch(() => setError(t("common", "errors.generic")));
+    setLoading(true);
+    load()
+      .catch(() => setError(t("common", "errors.generic")))
+      .finally(() => setLoading(false));
   }, [category]);
 
   function clearMessages() {
@@ -238,7 +243,9 @@ export function TaxonomyTreePanel() {
       </Card>
 
       <Card title={t("dashboard", "departments.treeTitle")}>
-        {!tree || tree.departments.length === 0 ? (
+        {loading ? (
+          <SectionLoader label={t("common", "actions.loading")} />
+        ) : !tree || tree.departments.length === 0 ? (
           <p className="text-sm text-text-muted">{t("dashboard", "departments.empty")}</p>
         ) : (
           <ul className="space-y-4 text-sm">

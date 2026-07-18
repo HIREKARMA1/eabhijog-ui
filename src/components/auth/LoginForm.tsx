@@ -96,8 +96,8 @@ export function LoginForm() {
             </div>
           </div>
 
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
-            {loading ? "…" : t("auth", "login.submit")}
+          <Button type="submit" size="lg" className="w-full" loading={loading}>
+            {t("auth", "login.submit")}
           </Button>
         </form>
       </LoginCard>

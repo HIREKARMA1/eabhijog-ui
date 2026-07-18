@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 
 import { fetchIntelligenceAnalytics, type IntelligenceAnalytics } from "@/lib/api/ps-intelligence";
+import { SectionLoader } from "@/components/ui/Spinner";
 
 import { IntelligencePageIntro } from "./IntelligencePageIntro";
-import { intelCard, intelMuted } from "./intelligence-styles";
+import { intelCard } from "./intelligence-styles";
 
 export function PsIntelligenceAnalytics() {
   const [data, setData] = useState<IntelligenceAnalytics | null>(null);
@@ -22,7 +23,7 @@ export function PsIntelligenceAnalytics() {
   }
 
   if (!data) {
-    return <p className={intelMuted}>Loading analytics...</p>;
+    return <SectionLoader label="Loading analytics…" />;
   }
 
   const dept = data.department ?? {};

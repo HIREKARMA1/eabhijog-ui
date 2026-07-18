@@ -12,6 +12,7 @@ import {
   type IntelligenceCandidate,
 } from "@/lib/api/ps-intelligence";
 import { useIntelligenceManage } from "@/hooks/use-intelligence-access";
+import { SectionLoader } from "@/components/ui/Spinner";
 
 import { intelCard, intelLink, intelMuted } from "./intelligence-styles";
 
@@ -60,7 +61,7 @@ export function PsIntelligenceCandidateDetail({ id }: { id: number }) {
   }
 
   if (!candidate) {
-    return <p className={intelMuted}>Loading…</p>;
+    return <SectionLoader label="Loading…" />;
   }
 
   return (

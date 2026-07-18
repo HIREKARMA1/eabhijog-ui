@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { ProfilePanel } from "@/components/profile/ProfilePanel";
 import { PortalShell } from "@/components/shell/PortalShell";
+import { PageLoader } from "@/components/ui/Spinner";
 import { fetchCurrentUser, fetchProfile } from "@/lib/api/portal";
 import { homePathFor, isOsdRole, isPortalAdmin, isPrivateSecretary, formatStaffRole } from "@/lib/auth/roles";
 import { useI18n } from "@/lib/i18n/context";
@@ -30,7 +31,7 @@ export default function ProfilePage() {
   if (!staff || !account) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
+        <PageLoader />
       </div>
     );
   }

@@ -10,8 +10,10 @@ import {
   type IntelligenceDashboard,
 } from "@/lib/api/ps-intelligence";
 
+import { SectionLoader } from "@/components/ui/Spinner";
+
 import { IntelligencePageIntro } from "./IntelligencePageIntro";
-import { intelCard, intelLink, intelMuted } from "./intelligence-styles";
+import { intelCard, intelLink } from "./intelligence-styles";
 
 export function PsIntelligenceDashboard() {
   const [data, setData] = useState<IntelligenceDashboard | null>(null);
@@ -32,7 +34,7 @@ export function PsIntelligenceDashboard() {
   }
 
   if (!data) {
-    return <p className={intelMuted}>Loading briefing…</p>;
+    return <SectionLoader label="Loading briefing…" />;
   }
 
   const { kpi } = data;

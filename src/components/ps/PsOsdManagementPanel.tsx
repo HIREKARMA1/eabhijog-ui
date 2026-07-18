@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Section } from "@/components/ui/Section";
 import { Select } from "@/components/ui/Select";
+import { SectionLoader } from "@/components/ui/Spinner";
 import { ApiError } from "@/lib/api/client";
 import {
   activateStaffAccount,
@@ -324,17 +325,15 @@ export function PsOsdManagementPanel() {
             <Button type="button" variant="outline" onClick={resetPanel} disabled={saving}>
               {t("ps", "osd.cancel")}
             </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? "…" : mode === "create" ? t("ps", "osd.create") : t("ps", "osd.save")}
+            <Button type="submit" loading={saving}>
+              {mode === "create" ? t("ps", "osd.create") : t("ps", "osd.save")}
             </Button>
           </div>
         </form>
       ) : null}
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
-        </div>
+        <SectionLoader />
       ) : (
         <DataTable
           rows={filteredItems}
