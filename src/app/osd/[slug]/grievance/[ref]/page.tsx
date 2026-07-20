@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { OsdLayout } from "@/components/layout/OsdLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdGrievanceDetailView } from "@/components/grievance/OsdGrievanceDetail";
 import { getConstants, getOsdGrievanceDetail } from "@/lib/api/server-portal";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
@@ -27,7 +27,10 @@ export default async function OsdGrievanceDetailPage({ params }: PageProps) {
   }
 
   return (
-    <OsdLayout osdSlug={slug} breadcrumb={ref}>
+    <>
+      <SetBreadcrumb>
+        <strong>{ref}</strong>
+      </SetBreadcrumb>
       <OsdGrievanceDetailView
         osdSlug={slug}
         grievance={data.grievance}
@@ -36,6 +39,6 @@ export default async function OsdGrievanceDetailPage({ params }: PageProps) {
         suggestedRecipients={data.suggested_recipients}
         journey={data.journey ?? []}
       />
-    </OsdLayout>
+    </>
   );
 }

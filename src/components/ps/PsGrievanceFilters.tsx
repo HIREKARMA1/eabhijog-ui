@@ -27,13 +27,13 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
     () =>
       Boolean(
         draft.district ||
-          draft.constituency ||
-          draft.department ||
-          draft.priority ||
-          draft.overdue ||
-          draft.osd_category ||
-          draft.date_from ||
-          draft.date_to,
+        draft.constituency ||
+        draft.department ||
+        draft.priority ||
+        draft.overdue ||
+        draft.osd_category ||
+        draft.date_from ||
+        draft.date_to,
       ),
     [draft],
   );
@@ -70,7 +70,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
       if (value) params.set(key, value);
     }
     startTransition(() => {
-      router.replace(`${basePath}?${params.toString()}`);
+      router.replace(`${basePath}?${params.toString()}`, { scroll: false });
     });
   }
 
@@ -97,7 +97,7 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
     setSearchDraft("");
     setShowFilters(false);
     startTransition(() => {
-      router.replace(basePath);
+      router.replace(basePath, { scroll: false });
     });
   }
 

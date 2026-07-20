@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
+import { BreadcrumbProvider, useBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
@@ -12,6 +14,7 @@ type PortalShellProps = {
   staff: AuthStaff;
   homeHref: string;
   nav: NavItem[];
+  /** @deprecated Prefer SetBreadcrumb from page content; kept for rare static titles. */
   breadcrumb?: React.ReactNode;
   children: React.ReactNode;
 };
@@ -29,11 +32,29 @@ function initials(name: string): string {
     .toUpperCase();
 }
 
-export function PortalShell({ staff, homeHref, nav, breadcrumb, children }: PortalShellProps) {
+function PortalShellInner({
+  staff,
+  homeHref,
+  nav,
+  breadcrumb: staticBreadcrumb,
+  children,
+}: PortalShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { breadcrumb: dynamicBreadcrumb } = useBreadcrumb();
+  const breadcrumb = dynamicBreadcrumb ?? staticBreadcrumb;
+  const pathname = usePathname();
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Content scrolls inside <main>, not the window — reset on every route change.
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+    setSidebarOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface">
+    <div className="flex h-dvh flex-col overflow-hidden bg-surface">
       <GovtNavbar homeHref={homeHref} onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex min-h-0 flex-1">
         <div
@@ -49,11 +70,24 @@ export function PortalShell({ staff, homeHref, nav, breadcrumb, children }: Port
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Topbar breadcrumb={breadcrumb} onMenuClick={() => setSidebarOpen(true)} />
-          <main className="flex-1 px-4 py-5 md:px-6 md:py-6">{children}</main>
+          <main
+            ref={mainRef}
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 md:px-6 md:py-6"
+          >
+            {children}
+          </main>
         </div>
       </div>
     </div>
+  );
+}
+
+export function PortalShell(props: PortalShellProps) {
+  return (
+    <BreadcrumbProvider>
+      <PortalShellInner {...props} />
+    </BreadcrumbProvider>
   );
 }

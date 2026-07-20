@@ -17,28 +17,11 @@ const SUMMARY_CARD_FILTERS: {
     href: "/ps/grievances?status=pending_review",
   },
   {
-    key: "under_osd_review",
-    labelKey: "underOsdReview",
-    href: "/ps/grievances?status=under_osd_review",
-  },
-  {
     key: "forwarded_to_department",
     labelKey: "forwardedToDepartment",
     href: "/ps/grievances?status=forwarded_to_department",
   },
-  {
-    key: "waiting_for_department_response",
-    labelKey: "waitingForDepartment",
-    href: "/ps/grievances?status=waiting_for_department_response",
-  },
   { key: "resolved", labelKey: "resolved", href: "/ps/grievances?status=resolved" },
-  { key: "closed", labelKey: "closed", href: "/ps/grievances?status=closed" },
-  {
-    key: "high_priority",
-    labelKey: "highPriority",
-    href: "/ps/grievances?priority=high_priority",
-  },
-  { key: "overdue_cases", labelKey: "overdueCases", href: "/ps/grievances?overdue=true" },
 ];
 
 export function PsSummaryGrid({ summary }: { summary: PsSummaryCards }) {
