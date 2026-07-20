@@ -26,7 +26,11 @@
     "resolved": "Resolved",
     "closed": "Closed",
     "discarded": "Discarded",
-    "escalated": "Escalated"
+    "escalated": "Escalated",
+    "pending_acknowledgement": "Pending Acknowledgement",
+    "waiting_for_department": "Waiting for Department",
+    "department_responded": "Department Responded",
+    "citizen_waiting": "Citizen Awaiting Reply"
   },
   "filters": {
     "allDates": "All dates",
@@ -54,7 +58,13 @@
     "searchPlaceholder": "Search ID, name, mobile, or district",
     "more": "More filters",
     "less": "Less filters",
-    "reset": "Reset"
+    "reset": "Reset",
+    "sectionDate": "Date",
+    "sectionGrievance": "Grievance",
+    "sectionLocation": "Location",
+    "sectionCase": "Case details",
+    "dateFrom": "From",
+    "dateTo": "To"
   },
   "analytics": {
     "messagesToday": "Messages Today",

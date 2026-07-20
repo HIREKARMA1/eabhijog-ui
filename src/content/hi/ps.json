@@ -26,7 +26,11 @@
     "resolved": "समाधान",
     "closed": "बंद",
     "discarded": "खारिज",
-    "escalated": "एस्केलेटेड"
+    "escalated": "एस्केलेटेड",
+    "pending_acknowledgement": "स्वीकृति लंबित",
+    "waiting_for_department": "विभाग की प्रतीक्षा",
+    "department_responded": "विभाग ने जवाब दिया",
+    "citizen_waiting": "नागरिक उत्तर की प्रतीक्षा"
   },
   "filters": {
     "allDates": "सभी तिथियां",
@@ -54,7 +58,13 @@
     "searchPlaceholder": "आईडी, नाम, मोबाइल या जिला खोजें",
     "more": "और फ़िल्टर",
     "less": "कम फ़िल्टर",
-    "reset": "रीसेट"
+    "reset": "रीसेट",
+    "sectionDate": "तारीख",
+    "sectionGrievance": "शिकायत",
+    "sectionLocation": "स्थान",
+    "sectionCase": "मामले का विवरण",
+    "dateFrom": "से",
+    "dateTo": "तक"
   },
   "analytics": {
     "messagesToday": "आज के संदेश",
