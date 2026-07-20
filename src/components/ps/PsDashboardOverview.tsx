@@ -13,22 +13,20 @@ export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
   const { t } = useI18n();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-        {t("ps", "title")}
-      </h1>
-
+    <div className="space-y-4">
+      {/* Full-width compact KPIs — no empty column beside a tall panel */}
       <Section
         title={t("ps", "sections.summary")}
-        className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
+        className="rounded-2xl bg-white/55 p-4 shadow-sm ring-1 ring-white/70"
       >
         <PsSummaryGrid summary={data.summary} />
       </Section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)] xl:items-start">
+      {/* Grievances + analytics share the second row so both fill the viewport */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.95fr)] xl:items-start">
         <Section
           title={t("ps", "sections.recent")}
-          className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
+          className="rounded-2xl bg-white/55 p-4 shadow-sm ring-1 ring-white/70"
           action={
             <Link href="/ps/grievances" className="text-sm font-medium text-link hover:underline">
               {t("ps", "recent.viewAll")}
@@ -40,9 +38,9 @@ export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
 
         <Section
           title={t("ps", "sections.analytics")}
-          className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
+          className="rounded-2xl bg-white/55 p-4 shadow-sm ring-1 ring-white/70"
         >
-          <PsAnalyticsGrid analytics={data.analytics} />
+          <PsAnalyticsGrid analytics={data.analytics} compact />
         </Section>
       </div>
     </div>

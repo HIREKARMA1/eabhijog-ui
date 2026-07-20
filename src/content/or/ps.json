@@ -26,7 +26,11 @@
     "resolved": "ସମାଧାନ",
     "closed": "ବନ୍ଦ",
     "discarded": "ପ୍ରତ୍ୟାଖ୍ୟାନ",
-    "escalated": "ଏସ୍କାଲେଟେଡ୍"
+    "escalated": "ଏସ୍କାଲେଟେଡ୍",
+    "pending_acknowledgement": "ସ୍ୱୀକୃତି ବିଳମ୍ବିତ",
+    "waiting_for_department": "ବିଭାଗ ଅପେକ୍ଷା",
+    "department_responded": "ବିଭାଗ ଉତ୍ତର ଦେଇଛି",
+    "citizen_waiting": "ନାଗରିକ ଉତ୍ତର ଅପେକ୍ଷା"
   },
   "filters": {
     "allDates": "ସମସ୍ତ ତାରିଖ",
@@ -54,7 +58,13 @@
     "searchPlaceholder": "ଆଇଡି, ନାମ, ମୋବାଇଲ କିମ୍ବା ଜିଲ୍ଲା ସନ୍ଧାନ କରନ୍ତୁ",
     "more": "ଅଧିକ ଫିଲ୍ଟର",
     "less": "କମ୍ ଫିଲ୍ଟର",
-    "reset": "ରିସେଟ୍"
+    "reset": "ରିସେଟ୍",
+    "sectionDate": "ତାରିଖ",
+    "sectionGrievance": "ଅଭିଯୋଗ",
+    "sectionLocation": "ଅବସ୍ଥାନ",
+    "sectionCase": "କେସ୍ ବିବରଣୀ",
+    "dateFrom": "ଠାରୁ",
+    "dateTo": "ପର୍ଯ୍ୟନ୍ତ"
   },
   "analytics": {
     "messagesToday": "ଆଜିର ବାର୍ତ୍ତା",

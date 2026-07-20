@@ -140,6 +140,7 @@
     "addOrg": "ସଂସ୍ଥା ଯୋଡନ୍ତୁ",
     "updateOrg": "ସଂସ୍ଥା ଅପଡେଟ୍",
     "treeBulkHint": "CSV: department, sub_department, organization, officer_name, email, whatsapp_number",
+    "bulkDownloadTemplate": "CSV ଟେମ୍ପଲେଟ୍ ଡାଉନଲୋଡ୍",
     "manualAddTitle": "ମାନୁଆଲ୍ ଯୋଡନ୍ତୁ",
     "manualAddHint": "ବିଭାଗ, ଉପ-ବିଭାଗ ଏବଂ ସଂସ୍ଥା ଗୋଟିଏ କରି ଯୋଡନ୍ତୁ। ବଲ୍କ CSV ନିମ୍ନରେ ଉପଲବ୍ଧ।",
     "addDepartment": "ବିଭାଗ ଯୋଡନ୍ତୁ",
@@ -158,7 +159,21 @@
     "deptSpocTitle": "{name} — ବିଭାଗ SPOC",
     "subSpocTitle": "{name} — ଉପ-ବିଭାଗ SPOC",
     "orgSpocTitle": "{name} — ଅଫିସ୍ SPOC",
-    "selectOrgHint": "ଅଫିସ୍ SPOC ସେଟ୍ କରିବାକୁ ତଳେ RTO/OSRTC ଡିପୋ ବାଛନ୍ତୁ।"
+    "selectOrgHint": "ଅଫିସ୍ SPOC ସେଟ୍ କରିବାକୁ ତଳେ RTO/OSRTC ଡିପୋ ବାଛନ୍ତୁ।",
+    "taxonomySubtitle": "ପ୍ରତ୍ୟେକ ବିଭାଗ, ଉପ-ବିଭାଗ ଏବଂ କାର୍ଯ୍ୟାଳୟ ପାଇଁ SPOC ଯୋଗାଯୋଗ ନିର୍ଦ୍ଧାରଣ କରନ୍ତୁ।",
+    "taxonomyStepCategory": "ସେବା ବର୍ଗ ବାଛନ୍ତୁ",
+    "taxonomyStepSelect": "ଶ୍ରେଣୀରୁ ଗୋଟିଏ ଆଇଟମ୍ ବାଛନ୍ତୁ",
+    "taxonomyStepSave": "SPOC ବିବରଣୀ ପୂରଣ କରି ସଞ୍ଚୟ କରନ୍ତୁ",
+    "taxonomyTreeHint": "SPOC ଯୋଗାଯୋଗ ସମ୍ପାଦନା କରିବାକୁ ଧାଡ଼ିରେ କ୍ଲିକ୍ କରନ୍ତୁ। ଉପ-ବିଭାଗ ଏବଂ କାର୍ଯ୍ୟାଳୟ ବିସ୍ତାର କରିବାକୁ ତୀର ବ୍ୟବହାର କରନ୍ତୁ।",
+    "taxonomySelectTitle": "କୌଣସି ଆଇଟମ୍ ବାଛି ନାହାଁନ୍ତି",
+    "taxonomySelectHint": "ଯୋଗାଯୋଗ ବିବରଣୀ ସମ୍ପାଦନା କରିବାକୁ ବାମ ତାଲିକାରୁ ବିଭାଗ, ଉପ-ବିଭାଗ କିମ୍ବା କାର୍ଯ୍ୟାଳୟ ବାଛନ୍ତୁ।",
+    "spocConfigured": "ଯୋଗାଯୋଗ ସେଟ୍",
+    "spocNotConfigured": "ଯୋଗାଯୋଗ ନାହିଁ",
+    "taxonomyLevelDept": "ବିଭାଗ",
+    "taxonomyLevelSub": "ଉପ-ବିଭାଗ",
+    "taxonomyLevelOrg": "କାର୍ଯ୍ୟାଳୟ",
+    "taxonomyBulkAdvanced": "ଉନ୍ନତ: ବଲ୍କ CSV ଆମଦାନୀ",
+    "taxonomyPath": "ଅବସ୍ଥାନ"
   },
   "osdSummary": {
     "assignedToday": "ଆଜି ନିଯୋଜିତ",
@@ -174,6 +189,7 @@
     "closed": "ବନ୍ଦ"
   },
   "osdDashboard": {
+    "summary": "ସାରାଂଶ",
     "recent": "ସାମ୍ପ୍ରତିକ ଅଭିଯୋଗ",
     "viewAll": "ସମସ୍ତ ଅଭିଯୋଗ ଦେଖନ୍ତୁ"
   }
