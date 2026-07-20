@@ -129,6 +129,7 @@
     "addOrg": "संगठन जोड़ें",
     "updateOrg": "संगठन अपडेट करें",
     "treeBulkHint": "CSV: department, sub_department, organization, officer_name, email, whatsapp_number",
+    "bulkDownloadTemplate": "CSV टेम्पलेट डाउनलोड करें",
     "manualAddTitle": "मैनुअल जोड़ें",
     "manualAddHint": "विभाग, उप-विभाग और संगठन एक-एक करके जोड़ें। बल्क CSV नीचे उपलब्ध है।",
     "addDepartment": "विभाग जोड़ें",
@@ -147,7 +148,21 @@
     "deptSpocTitle": "{name} — विभाग SPOC",
     "subSpocTitle": "{name} — उप-विभाग SPOC",
     "orgSpocTitle": "{name} — कार्यालय SPOC",
-    "selectOrgHint": "कार्यालय SPOC सेट करने के लिए नीचे RTO/OSRTC डिपो चुनें।"
+    "selectOrgHint": "कार्यालय SPOC सेट करने के लिए नीचे RTO/OSRTC डिपो चुनें।",
+    "taxonomySubtitle": "प्रत्येक विभाग, उप-विभाग और कार्यालय के लिए SPOC संपर्क निर्धारित करें।",
+    "taxonomyStepCategory": "सेवा श्रेणी चुनें",
+    "taxonomyStepSelect": "पदानुक्रम से एक आइटम चुनें",
+    "taxonomyStepSave": "SPOC विवरण भरें और सहेजें",
+    "taxonomyTreeHint": "SPOC संपर्क संपादित करने के लिए पंक्ति पर क्लिक करें। उप-विभाग और कार्यालय विस्तारित करने के लिए तीर का उपयोग करें।",
+    "taxonomySelectTitle": "कोई आइटम चयनित नहीं",
+    "taxonomySelectHint": "संपर्क विवरण संपादित करने के लिए बाईं सूची से विभाग, उप-विभाग या कार्यालय चुनें।",
+    "spocConfigured": "संपर्क सेट",
+    "spocNotConfigured": "कोई संपर्क नहीं",
+    "taxonomyLevelDept": "विभाग",
+    "taxonomyLevelSub": "उप-विभाग",
+    "taxonomyLevelOrg": "कार्यालय",
+    "taxonomyBulkAdvanced": "उन्नत: बल्क CSV आयात",
+    "taxonomyPath": "स्थान"
   },
   "osdSummary": {
     "assignedToday": "आज नियुक्त",
@@ -163,6 +178,7 @@
     "closed": "बंद"
   },
   "osdDashboard": {
+    "summary": "सारांश",
     "recent": "हाल की शिकायतें",
     "viewAll": "सभी शिकायतें देखें"
   }

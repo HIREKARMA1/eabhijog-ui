@@ -140,6 +140,7 @@
     "addOrg": "Add organization",
     "updateOrg": "Update organization",
     "treeBulkHint": "CSV: department, sub_department, organization, officer_name, designation, email, whatsapp_number",
+    "bulkDownloadTemplate": "Download CSV template",
     "manualAddTitle": "Manual add",
     "manualAddHint": "Add departments, sub-departments, and organizations one at a time. Bulk CSV import is available below.",
     "addDepartment": "Add department",
@@ -158,7 +159,21 @@
     "deptSpocTitle": "{name} — department SPOC",
     "subSpocTitle": "{name} — sub-department SPOC",
     "orgSpocTitle": "{name} — office SPOC",
-    "selectOrgHint": "Select an RTO or OSRTC depot below to set its office SPOC."
+    "selectOrgHint": "Select an RTO or OSRTC depot below to set its office SPOC.",
+    "taxonomySubtitle": "Assign a SPOC contact for each department, sub-department, and office.",
+    "taxonomyStepCategory": "Choose a service category",
+    "taxonomyStepSelect": "Select an item from the hierarchy",
+    "taxonomyStepSave": "Fill in SPOC details and save",
+    "taxonomyTreeHint": "Click a row to edit its SPOC contact. Use the arrow to expand sub-departments and offices.",
+    "taxonomySelectTitle": "No item selected",
+    "taxonomySelectHint": "Select a department, sub-department, or office from the list on the left to edit its contact details.",
+    "spocConfigured": "Contact set",
+    "spocNotConfigured": "No contact",
+    "taxonomyLevelDept": "Department",
+    "taxonomyLevelSub": "Sub-dept",
+    "taxonomyLevelOrg": "Office",
+    "taxonomyBulkAdvanced": "Advanced: bulk CSV import",
+    "taxonomyPath": "Location"
   },
   "osdSummary": {
     "assignedToday": "Assigned today",
@@ -174,6 +189,7 @@
     "closed": "Closed"
   },
   "osdDashboard": {
+    "summary": "Summary",
     "recent": "Recent Grievances",
     "viewAll": "View all grievances"
   }
