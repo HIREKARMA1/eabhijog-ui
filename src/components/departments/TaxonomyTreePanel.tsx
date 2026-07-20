@@ -95,7 +95,7 @@ function SpocFields({
               label={t("dashboard", "departments.whatsappNumber")}
               value={form.whatsapp_number}
               onChange={(e) => onChange({ ...form, whatsapp_number: e.target.value })}
-              placeholder="+918144496407"
+              placeholder="+91XXXXXXXXXX"
             />
     </div>
   );

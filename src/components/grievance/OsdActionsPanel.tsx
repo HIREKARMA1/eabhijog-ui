@@ -95,7 +95,7 @@ export function OsdActionsPanel({ data, osdSlug }: Props) {
             type="button"
             variant="secondary"
             className="w-full"
-            disabled={busy}
+            loading={busy}
             onClick={() =>
               run(
                 () => osdRequestMoreInfo(osdSlug, ref, infoRequestText.trim()),
@@ -133,7 +133,7 @@ export function OsdActionsPanel({ data, osdSlug }: Props) {
           <Button
             type="button"
             className="w-full"
-            disabled={busy}
+            loading={busy}
             onClick={() =>
               run(() => osdMarkResolved(osdSlug, ref), "Grievance marked resolved.")
             }
@@ -146,7 +146,7 @@ export function OsdActionsPanel({ data, osdSlug }: Props) {
           type="button"
           variant="secondary"
           className="w-full"
-          disabled={busy}
+          loading={busy}
           onClick={() =>
             run(() => osdEscalateToPs(osdSlug, ref), "Escalated to Private Secretary.")
           }
@@ -166,7 +166,8 @@ export function OsdActionsPanel({ data, osdSlug }: Props) {
               type="button"
               variant="secondary"
               className="w-full"
-              disabled={busy || reassignCategory === data.grievance.osd_category}
+              loading={busy}
+              disabled={reassignCategory === data.grievance.osd_category}
               onClick={() =>
                 run(
                   () => osdReassignGrievance(osdSlug, ref, reassignCategory),
@@ -194,7 +195,8 @@ export function OsdActionsPanel({ data, osdSlug }: Props) {
               type="button"
               variant="secondary"
               className="w-full"
-              disabled={busy || priority === data.grievance.priority}
+              loading={busy}
+              disabled={priority === data.grievance.priority}
               onClick={() =>
                 run(
                   () =>

@@ -1,4 +1,4 @@
-import { OsdLayout } from "@/components/layout/OsdLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdConversationPanel } from "@/components/grievance/OsdConversationPanel";
 import { getOsdConversation } from "@/lib/api/server-portal";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
@@ -11,8 +11,11 @@ export default async function OsdGrievanceConversationPage({ params }: PageProps
   const data = await getOsdConversation(slug, ref.toUpperCase());
 
   return (
-    <OsdLayout osdSlug={slug} breadcrumb={<strong>{data.reference_number}</strong>}>
+    <>
+      <SetBreadcrumb>
+        <strong>{data.reference_number}</strong>
+      </SetBreadcrumb>
       <OsdConversationPanel data={data} osdSlug={slug} />
-    </OsdLayout>
+    </>
   );
 }

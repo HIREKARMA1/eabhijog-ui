@@ -1,9 +1,6 @@
 import { PageLoader } from "@/components/ui/Spinner";
 
+/** Content-area only — shell (sidebar/nav) stays from layout.tsx. */
 export default function Loading() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <PageLoader label="Loading…" />
-    </div>
-  );
+  return <PageLoader label="Loading…" className="min-h-[50vh]" />;
 }

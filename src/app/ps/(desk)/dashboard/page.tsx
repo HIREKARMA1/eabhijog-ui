@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { PsLayout } from "@/components/layout/PsLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsDashboardOverview } from "@/components/ps/PsDashboardOverview";
 import { getPsDashboard } from "@/lib/api/server-portal";
 
@@ -13,8 +13,11 @@ export default async function PsDashboardPage() {
   }
 
   return (
-    <PsLayout breadcrumb={<strong>Private Secretary Dashboard</strong>}>
+    <>
+      <SetBreadcrumb>
+        <strong>Private Secretary Dashboard</strong>
+      </SetBreadcrumb>
       <PsDashboardOverview data={dashboard} />
-    </PsLayout>
+    </>
   );
 }

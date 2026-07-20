@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
-import { OsdLayout } from "@/components/layout/OsdLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsGrievancesView } from "@/components/ps/PsGrievancesView";
 import { getConstants } from "@/lib/api/server-portal";
 import { serverApiRequest } from "@/lib/api/server";
@@ -52,20 +51,21 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
   const { items, total } = grievancesRes.data;
 
   return (
-    <OsdLayout osdSlug={slug} breadcrumb="Grievances">
-      <Suspense fallback={null}>
-        <PsGrievancesView
-          items={items}
-          total={total}
-          constants={constants}
-          filters={filters}
-          basePath={`/osd/${slug}/grievances`}
-          detailHrefPrefix={`/osd/${slug}/grievance/`}
-          hideOsdCategory
-          currentPage={currentPage}
-          pageSize={PAGE_SIZE}
-        />
-      </Suspense>
-    </OsdLayout>
+    <>
+      <SetBreadcrumb>
+        <strong>Grievances</strong>
+      </SetBreadcrumb>
+      <PsGrievancesView
+        items={items}
+        total={total}
+        constants={constants}
+        filters={filters}
+        basePath={`/osd/${slug}/grievances`}
+        detailHrefPrefix={`/osd/${slug}/grievance/`}
+        hideOsdCategory
+        currentPage={currentPage}
+        pageSize={PAGE_SIZE}
+      />
+    </>
   );
 }

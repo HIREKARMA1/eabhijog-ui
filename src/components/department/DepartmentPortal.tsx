@@ -321,13 +321,34 @@ export function DepartmentPortal({ token }: { token: string }) {
                     : "Submit Department Action"
                 }
               >
+                {view.status === "forwarded_to_department" ? (
+                  <div
+                    role="status"
+                    className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                  >
+                    Acknowledge receipt first. Submit Resolution stays disabled until
+                    acknowledgement is recorded.
+                  </div>
+                ) : null}
                 {view.status === "action_taken" ? (
                   <p className="mb-3 text-sm text-text-muted">
                     Action already recorded. You can post additional updates (with photos/video)
                     — each one is shared with the citizen on WhatsApp.
                   </p>
                 ) : null}
-                <form onSubmit={onRespond} className="space-y-3">
+                <form
+                  onSubmit={(e) => {
+                    if (view.status === "forwarded_to_department") {
+                      e.preventDefault();
+                      setFormError(
+                        "Please acknowledge receipt before submitting a resolution.",
+                      );
+                      return;
+                    }
+                    void onRespond(e);
+                  }}
+                  className="space-y-3"
+                >
                   <Input
                     label="Officer name"
                     name="officer_name_respond"
@@ -335,6 +356,7 @@ export function DepartmentPortal({ token }: { token: string }) {
                     onChange={(e) => setOfficerName(e.target.value)}
                     required
                     minLength={2}
+                    disabled={view.status === "forwarded_to_department"}
                   />
                   <Textarea
                     label={view.status === "action_taken" ? "Update details" : "Action taken"}
@@ -345,6 +367,7 @@ export function DepartmentPortal({ token }: { token: string }) {
                     placeholder="Describe the action taken to resolve this grievance..."
                     value={responseText}
                     onChange={(e) => setResponseText(e.target.value)}
+                    disabled={view.status === "forwarded_to_department"}
                   />
                   <FileField
                     label="Attach photos / video (optional)"
@@ -352,10 +375,34 @@ export function DepartmentPortal({ token }: { token: string }) {
                     files={respondFiles}
                     onChange={setRespondFiles}
                   />
-                  <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
-                    {submitting ? <Spinner className="h-4 w-4" /> : null}
-                    {view.status === "action_taken" ? "Submit Update" : "Submit Resolution"}
-                  </Button>
+                  <span
+                    className="inline-flex w-full sm:w-auto"
+                    title={
+                      view.status === "forwarded_to_department"
+                        ? "Please acknowledge receipt before submitting a resolution."
+                        : undefined
+                    }
+                    onClick={() => {
+                      if (view.status === "forwarded_to_department") {
+                        setFormError(
+                          "Please acknowledge receipt before submitting a resolution.",
+                        );
+                      }
+                    }}
+                  >
+                    <Button
+                      type="submit"
+                      loading={submitting}
+                      disabled={view.status === "forwarded_to_department"}
+                      className={
+                        view.status === "forwarded_to_department"
+                          ? "w-full sm:w-auto pointer-events-none"
+                          : "w-full sm:w-auto"
+                      }
+                    >
+                      {view.status === "action_taken" ? "Submit Update" : "Submit Resolution"}
+                    </Button>
+                  </span>
                 </form>
               </Card>
             ) : COMPLETED_STATUSES.has(view.status) ? (
