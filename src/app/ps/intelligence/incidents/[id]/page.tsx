@@ -1,4 +1,4 @@
-import { IntelligenceLayout } from "@/components/layout/IntelligenceLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsIntelligenceIncidentDetail } from "@/components/ps/intelligence/PsIntelligenceIncidentDetail";
 
 export default async function PsIntelligenceIncidentPage({
@@ -8,8 +8,11 @@ export default async function PsIntelligenceIncidentPage({
 }) {
   const { id } = await params;
   return (
-    <IntelligenceLayout breadcrumb={<strong>Incident #{id}</strong>}>
+    <>
+      <SetBreadcrumb>
+        <strong>Incident #{id}</strong>
+      </SetBreadcrumb>
       <PsIntelligenceIncidentDetail id={Number(id)} />
-    </IntelligenceLayout>
+    </>
   );
 }

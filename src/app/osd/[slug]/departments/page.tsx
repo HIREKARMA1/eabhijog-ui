@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { DepartmentManagementPanel } from "@/components/departments/DepartmentManagementPanel";
-import { OsdLayout } from "@/components/layout/OsdLayout";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
 
 type PageProps = {
@@ -17,8 +17,11 @@ export default async function OsdDepartmentsPage({ params }: PageProps) {
   }
 
   return (
-    <OsdLayout osdSlug={slug} breadcrumb="Departments">
+    <>
+      <SetBreadcrumb>
+        <strong>Departments</strong>
+      </SetBreadcrumb>
       <DepartmentManagementPanel osdSlug={slug} />
-    </OsdLayout>
+    </>
   );
 }

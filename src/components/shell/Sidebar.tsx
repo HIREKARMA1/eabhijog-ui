@@ -57,7 +57,14 @@ export function Sidebar({
                 ? t("ps", item.labelKey.replace("ps.", ""))
                 : t("dashboard", item.labelKey);
 
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            // Prefer the longest matching nav href so parent + child items
+            // (e.g. Intelligence vs Queue) are not both marked active.
+            const matches = nav
+              .filter(
+                (n) => pathname === n.href || pathname.startsWith(`${n.href}/`),
+              )
+              .sort((a, b) => b.href.length - a.href.length);
+            const active = matches[0]?.href === item.href;
 
             return (
               <div key={item.href} className="mb-1">

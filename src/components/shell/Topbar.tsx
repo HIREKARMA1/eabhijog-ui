@@ -13,7 +13,7 @@ export function Topbar({ breadcrumb, onMenuClick }: TopbarProps) {
   const { t } = useI18n();
 
   return (
-    <header className="z-30 flex min-h-14 items-center gap-3 border-b border-border bg-surface-card px-4 py-2 md:px-6 lg:sticky lg:top-[var(--portal-navbar-height)]">
+    <header className="z-30 flex min-h-14 shrink-0 items-center gap-3 border-b border-border bg-surface-card px-4 py-2.5 md:px-6">
       <Button
         type="button"
         variant="ghost"
@@ -24,7 +24,7 @@ export function Topbar({ breadcrumb, onMenuClick }: TopbarProps) {
       >
         <Icon name="menu" size={20} />
       </Button>
-      <div className="min-w-0 text-sm text-text-muted">{breadcrumb}</div>
+      <div className="min-w-0 text-base font-semibold text-slate-900">{breadcrumb}</div>
     </header>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { PsLayout } from "@/components/layout/PsLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsGrievancesView } from "@/components/ps/PsGrievancesView";
 import { getConstants } from "@/lib/api/server-portal";
 import { isMockDataMode } from "@/config/env";
@@ -49,17 +49,14 @@ export default async function PsGrievancesPage({ searchParams }: PageProps) {
   }
 
   return (
-    <PsLayout
-      breadcrumb={
-        <>
-          <Link href="/ps/dashboard" className="hover:text-slate-900 hover:underline">
-            Private Secretary Dashboard
-          </Link>
-          {" > "}
-          <strong className="text-slate-900">Grievances</strong>
-        </>
-      }
-    >
+    <>
+      <SetBreadcrumb>
+        <Link href="/ps/dashboard" className="hover:text-slate-900 hover:underline">
+          Private Secretary Dashboard
+        </Link>
+        {" > "}
+        <strong className="text-slate-900">Grievances</strong>
+      </SetBreadcrumb>
       <PsGrievancesView
         items={items}
         total={total}
@@ -69,6 +66,6 @@ export default async function PsGrievancesPage({ searchParams }: PageProps) {
         pageSize={PAGE_SIZE}
         showHeader={false}
       />
-    </PsLayout>
+    </>
   );
 }

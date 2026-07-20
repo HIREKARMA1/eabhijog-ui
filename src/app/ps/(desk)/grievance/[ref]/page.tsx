@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { PsLayout } from "@/components/layout/PsLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsConversationPanel } from "@/components/ps/PsConversationPanel";
 import { getPsConversation } from "@/lib/api/server-portal";
 
@@ -16,8 +16,11 @@ export default async function PsGrievanceDetailPage({ params }: PageProps) {
   }
 
   return (
-    <PsLayout breadcrumb={<strong>{data.reference_number}</strong>}>
+    <>
+      <SetBreadcrumb>
+        <strong>{data.reference_number}</strong>
+      </SetBreadcrumb>
       <PsConversationPanel data={data} />
-    </PsLayout>
+    </>
   );
 }

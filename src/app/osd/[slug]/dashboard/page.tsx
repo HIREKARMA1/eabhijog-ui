@@ -1,4 +1,4 @@
-import { OsdLayout } from "@/components/layout/OsdLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdDashboardOverview } from "@/components/osd/OsdDashboardOverview";
 import { getOsdDashboard } from "@/lib/api/server-portal";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
@@ -22,8 +22,11 @@ export default async function OsdDashboardPage({ params }: PageProps) {
   }
 
   return (
-    <OsdLayout osdSlug={slug} breadcrumb={data.osd_category}>
+    <>
+      <SetBreadcrumb>
+        <strong>{data.osd_category}</strong>
+      </SetBreadcrumb>
       <OsdDashboardOverview data={data} osdSlug={slug} />
-    </OsdLayout>
+    </>
   );
 }

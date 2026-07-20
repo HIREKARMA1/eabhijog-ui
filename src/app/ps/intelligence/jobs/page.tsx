@@ -1,10 +1,13 @@
-import { IntelligenceLayout } from "@/components/layout/IntelligenceLayout";
+import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsIntelligenceJobs } from "@/components/ps/intelligence/PsIntelligenceJobs";
 
 export default function PsIntelligenceJobsPage() {
   return (
-    <IntelligenceLayout breadcrumb={<strong>Jobs</strong>}>
+    <>
+      <SetBreadcrumb>
+        <strong>Jobs</strong>
+      </SetBreadcrumb>
       <PsIntelligenceJobs />
-    </IntelligenceLayout>
+    </>
   );
 }

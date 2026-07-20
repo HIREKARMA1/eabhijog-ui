@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { isMockDataMode } from "@/config/env";
 import { getMockPsDashboard } from "@/lib/data/mock-loader";
 import { serverApiRequest } from "@/lib/api/server";
@@ -16,10 +18,16 @@ import type {
   StaffAccount,
 } from "@/types/api";
 
-export async function getCurrentUser() {
+/** Deduplicate /api/auth/me within a single RSC request (layout + page). */
+export const getCurrentUser = cache(async () => {
   const result = await serverApiRequest<AuthStaff>("/api/auth/me");
   return result.data;
-}
+});
+
+export const getOsdDashboard = cache(async (slug: string) => {
+  const result = await serverApiRequest<OsdDashboardData>(`/api/osd/${slug}/dashboard`);
+  return result.data;
+});
 
 export async function getPublicPortal() {
   const result = await serverApiRequest<PortalPublicData>("/api/public/portal");
@@ -52,11 +60,6 @@ export async function getPortalAnalytics() {
 
 export async function getConstants() {
   const result = await serverApiRequest<MetadataConstants>("/api/metadata/constants");
-  return result.data;
-}
-
-export async function getOsdDashboard(slug: string) {
-  const result = await serverApiRequest<OsdDashboardData>(`/api/osd/${slug}/dashboard`);
   return result.data;
 }
 

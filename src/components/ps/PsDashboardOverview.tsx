@@ -13,28 +13,30 @@ export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
   const { t } = useI18n();
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)] xl:items-start">
-        <div className="space-y-6">
-          <Section
-            title={t("ps", "sections.summary")}
-            className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
-          >
-            <PsSummaryGrid summary={data.summary} />
-          </Section>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+        {t("ps", "title")}
+      </h1>
 
-          <Section
-            title={t("ps", "sections.recent")}
-            className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
-            action={
-              <Link href="/ps/grievances" className="text-sm font-medium text-link hover:underline">
-                {t("ps", "recent.viewAll")}
-              </Link>
-            }
-          >
-            <PsRecentGrievancesTable items={data.recent_grievances} />
-          </Section>
-        </div>
+      <Section
+        title={t("ps", "sections.summary")}
+        className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
+      >
+        <PsSummaryGrid summary={data.summary} />
+      </Section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)] xl:items-start">
+        <Section
+          title={t("ps", "sections.recent")}
+          className="rounded-3xl bg-white/55 p-5 shadow-sm ring-1 ring-white/70"
+          action={
+            <Link href="/ps/grievances" className="text-sm font-medium text-link hover:underline">
+              {t("ps", "recent.viewAll")}
+            </Link>
+          }
+        >
+          <PsRecentGrievancesTable items={data.recent_grievances} />
+        </Section>
 
         <Section
           title={t("ps", "sections.analytics")}
