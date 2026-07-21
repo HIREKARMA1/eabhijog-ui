@@ -65,6 +65,8 @@
     "sectionCase": "मामले का विवरण",
     "dateFrom": "से",
     "dateTo": "तक",
+    "quickRange": "त्वरित सीमा",
+    "dateRangeHint": "कैलेंडर से प्रारंभ और समाप्ति तिथि चुनें, या त्वरित सीमा उपयोग करें, फिर Submit दबाएँ।",
     "totalDateWise": "कुल शिकायतें (तारीख के अनुसार)",
     "disposedDateWise": "निस्तारित (तारीख के अनुसार)",
     "pendingDateWise": "लंबित (तारीख के अनुसार)"
