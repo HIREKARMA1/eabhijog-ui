@@ -22,6 +22,42 @@ function hasActiveFilters(params: Record<string, string>) {
   return Object.values(rest).some(Boolean);
 }
 
+function toLocalISODate(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(base: Date, days: number) {
+  const next = new Date(base);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+/** Resolve quick presets into local calendar From/To values. */
+function rangeForPreset(preset: string): { from: string; to: string } | null {
+  if (!preset) return null;
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const to = toLocalISODate(today);
+
+  switch (preset) {
+    case "today":
+      return { from: to, to };
+    case "yesterday": {
+      const y = toLocalISODate(addDays(today, -1));
+      return { from: y, to: y };
+    }
+    case "last_7_days":
+      return { from: toLocalISODate(addDays(today, -6)), to };
+    case "last_30_days":
+      return { from: toLocalISODate(addDays(today, -29)), to };
+    default:
+      return null;
+  }
+}
+
 function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="space-y-2 border-b border-border pb-4 last:border-b-0 last:pb-0">
@@ -36,10 +72,11 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
   const { t } = useI18n();
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState<Record<string, string>>(current);
-  const isCustomRange = draft.date_preset === "custom";
   const activeFilterCount = useMemo(() => {
-    const keys = ["date_preset", "date_from", "date_to", "status"];
-    return keys.filter((key) => Boolean(draft[key])).length;
+    let count = 0;
+    if (draft.date_from || draft.date_to || draft.date_preset) count += 1;
+    if (draft.status) count += 1;
+    return count;
   }, [draft]);
   const [showFilters, setShowFilters] = useState(() => hasActiveFilters(current));
   const [searchDraft, setSearchDraft] = useState(current.search ?? "");
@@ -83,15 +120,38 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     if (value) next[key] = value;
     else delete next[key];
     delete next.page;
+    setDraft(next);
+  }
 
-    if (key === "date_preset" && value !== "custom") {
+  function applyQuickPreset(preset: string) {
+    const next = { ...draft };
+    delete next.page;
+
+    if (!preset) {
+      delete next.date_preset;
       delete next.date_from;
       delete next.date_to;
+      setDraft(next);
+      return;
     }
 
-    if (key === "date_preset" && value === "custom") {
-      setShowFilters(true);
-    }
+    const range = rangeForPreset(preset);
+    if (!range) return;
+    next.date_preset = preset;
+    next.date_from = range.from;
+    next.date_to = range.to;
+    setDraft(next);
+  }
+
+  function updateDateField(key: "date_from" | "date_to", value: string) {
+    const next = { ...draft };
+    if (value) next[key] = value;
+    else delete next[key];
+    delete next.page;
+
+    // Manual calendar picks are always a custom range for the API.
+    if (next.date_from || next.date_to) next.date_preset = "custom";
+    else delete next.date_preset;
 
     setDraft(next);
   }
@@ -110,9 +170,24 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     const trimmed = searchDraft.trim();
     if (trimmed) next.search = trimmed;
     else delete next.search;
+
+    // Normalize inverted ranges so Submit always sends a valid window.
+    if (next.date_from && next.date_to && next.date_from > next.date_to) {
+      const swap = next.date_from;
+      next.date_from = next.date_to;
+      next.date_to = swap;
+    }
+
+    if (next.date_from || next.date_to) {
+      next.date_preset = "custom";
+    }
+
     navigate(next);
     setShowFilters(false);
   }
+
+  const quickPresetValue =
+    draft.date_preset && draft.date_preset !== "custom" ? draft.date_preset : draft.date_from || draft.date_to ? "custom" : "";
 
   return (
     <div className="space-y-3" aria-busy={isPending}>
@@ -164,42 +239,46 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
         <div className="rounded-2xl border border-border bg-surface-card p-3 shadow-sm sm:p-4">
           <div className="space-y-4">
             <FilterGroup title={t("ps", "filters.sectionDate")}>
+              <Input
+                disabled={isPending}
+                type="date"
+                name="date_from"
+                label={t("ps", "filters.dateFrom")}
+                value={draft.date_from || ""}
+                max={draft.date_to || undefined}
+                onChange={(e) => updateDateField("date_from", e.target.value)}
+                className="w-full py-2"
+              />
+              <Input
+                disabled={isPending}
+                type="date"
+                name="date_to"
+                label={t("ps", "filters.dateTo")}
+                value={draft.date_to || ""}
+                min={draft.date_from || undefined}
+                onChange={(e) => updateDateField("date_to", e.target.value)}
+                className="w-full py-2"
+              />
               <Select
                 disabled={isPending}
-                value={draft.date_preset || ""}
-                onChange={(e) => update("date_preset", e.target.value)}
-                className="w-full sm:col-span-2 lg:col-span-3"
+                label={t("ps", "filters.quickRange")}
+                value={quickPresetValue}
+                onChange={(e) => applyQuickPreset(e.target.value)}
+                className="w-full"
                 options={[
                   { value: "", label: t("ps", "filters.allDates") },
                   { value: "today", label: t("ps", "filters.today") },
                   { value: "yesterday", label: t("ps", "filters.yesterday") },
                   { value: "last_7_days", label: t("ps", "filters.last7Days") },
                   { value: "last_30_days", label: t("ps", "filters.last30Days") },
-                  { value: "custom", label: t("ps", "filters.customRange") },
+                  ...(quickPresetValue === "custom"
+                    ? [{ value: "custom", label: t("ps", "filters.customRange") }]
+                    : []),
                 ]}
               />
-              {isCustomRange ? (
-                <>
-                  <Input
-                    disabled={isPending}
-                    type="date"
-                    name="date_from"
-                    label={t("ps", "filters.dateFrom")}
-                    value={draft.date_from || ""}
-                    onChange={(e) => update("date_from", e.target.value)}
-                    className="w-full py-2"
-                  />
-                  <Input
-                    disabled={isPending}
-                    type="date"
-                    name="date_to"
-                    label={t("ps", "filters.dateTo")}
-                    value={draft.date_to || ""}
-                    onChange={(e) => update("date_to", e.target.value)}
-                    className="w-full py-2"
-                  />
-                </>
-              ) : null}
+              <p className="sm:col-span-2 lg:col-span-3 text-xs text-text-muted">
+                {t("ps", "filters.dateRangeHint")}
+              </p>
             </FilterGroup>
 
             <FilterGroup title={t("ps", "filters.sectionGrievance")}>
