@@ -31,26 +31,14 @@ function FilterGroup({ title, children }: { title: string; children: ReactNode }
   );
 }
 
-export function PsGrievanceFilters({ basePath, constants, current, hideOsdCategory = false }: Props) {
+export function PsGrievanceFilters({ basePath, constants: _constants, current }: Props) {
   const router = useRouter();
   const { t } = useI18n();
   const [isPending, startTransition] = useTransition();
   const [draft, setDraft] = useState<Record<string, string>>(current);
   const isCustomRange = draft.date_preset === "custom";
   const activeFilterCount = useMemo(() => {
-    const keys = [
-      "date_preset",
-      "date_from",
-      "date_to",
-      "category",
-      "osd_category",
-      "status",
-      "district",
-      "constituency",
-      "department",
-      "priority",
-      "overdue",
-    ];
+    const keys = ["date_preset", "date_from", "date_to", "status"];
     return keys.filter((key) => Boolean(draft[key])).length;
   }, [draft]);
   const [showFilters, setShowFilters] = useState(() => hasActiveFilters(current));
@@ -125,29 +113,6 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
     navigate(next);
     setShowFilters(false);
   }
-
-  function statusLabel(bucket: string): string {
-    const translated = t("ps", `statusBuckets.${bucket}`);
-    return translated === `statusBuckets.${bucket}` ? bucket.replace(/_/g, " ") : translated;
-  }
-
-  const statusOptions = useMemo(() => {
-    const buckets = [...constants.ps_status_buckets];
-    if (hideOsdCategory) {
-      for (const bucket of [
-        "pending_acknowledgement",
-        "waiting_for_department",
-        "department_responded",
-        "citizen_waiting",
-      ]) {
-        if (!buckets.includes(bucket)) buckets.push(bucket);
-      }
-    }
-    return [
-      { value: "", label: t("ps", "filters.allStatuses") },
-      ...buckets.map((s) => ({ value: s, label: statusLabel(s) })),
-    ];
-  }, [constants.ps_status_buckets, hideOsdCategory, t]);
 
   return (
     <div className="space-y-3" aria-busy={isPending}>
@@ -240,91 +205,13 @@ export function PsGrievanceFilters({ basePath, constants, current, hideOsdCatego
             <FilterGroup title={t("ps", "filters.sectionGrievance")}>
               <Select
                 disabled={isPending}
-                value={draft.category || ""}
-                onChange={(e) => update("category", e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.allCategories") },
-                  ...constants.grievance_categories.map((c) => ({ value: c, label: c })),
-                ]}
-              />
-              <Select
-                disabled={isPending}
                 value={draft.status || ""}
                 onChange={(e) => update("status", e.target.value)}
                 className="w-full"
-                options={statusOptions}
-              />
-              {!hideOsdCategory ? (
-                <Select
-                  disabled={isPending}
-                  value={draft.osd_category || ""}
-                  onChange={(e) => update("osd_category", e.target.value)}
-                  className="w-full"
-                  options={[
-                    { value: "", label: t("ps", "filters.allOsds") },
-                    ...constants.osd_categories.map((c) => ({ value: c, label: `OSD ${c}` })),
-                  ]}
-                />
-              ) : null}
-            </FilterGroup>
-
-            <FilterGroup title={t("ps", "filters.sectionLocation")}>
-              <Select
-                disabled={isPending}
-                value={draft.district || ""}
-                onChange={(e) => update("district", e.target.value)}
-                className="w-full"
                 options={[
-                  { value: "", label: t("ps", "filters.allDistricts") },
-                  ...constants.districts.map((d) => ({ value: d, label: d })),
-                ]}
-              />
-              <Select
-                disabled={isPending}
-                value={draft.constituency || ""}
-                onChange={(e) => update("constituency", e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.allConstituencies") },
-                  ...constants.constituencies.map((c) => ({ value: c, label: c })),
-                ]}
-              />
-            </FilterGroup>
-
-            <FilterGroup title={t("ps", "filters.sectionCase")}>
-              <Select
-                disabled={isPending}
-                value={draft.department || ""}
-                onChange={(e) => update("department", e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.allDepartments") },
-                  ...(constants.departments ?? []).map((d) => ({ value: d, label: d })),
-                ]}
-              />
-              <Select
-                disabled={isPending}
-                value={draft.priority || ""}
-                onChange={(e) => update("priority", e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.allPriorities") },
-                  { value: "critical", label: t("ps", "filters.critical") },
-                  { value: "high", label: t("ps", "filters.high") },
-                  { value: "high_priority", label: t("ps", "filters.highPriority") },
-                  { value: "medium", label: t("ps", "filters.medium") },
-                  { value: "low", label: t("ps", "filters.low") },
-                ]}
-              />
-              <Select
-                disabled={isPending}
-                value={draft.overdue || ""}
-                onChange={(e) => update("overdue", e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.allCases") },
-                  { value: "true", label: t("ps", "filters.overdueOnly") },
+                  { value: "", label: t("ps", "filters.totalDateWise") },
+                  { value: "disposed", label: t("ps", "filters.disposedDateWise") },
+                  { value: "pending", label: t("ps", "filters.pendingDateWise") },
                 ]}
               />
             </FilterGroup>

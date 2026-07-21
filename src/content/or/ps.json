@@ -64,7 +64,10 @@
     "sectionLocation": "ଅବସ୍ଥାନ",
     "sectionCase": "କେସ୍ ବିବରଣୀ",
     "dateFrom": "ଠାରୁ",
-    "dateTo": "ପର୍ଯ୍ୟନ୍ତ"
+    "dateTo": "ପର୍ଯ୍ୟନ୍ତ",
+    "totalDateWise": "ମୋଟ ଅଭିଯୋଗ (ତାରିଖ ଅନୁଯାୟୀ)",
+    "disposedDateWise": "ନିଷ୍ପତ୍ତି ହୋଇଥିବା (ତାରିଖ ଅନୁଯାୟୀ)",
+    "pendingDateWise": "ବକେୟା (ତାରିଖ ଅନୁଯାୟୀ)"
   },
   "analytics": {
     "messagesToday": "ଆଜିର ବାର୍ତ୍ତା",
