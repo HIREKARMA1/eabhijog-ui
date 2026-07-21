@@ -64,7 +64,10 @@
     "sectionLocation": "स्थान",
     "sectionCase": "मामले का विवरण",
     "dateFrom": "से",
-    "dateTo": "तक"
+    "dateTo": "तक",
+    "totalDateWise": "कुल शिकायतें (तारीख के अनुसार)",
+    "disposedDateWise": "निस्तारित (तारीख के अनुसार)",
+    "pendingDateWise": "लंबित (तारीख के अनुसार)"
   },
   "analytics": {
     "messagesToday": "आज के संदेश",

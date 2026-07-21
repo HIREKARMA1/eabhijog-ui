@@ -64,7 +64,10 @@
     "sectionLocation": "Location",
     "sectionCase": "Case details",
     "dateFrom": "From",
-    "dateTo": "To"
+    "dateTo": "To",
+    "totalDateWise": "Total grievances (date-wise)",
+    "disposedDateWise": "Disposed (date-wise)",
+    "pendingDateWise": "Pending (date-wise)"
   },
   "analytics": {
     "messagesToday": "Messages Today",
