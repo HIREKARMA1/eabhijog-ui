@@ -451,7 +451,7 @@ export function TaxonomyTreePanel() {
             </p>
           </div>
 
-          <div className="max-h-[28rem] overflow-y-auto px-2 py-2">
+          <div className="max-h-112 overflow-y-auto px-2 py-2">
             {loading ? (
               <SectionLoader label={t("common", "actions.loading")} />
             ) : !tree || tree.departments.length === 0 ? (
@@ -483,22 +483,26 @@ export function TaxonomyTreePanel() {
                               depth={1}
                               configured={spocIsConfigured(spocFromSub(sub))}
                               selected={selectedSubId === sub.id && !selectedOrgId}
-                              expandable={sub.organizations.length > 0}
+                              expandable={
+                                dept.name !== "OSRTC" && sub.organizations.length > 0
+                              }
                               expanded={selectedSubId === sub.id}
                               onToggleExpand={() => selectSubDepartment(dept, sub)}
                               onSelect={() => selectSubDepartment(dept, sub)}
                             />
                             {selectedSubId === sub.id && sub.organizations.length > 0
-                              ? sub.organizations.map((org) => (
-                                  <TreeRow
-                                    key={org.id}
-                                    label={org.name}
-                                    depth={2}
-                                    configured={spocIsConfigured(spocFromOrg(org))}
-                                    selected={selectedOrgId === org.id}
-                                    onSelect={() => selectOrganization(dept, sub, org)}
-                                  />
-                                ))
+                              ? dept.name === "OSRTC"
+                                ? null
+                                : sub.organizations.map((org) => (
+                                    <TreeRow
+                                      key={org.id}
+                                      label={org.name}
+                                      depth={2}
+                                      configured={spocIsConfigured(spocFromOrg(org))}
+                                      selected={selectedOrgId === org.id}
+                                      onSelect={() => selectOrganization(dept, sub, org)}
+                                    />
+                                  ))
                               : null}
                           </div>
                         ))
@@ -516,7 +520,7 @@ export function TaxonomyTreePanel() {
           className="overflow-hidden rounded-xl border border-border bg-surface-card shadow-sm lg:col-span-3"
         >
           {!hasSelection ? (
-            <div className="flex min-h-[22rem] flex-col items-center justify-center px-6 py-12 text-center">
+            <div className="flex min-h-88 flex-col items-center justify-center px-6 py-12 text-center">
               <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-500">
                 <Icon name="departments" size={22} />
               </span>
