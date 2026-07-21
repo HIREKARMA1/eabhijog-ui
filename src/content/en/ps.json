@@ -65,6 +65,8 @@
     "sectionCase": "Case details",
     "dateFrom": "From",
     "dateTo": "To",
+    "quickRange": "Quick range",
+    "dateRangeHint": "Pick a start and end date from the calendar, or use a quick range, then Submit.",
     "totalDateWise": "Total grievances (date-wise)",
     "disposedDateWise": "Disposed (date-wise)",
     "pendingDateWise": "Pending (date-wise)"
