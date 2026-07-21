@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-import { Icon } from "@/components/icons/Icon";
+import { DateRangeCalendar } from "@/components/ps/DateRangeCalendar";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { useI18n } from "@/lib/i18n/context";
+import { cn } from "@/lib/utils/cn";
 import type { MetadataConstants } from "@/types/api";
 
 type Props = {
@@ -17,10 +17,8 @@ type Props = {
   hideOsdCategory?: boolean;
 };
 
-function hasActiveFilters(params: Record<string, string>) {
-  const { search: _search, page: _page, ...rest } = params;
-  return Object.values(rest).some(Boolean);
-}
+type FilterStep = "date" | "grievance";
+type DateMode = "all" | "today" | "yesterday" | "last_7_days" | "last_30_days" | "calendar";
 
 function toLocalISODate(d: Date) {
   const y = d.getFullYear();
@@ -35,14 +33,12 @@ function addDays(base: Date, days: number) {
   return next;
 }
 
-/** Resolve quick presets into local calendar From/To values. */
-function rangeForPreset(preset: string): { from: string; to: string } | null {
-  if (!preset) return null;
+function rangeForMode(mode: DateMode): { from: string; to: string } | null {
+  if (mode === "all" || mode === "calendar") return null;
   const today = new Date();
   today.setHours(12, 0, 0, 0);
   const to = toLocalISODate(today);
-
-  switch (preset) {
+  switch (mode) {
     case "today":
       return { from: to, to };
     case "yesterday": {
@@ -58,11 +54,115 @@ function rangeForPreset(preset: string): { from: string; to: string } | null {
   }
 }
 
-function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+function detectDateMode(params: Record<string, string>): DateMode {
+  const preset = params.date_preset;
+  if (preset === "today" || preset === "yesterday" || preset === "last_7_days" || preset === "last_30_days") {
+    return preset;
+  }
+  if (params.date_from || params.date_to || preset === "custom") return "calendar";
+  return "all";
+}
+
+function formatChipDate(from?: string, to?: string) {
+  if (!from && !to) return "";
+  if (from && to && from === to) return from;
+  if (from && to) return `${from} → ${to}`;
+  return from || to || "";
+}
+
+function RadioOption({
+  checked,
+  label,
+  onSelect,
+}: {
+  checked: boolean;
+  label: string;
+  onSelect: () => void;
+}) {
   return (
-    <div className="space-y-2 border-b border-border pb-4 last:border-b-0 last:pb-0">
-      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{title}</p>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors",
+        checked ? "bg-navy-700/5 text-navy-700" : "text-slate-800 hover:bg-slate-50",
+      )}
+    >
+      <span
+        className={cn(
+          "inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2",
+          checked ? "border-navy-700" : "border-slate-300",
+        )}
+        aria-hidden
+      >
+        {checked ? <span className="h-2 w-2 rounded-full bg-navy-700" /> : null}
+      </span>
+      <span className="min-w-0 flex-1 font-medium leading-snug">{label}</span>
+    </button>
+  );
+}
+
+function FilterModal({
+  open,
+  title,
+  hint,
+  onClose,
+  children,
+  footer,
+  size = "sm",
+}: {
+  open: boolean;
+  title: string;
+  hint?: string;
+  onClose: () => void;
+  children: ReactNode;
+  footer: ReactNode;
+  size?: "sm" | "md";
+}) {
+  useEffect(() => {
+    if (!open) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 bg-slate-900/50"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ps-filter-dialog-title"
+        className={cn(
+          "relative z-10 flex w-full flex-col overflow-hidden rounded-xl bg-white shadow-2xl",
+          size === "sm" ? "max-w-[17.5rem] sm:max-w-xs" : "max-w-[19rem] sm:max-w-sm",
+        )}
+      >
+        <div className="bg-navy-700 px-3 py-2 text-white">
+          <p id="ps-filter-dialog-title" className="text-sm font-semibold leading-snug">
+            {title}
+          </p>
+          {hint ? <p className="mt-0.5 text-[11px] leading-snug text-white/75">{hint}</p> : null}
+        </div>
+        <div className="max-h-[min(55vh,24rem)] overflow-y-auto">{children}</div>
+        <div className="flex items-center justify-between gap-2 border-t border-slate-200 bg-white px-3 py-2.5">
+          {footer}
+        </div>
+      </div>
     </div>
   );
 }
@@ -71,23 +171,24 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
   const router = useRouter();
   const { t } = useI18n();
   const [isPending, startTransition] = useTransition();
-  const [draft, setDraft] = useState<Record<string, string>>(current);
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (draft.date_from || draft.date_to || draft.date_preset) count += 1;
-    if (draft.status) count += 1;
-    return count;
-  }, [draft]);
-  const [showFilters, setShowFilters] = useState(() => hasActiveFilters(current));
   const [searchDraft, setSearchDraft] = useState(current.search ?? "");
-
-  useEffect(() => {
-    setDraft(current);
-  }, [current]);
+  const [open, setOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [step, setStep] = useState<FilterStep>("date");
+  const [dateMode, setDateMode] = useState<DateMode>(() => detectDateMode(current));
+  const [dateFrom, setDateFrom] = useState(current.date_from ?? "");
+  const [dateTo, setDateTo] = useState(current.date_to ?? "");
+  const [calendarFrom, setCalendarFrom] = useState(current.date_from ?? "");
+  const [calendarTo, setCalendarTo] = useState(current.date_to ?? "");
+  const [status, setStatus] = useState(current.status ?? "");
 
   useEffect(() => {
     setSearchDraft(current.search ?? "");
-  }, [current.search]);
+    setDateMode(detectDateMode(current));
+    setDateFrom(current.date_from ?? "");
+    setDateTo(current.date_to ?? "");
+    setStatus(current.status ?? "");
+  }, [current]);
 
   useEffect(() => {
     const trimmed = searchDraft.trim();
@@ -115,79 +216,171 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     });
   }
 
-  function update(key: string, value: string) {
-    const next = { ...draft };
-    if (value) next[key] = value;
-    else delete next[key];
-    delete next.page;
-    setDraft(next);
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: t("ps", "filters.totalDateWise") },
+      { value: "disposed", label: t("ps", "filters.disposedDateWise") },
+      { value: "pending", label: t("ps", "filters.pendingDateWise") },
+    ],
+    [t],
+  );
+
+  const dateOptions = useMemo(
+    () => [
+      { value: "all" as const, label: t("ps", "filters.allDates") },
+      { value: "today" as const, label: t("ps", "filters.today") },
+      { value: "yesterday" as const, label: t("ps", "filters.yesterday") },
+      { value: "last_7_days" as const, label: t("ps", "filters.last7Days") },
+      { value: "last_30_days" as const, label: t("ps", "filters.last30Days") },
+      { value: "calendar" as const, label: t("ps", "filters.chooseFromCalendar") },
+    ],
+    [t],
+  );
+
+  const activeDateLabel = useMemo(() => {
+    const preset = current.date_preset;
+    if (!preset && !current.date_from && !current.date_to) return t("ps", "filters.allDates");
+    if (preset === "today") return t("ps", "filters.today");
+    if (preset === "yesterday") return t("ps", "filters.yesterday");
+    if (preset === "last_7_days") return t("ps", "filters.last7Days");
+    if (preset === "last_30_days") return t("ps", "filters.last30Days");
+    const custom = formatChipDate(current.date_from, current.date_to);
+    return custom || t("ps", "filters.allDates");
+  }, [current, t]);
+
+  const activeStatusLabel =
+    statusOptions.find((opt) => opt.value === (current.status ?? ""))?.label ??
+    t("ps", "filters.totalDateWise");
+
+  const filterChipLabel = useMemo(() => {
+    const hasDate = Boolean(current.date_from || current.date_to || current.date_preset);
+    const hasStatus = Boolean(current.status);
+    if (!hasDate && !hasStatus) return t("ps", "filters.button");
+    return `${activeDateLabel} · ${activeStatusLabel}`;
+  }, [activeDateLabel, activeStatusLabel, current, t]);
+
+  const hasActiveFilters = Boolean(
+    current.date_from || current.date_to || current.date_preset || current.status,
+  );
+
+  const canGoNext =
+    dateMode !== "calendar" || Boolean(dateFrom && dateTo && dateFrom <= dateTo);
+
+  const calendarReady = Boolean(calendarFrom && calendarTo && calendarFrom <= calendarTo);
+
+  function openFilters(at: FilterStep = "date") {
+    setDateMode(detectDateMode(current));
+    setDateFrom(current.date_from ?? "");
+    setDateTo(current.date_to ?? "");
+    setStatus(current.status ?? "");
+    setCalendarOpen(false);
+    setStep(at);
+    setOpen(true);
   }
 
-  function applyQuickPreset(preset: string) {
-    const next = { ...draft };
-    delete next.page;
-
-    if (!preset) {
-      delete next.date_preset;
-      delete next.date_from;
-      delete next.date_to;
-      setDraft(next);
+  function selectDateMode(mode: DateMode) {
+    if (mode === "calendar") {
+      setDateMode("calendar");
+      const today = toLocalISODate(new Date());
+      setCalendarFrom(dateFrom || today);
+      setCalendarTo(dateTo || dateFrom || today);
+      setOpen(false);
+      setCalendarOpen(true);
       return;
     }
 
-    const range = rangeForPreset(preset);
+    setDateMode(mode);
+    if (mode === "all") {
+      setDateFrom("");
+      setDateTo("");
+      return;
+    }
+    const range = rangeForMode(mode);
     if (!range) return;
-    next.date_preset = preset;
-    next.date_from = range.from;
-    next.date_to = range.to;
-    setDraft(next);
+    setDateFrom(range.from);
+    setDateTo(range.to);
   }
 
-  function updateDateField(key: "date_from" | "date_to", value: string) {
-    const next = { ...draft };
-    if (value) next[key] = value;
-    else delete next[key];
-    delete next.page;
+  function confirmCalendar() {
+    if (!calendarReady) return;
+    let from = calendarFrom;
+    let to = calendarTo;
+    if (from > to) {
+      const swap = from;
+      from = to;
+      to = swap;
+    }
+    setDateMode("calendar");
+    setDateFrom(from);
+    setDateTo(to);
+    setCalendarOpen(false);
+    setOpen(true);
+    setStep("grievance");
+  }
 
-    // Manual calendar picks are always a custom range for the API.
-    if (next.date_from || next.date_to) next.date_preset = "custom";
-    else delete next.date_preset;
+  function cancelCalendar() {
+    setCalendarOpen(false);
+    setOpen(true);
+    setStep("date");
+    if (dateMode === "calendar" && !(dateFrom && dateTo)) {
+      setDateMode("all");
+    }
+  }
 
-    setDraft(next);
+  function applyFilters() {
+    const next: Record<string, string> = {};
+    const trimmed = searchDraft.trim();
+    if (trimmed) next.search = trimmed;
+
+    let from = dateFrom;
+    let to = dateTo;
+    if (from && to && from > to) {
+      const swap = from;
+      from = to;
+      to = swap;
+    }
+
+    if (dateMode === "all") {
+      // no date params
+    } else if (dateMode === "calendar") {
+      if (from) next.date_from = from;
+      if (to) next.date_to = to;
+      if (from || to) next.date_preset = "custom";
+    } else {
+      next.date_preset = dateMode;
+      if (from) next.date_from = from;
+      if (to) next.date_to = to;
+    }
+
+    if (status) next.status = status;
+
+    navigate(next);
+    setOpen(false);
+    setCalendarOpen(false);
   }
 
   function resetFilters() {
-    setDraft({});
+    setDateMode("all");
+    setDateFrom("");
+    setDateTo("");
+    setStatus("");
     setSearchDraft("");
-    setShowFilters(false);
+    setOpen(false);
+    setCalendarOpen(false);
     startTransition(() => {
       router.replace(basePath, { scroll: false });
     });
   }
 
-  function applyFilters() {
-    const next = { ...draft };
-    const trimmed = searchDraft.trim();
-    if (trimmed) next.search = trimmed;
-    else delete next.search;
-
-    // Normalize inverted ranges so Submit always sends a valid window.
-    if (next.date_from && next.date_to && next.date_from > next.date_to) {
-      const swap = next.date_from;
-      next.date_from = next.date_to;
-      next.date_to = swap;
-    }
-
-    if (next.date_from || next.date_to) {
-      next.date_preset = "custom";
-    }
-
-    navigate(next);
-    setShowFilters(false);
-  }
-
-  const quickPresetValue =
-    draft.date_preset && draft.date_preset !== "custom" ? draft.date_preset : draft.date_from || draft.date_to ? "custom" : "";
+  const weekdayLabels = [
+    t("ps", "filters.weekdaySu"),
+    t("ps", "filters.weekdayMo"),
+    t("ps", "filters.weekdayTu"),
+    t("ps", "filters.weekdayWe"),
+    t("ps", "filters.weekdayTh"),
+    t("ps", "filters.weekdayFr"),
+    t("ps", "filters.weekdaySa"),
+  ];
 
   return (
     <div className="space-y-3" aria-busy={isPending}>
@@ -217,101 +410,130 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
             className="w-full py-2 pl-9"
           />
         </div>
-        <Button
+
+        <button
           type="button"
-          variant="outline"
-          size="md"
-          className="relative shrink-0 min-w-28"
-          onClick={() => setShowFilters((v) => !v)}
-          aria-expanded={showFilters}
+          disabled={isPending}
+          onClick={() => openFilters("date")}
+          className="inline-flex max-w-[40vw] shrink-0 items-center gap-1.5 rounded-full bg-navy-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm sm:max-w-xs"
         >
-          <Icon name="filter" size={16} />
-          {t("ps", "filters.button")}
-          {activeFilterCount > 0 ? (
-            <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-saffron px-1.5 text-xs font-semibold text-white">
-              {activeFilterCount}
-            </span>
-          ) : null}
-        </Button>
+          <span className="truncate">{filterChipLabel}</span>
+          <span aria-hidden className="text-white/80">
+            ▾
+          </span>
+        </button>
+
+        {hasActiveFilters || current.search ? (
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={resetFilters}
+            className="shrink-0 px-1.5 py-2 text-sm font-medium text-slate-600 underline-offset-2 hover:underline"
+          >
+            {t("ps", "filters.reset")}
+          </button>
+        ) : null}
       </div>
 
-      {showFilters ? (
-        <div className="rounded-2xl border border-border bg-surface-card p-3 shadow-sm sm:p-4">
-          <div className="space-y-4">
-            <FilterGroup title={t("ps", "filters.sectionDate")}>
-              <Input
-                disabled={isPending}
-                type="date"
-                name="date_from"
-                label={t("ps", "filters.dateFrom")}
-                value={draft.date_from || ""}
-                max={draft.date_to || undefined}
-                onChange={(e) => updateDateField("date_from", e.target.value)}
-                className="w-full py-2"
-              />
-              <Input
-                disabled={isPending}
-                type="date"
-                name="date_to"
-                label={t("ps", "filters.dateTo")}
-                value={draft.date_to || ""}
-                min={draft.date_from || undefined}
-                onChange={(e) => updateDateField("date_to", e.target.value)}
-                className="w-full py-2"
-              />
-              <Select
-                disabled={isPending}
-                label={t("ps", "filters.quickRange")}
-                value={quickPresetValue}
-                onChange={(e) => applyQuickPreset(e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.allDates") },
-                  { value: "today", label: t("ps", "filters.today") },
-                  { value: "yesterday", label: t("ps", "filters.yesterday") },
-                  { value: "last_7_days", label: t("ps", "filters.last7Days") },
-                  { value: "last_30_days", label: t("ps", "filters.last30Days") },
-                  ...(quickPresetValue === "custom"
-                    ? [{ value: "custom", label: t("ps", "filters.customRange") }]
-                    : []),
-                ]}
-              />
-              <p className="sm:col-span-2 lg:col-span-3 text-xs text-text-muted">
-                {t("ps", "filters.dateRangeHint")}
-              </p>
-            </FilterGroup>
-
-            <FilterGroup title={t("ps", "filters.sectionGrievance")}>
-              <Select
-                disabled={isPending}
-                value={draft.status || ""}
-                onChange={(e) => update("status", e.target.value)}
-                className="w-full"
-                options={[
-                  { value: "", label: t("ps", "filters.totalDateWise") },
-                  { value: "disposed", label: t("ps", "filters.disposedDateWise") },
-                  { value: "pending", label: t("ps", "filters.pendingDateWise") },
-                ]}
-              />
-            </FilterGroup>
-          </div>
-
-          <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-border pt-4">
-            <Button
+      <FilterModal
+        open={open && !calendarOpen}
+        title={
+          step === "date" ? t("ps", "filters.dateStepTitle") : t("ps", "filters.grievanceStepTitle")
+        }
+        hint={step === "date" ? t("ps", "filters.dateStepHint") : t("ps", "filters.grievanceStepHint")}
+        onClose={() => setOpen(false)}
+        size="sm"
+        footer={
+          <>
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
-              onClick={resetFilters}
-              disabled={isPending && Object.keys(current).length === 0}
+              className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700"
+              onClick={() => {
+                if (step === "grievance") setStep("date");
+                else setOpen(false);
+              }}
             >
-              {t("ps", "filters.reset")}
-            </Button>
-            <Button type="button" size="sm" onClick={applyFilters} disabled={isPending}>
-              {t("common", "actions.submit")}
-            </Button>
+              {step === "grievance" ? t("ps", "filters.back") : t("common", "actions.cancel")}
+            </button>
+            {step === "date" ? (
+              <Button
+                type="button"
+                size="sm"
+                disabled={!canGoNext || isPending}
+                onClick={() => setStep("grievance")}
+              >
+                {t("ps", "filters.next")}
+              </Button>
+            ) : (
+              <Button type="button" size="sm" disabled={isPending} onClick={applyFilters}>
+                {t("common", "actions.submit")}
+              </Button>
+            )}
+          </>
+        }
+      >
+        {step === "date" ? (
+          <div className="divide-y divide-slate-100 py-1">
+            {dateOptions.map((opt) => (
+              <RadioOption
+                key={opt.value}
+                checked={dateMode === opt.value}
+                label={opt.label}
+                onSelect={() => selectDateMode(opt.value)}
+              />
+            ))}
           </div>
+        ) : (
+          <div className="divide-y divide-slate-100 py-1">
+            {statusOptions.map((opt) => (
+              <RadioOption
+                key={opt.value || "total"}
+                checked={status === opt.value}
+                label={opt.label}
+                onSelect={() => setStatus(opt.value)}
+              />
+            ))}
+          </div>
+        )}
+      </FilterModal>
+
+      <FilterModal
+        open={calendarOpen}
+        title={t("ps", "filters.calendarModalTitle")}
+        hint={t("ps", "filters.calendarModalHint")}
+        onClose={cancelCalendar}
+        size="sm"
+        footer={
+          <>
+            <button
+              type="button"
+              className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700"
+              onClick={cancelCalendar}
+            >
+              {t("common", "actions.cancel")}
+            </button>
+            <Button type="button" size="sm" disabled={!calendarReady} onClick={confirmCalendar}>
+              {t("ps", "filters.ok")}
+            </Button>
+          </>
+        }
+      >
+        <div className="p-1.5">
+          <DateRangeCalendar
+            from={calendarFrom}
+            to={calendarTo}
+            onChange={({ from, to }) => {
+              setCalendarFrom(from);
+              setCalendarTo(to);
+            }}
+            labels={{
+              from: t("ps", "filters.dateFrom"),
+              to: t("ps", "filters.dateTo"),
+              weekdays: weekdayLabels,
+            }}
+          />
         </div>
-      ) : null}
+      </FilterModal>
     </div>
   );
 }
