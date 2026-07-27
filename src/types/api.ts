@@ -318,6 +318,25 @@ export type PsSummaryCards = {
   closed: number;
   high_priority: number;
   overdue_cases: number;
+  pending?: number;
+  disposed?: number;
+  discarded?: number;
+};
+
+export type PsMisSlice = {
+  key: string;
+  label: string;
+  count: number;
+  href: string;
+};
+
+export type PsMisAnalyticsData = {
+  summary: PsSummaryCards;
+  by_status: PsMisSlice[];
+  by_priority: PsMisSlice[];
+  by_osd: PsMisSlice[];
+  by_department: PsMisSlice[];
+  trend_14d: PsMisSlice[];
 };
 
 export type PsWhatsAppAnalytics = {
@@ -349,6 +368,15 @@ export type PsGrievanceRow = {
   resolution_hours: number | null;
   title: string | null;
   ai_summary: string | null;
+  citizen_pincode?: string;
+  citizen_email?: string;
+  sub_department?: string;
+  organization?: string;
+  location?: string;
+  description?: string;
+  resolved_at?: string | null;
+  block?: string | null;
+  geographic_district?: string;
 };
 
 export type PsDashboardData = {

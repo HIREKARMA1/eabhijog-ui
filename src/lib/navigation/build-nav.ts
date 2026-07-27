@@ -97,6 +97,7 @@ export function buildPsNav(): NavItem[] {
       section: "nav.main",
     },
     { href: "/ps/grievances", labelKey: "ps.nav.grievances", icon: "grievances" },
+    { href: "/ps/mis", labelKey: "ps.nav.mis", icon: "reports" },
     // Press Intelligence nav hidden for now — routes still exist; re-enable via
     // ...buildIntelligenceNavItems() when ready to show again.
     { href: "/ps/taxonomy", labelKey: "ps.nav.taxonomy", icon: "departments" },
