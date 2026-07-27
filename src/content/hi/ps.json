@@ -121,12 +121,66 @@
   "nav": {
     "dashboard": "डैशबोर्ड",
     "grievances": "शिकायतें",
+    "mis": "MIS",
     "intelligence": "प्रेस इंटेलिजेंस",
     "intelligenceQueue": "समीक्षा कतार",
     "intelligenceIncidents": "घटनाएँ",
     "intelligenceAnalytics": "विश्लेषण",
     "intelligenceJobs": "जॉब और अपलोड",
     "osd": "OSD खाते"
+  },
+  "mis": {
+    "title": "MIS",
+    "analyticsSubtitle": "सिस्टम-व्यापी शिकायत संख्या, चार्ट और रुझान। कार्ड या चार्ट पर क्लिक कर मिलान वाली शिकायतें खोलें।",
+    "exportCsv": "CSV निर्यात",
+    "exportFailed": "रिकॉर्ड निर्यात नहीं हो सका। कृपया फिर कोशिश करें।",
+    "showing": "{total} में से {from}-{to} दिखाए जा रहे हैं",
+    "previous": "पिछला",
+    "next": "अगला",
+    "pageOf": "पृष्ठ {page} / {pages}",
+    "cards": {
+      "totalGrievances": "कुल शिकायतें",
+      "newToday": "आज नई",
+      "pending": "लंबित",
+      "disposed": "निस्तारित",
+      "pendingReview": "समीक्षा लंबित",
+      "forwardedToDepartment": "विभाग को अग्रेषित",
+      "resolved": "सुलझाई",
+      "closed": "बंद",
+      "highPriority": "उच्च प्राथमिकता",
+      "overdueCases": "अतिदेय"
+    },
+    "charts": {
+      "status": "स्थिति के अनुसार",
+      "priority": "प्राथमिकता के अनुसार",
+      "byOsd": "OSD / श्रेणी के अनुसार",
+      "byDepartment": "विभाग के अनुसार",
+      "trend14d": "दाखिल — पिछले 14 दिन",
+      "empty": "अभी कोई डेटा नहीं"
+    },
+    "status": {
+      "pending_review": "समीक्षा लंबित",
+      "under_osd_review": "OSD समीक्षा में",
+      "forwarded_to_department": "विभाग को अग्रेषित",
+      "waiting_for_department_response": "विभाग प्रतिक्रिया प्रतीक्षा",
+      "resolved": "सुलझाई",
+      "closed": "बंद",
+      "discarded": "रद्द"
+    },
+    "priority": {
+      "low": "निम्न",
+      "normal": "सामान्य",
+      "high": "उच्च",
+      "urgent": "अत्यावश्यक"
+    },
+    "table": {
+      "filedOn": "दर्ज तिथि",
+      "pincode": "पिनकोड",
+      "department": "विभाग",
+      "organization": "संगठन",
+      "location": "स्थान",
+      "title": "शीर्षक / विवरण"
+    }
   },
   "osd": {
     "title": "OSD खाते",

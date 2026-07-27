@@ -121,6 +121,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "grievances": "Grievances",
+    "mis": "MIS",
     "intelligence": "Press Intelligence",
     "intelligenceQueue": "Review queue",
     "intelligenceIncidents": "Incidents",
@@ -128,6 +129,59 @@
     "intelligenceJobs": "Jobs & uploads",
     "taxonomy": "Department Taxonomy",
     "osd": "OSD Accounts"
+  },
+  "mis": {
+    "title": "MIS",
+    "analyticsSubtitle": "System-wide grievance counts, charts, and trends. Tap a card or chart segment to open matching grievances.",
+    "exportCsv": "Export CSV",
+    "exportFailed": "Could not export records. Please try again.",
+    "showing": "Showing {from}-{to} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {pages}",
+    "cards": {
+      "totalGrievances": "Total Grievances",
+      "newToday": "New Today",
+      "pending": "Pending",
+      "disposed": "Disposed",
+      "pendingReview": "Pending Review",
+      "forwardedToDepartment": "Forwarded to Dept",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "highPriority": "High Priority",
+      "overdueCases": "Overdue"
+    },
+    "charts": {
+      "status": "By status",
+      "priority": "By priority",
+      "byOsd": "By OSD / category",
+      "byDepartment": "By department",
+      "trend14d": "Filings — last 14 days",
+      "empty": "No data yet"
+    },
+    "status": {
+      "pending_review": "Pending review",
+      "under_osd_review": "Under OSD review",
+      "forwarded_to_department": "Forwarded to department",
+      "waiting_for_department_response": "Waiting for department",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "discarded": "Cancelled"
+    },
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "table": {
+      "filedOn": "Filed On",
+      "pincode": "Pincode",
+      "department": "Department",
+      "organization": "Organization",
+      "location": "Location",
+      "title": "Title / Description"
+    }
   },
   "osd": {
     "title": "OSD Accounts",
