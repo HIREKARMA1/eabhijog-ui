@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n/context";
 import type { PsWhatsAppAnalytics } from "@/types/api";
 
 function formatHours(hours: number): string {
-  if (!hours) return "—";
+  if (!hours) return "-";
   if (hours < 1) return `${Math.round(hours * 60)}m`;
   return `${hours}h`;
 }

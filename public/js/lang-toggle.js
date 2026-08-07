@@ -1,4 +1,4 @@
-/** EN / Odia UI language toggle — shared across all pages */
+/** EN / Odia UI language toggle - shared across all pages */
 (function () {
   var STORAGE_KEY = "abhijog-ui-lang";
 

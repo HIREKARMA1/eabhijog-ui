@@ -49,8 +49,8 @@ export function AuthPanel({
         </h1>
         <p className="auth-panel-desc auth-anim" data-delay="320">
           <Bi
-            en="Sign in to serve your district — WhatsApp grievances in Odia & English, SLA tracking, and field coordination from Bhubaneswar to block level."
-            or="ଆପଣଙ୍କ ଜିଲ୍ଲାର ସେବା ପାଇଁ ସାଇନ ଇନ କରନ୍ତୁ — ଓଡ଼ିଆ ଓ ଇଂରାଜୀରେ WhatsApp ଅଭିଯୋଗ, SLA ଟ୍ରାକିଂ, ଭୁବନେଶ୍ୱରରୁ ବ୍ଲକ୍ ପର୍ଯ୍ୟନ୍ତ ସମନ୍ୱୟ।"
+            en="Sign in to serve your district - WhatsApp grievances in Odia & English, SLA tracking, and field coordination from Bhubaneswar to block level."
+            or="ଆପଣଙ୍କ ଜିଲ୍ଲାର ସେବା ପାଇଁ ସାଇନ ଇନ କରନ୍ତୁ - ଓଡ଼ିଆ ଓ ଇଂରାଜୀରେ WhatsApp ଅଭିଯୋଗ, SLA ଟ୍ରାକିଂ, ଭୁବନେଶ୍ୱରରୁ ବ୍ଲକ୍ ପର୍ଯ୍ୟନ୍ତ ସମନ୍ୱୟ।"
             block
           />
         </p>

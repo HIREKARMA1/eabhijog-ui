@@ -66,11 +66,11 @@ export function OsdGrievanceDetailView({
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-text-muted">Citizen</dt>
-            <dd>{grievance.citizen_name ?? "—"}</dd>
+            <dd>{grievance.citizen_name ?? "-"}</dd>
           </div>
           <div>
             <dt className="text-text-muted">{t("dashboard", "table.district")}</dt>
-            <dd>{grievance.geographic_district ?? grievance.district ?? "—"}</dd>
+            <dd>{grievance.geographic_district ?? grievance.district ?? "-"}</dd>
           </div>
           <div className="sm:col-span-2">
             <dt className="text-text-muted">Grievance</dt>

@@ -121,6 +121,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "grievances": "Grievances",
+    "hearings": "Online Hearing",
     "mis": "MIS",
     "intelligence": "Press Intelligence",
     "intelligenceQueue": "Review queue",
@@ -156,7 +157,7 @@
       "priority": "By priority",
       "byOsd": "By OSD / category",
       "byDepartment": "By department",
-      "trend14d": "Filings — last 14 days",
+      "trend14d": "Filings - last 14 days",
       "empty": "No data yet"
     },
     "status": {

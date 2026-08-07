@@ -47,7 +47,7 @@ export function GrievanceFilters({ statuses, districts, basePath }: GrievanceFil
         value={status}
         onChange={(e) => setStatus(e.target.value)}
         options={[
-          { value: "", label: "—" },
+          { value: "", label: "-" },
           ...statuses.map((s) => ({ value: s, label: s.replace(/_/g, " ") })),
         ]}
       />
@@ -56,7 +56,7 @@ export function GrievanceFilters({ statuses, districts, basePath }: GrievanceFil
         label={t("dashboard", "filters.district")}
         value={district}
         onChange={(e) => setDistrict(e.target.value)}
-        options={[{ value: "", label: "—" }, ...districts.map((d) => ({ value: d, label: d }))]}
+        options={[{ value: "", label: "-" }, ...districts.map((d) => ({ value: d, label: d }))]}
       />
       <Input
         name="search"

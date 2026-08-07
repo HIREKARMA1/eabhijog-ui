@@ -85,7 +85,7 @@ export function PsIntelligenceDashboard() {
                 <div>
                   <p className="font-medium text-slate-900">{c.title || c.summary || "Untitled"}</p>
                   <p className="text-xs text-text-muted">
-                    {c.source} · {c.district || "—"} · {Math.round((c.confidence ?? 0) * 100)}%
+                    {c.source} · {c.district || "-"} · {Math.round((c.confidence ?? 0) * 100)}%
                   </p>
                 </div>
                 <Link href={`/ps/intelligence/candidates/${c.id}`} className={intelLink}>

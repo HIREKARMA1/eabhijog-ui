@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n/context";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Spinner } from "@/components/ui/Spinner";
 import { Textarea } from "@/components/ui/Textarea";
 import { ApiError } from "@/lib/api/client";
@@ -17,9 +18,9 @@ import {
 import type { DepartmentGrievanceView } from "@/types/api";
 
 function formatDate(value: string | null, withTime = false): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return date.toLocaleString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -159,7 +160,7 @@ export function DepartmentPortal({ token }: { token: string }) {
   }
 
   return (
-    <div className="min-h-full bg-surface">
+    <div className="flex min-h-screen flex-col bg-surface">
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <div>
@@ -171,7 +172,7 @@ export function DepartmentPortal({ token }: { token: string }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
         {loading ? (
           <div className="flex justify-center py-20">
             <Spinner className="h-8 w-8" />
@@ -333,7 +334,7 @@ export function DepartmentPortal({ token }: { token: string }) {
                 {view.status === "action_taken" ? (
                   <p className="mb-3 text-sm text-text-muted">
                     Action already recorded. You can post additional updates (with photos/video)
-                    — each one is shared with the citizen on WhatsApp.
+                    - each one is shared with the citizen on WhatsApp.
                   </p>
                 ) : null}
                 <form
@@ -407,7 +408,7 @@ export function DepartmentPortal({ token }: { token: string }) {
               </Card>
             ) : COMPLETED_STATUSES.has(view.status) ? (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-success">
-                Action completed — no further steps required on this link.
+                Action completed - no further steps required on this link.
               </div>
             ) : null}
 
@@ -419,6 +420,8 @@ export function DepartmentPortal({ token }: { token: string }) {
           </div>
         ) : null}
       </main>
+
+      <PortalFooter />
     </div>
   );
 }

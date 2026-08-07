@@ -47,11 +47,11 @@ function formatProgressMessage(p: ProgressSnap, kind: JobKind): string {
     const pct = typeof p.percent === "number" ? ` (${p.percent}%)` : "";
     const pages =
       p.pages_total && p.pages_ocr
-        ? ` — OCR ${p.pages_ocr}/${p.pages_total} pages`
+        ? ` - OCR ${p.pages_ocr}/${p.pages_total} pages`
         : p.pages_total
-          ? ` — ${p.pages_total} pages`
+          ? ` - ${p.pages_total} pages`
           : "";
-    const detail = p.detail ? ` — ${p.detail}` : "";
+    const detail = p.detail ? ` - ${p.detail}` : "";
     return kind === "upload"
       ? `Processing upload: ${label}${pct}${pages}${detail}`
       : `Running e-paper analysis: ${label}${pct}${pages}${detail}`;
@@ -62,14 +62,14 @@ function formatProgressMessage(p: ProgressSnap, kind: JobKind): string {
     const n = p.candidates_found ?? 0;
     if (kind === "upload") {
       if (n === 0) {
-        return "Upload complete — no Transport clips detected in this scan. Check that the PDF includes Commerce & Transport grievances, or try a clearer scan.";
+        return "Upload complete - no Transport clips detected in this scan. Check that the PDF includes Commerce & Transport grievances, or try a clearer scan.";
       }
-      return `Upload complete — ${n} clip${n === 1 ? "" : "s"} ready in the review queue.`;
+      return `Upload complete - ${n} clip${n === 1 ? "" : "s"} ready in the review queue.`;
     }
     if (n === 0) {
-      return "E-paper analysis complete — no Transport clips found in today's selected papers. Try more sources or check Review queue for earlier runs.";
+      return "E-paper analysis complete - no Transport clips found in today's selected papers. Try more sources or check Review queue for earlier runs.";
     }
-    return `E-paper analysis complete — ${n} clip${n === 1 ? "" : "s"} ready in the review queue.`;
+    return `E-paper analysis complete - ${n} clip${n === 1 ? "" : "s"} ready in the review queue.`;
   }
   if (status === "failed") {
     return kind === "upload"
@@ -153,7 +153,7 @@ export function PsIntelligenceJobs() {
     setStatus("Starting e-paper job…");
     try {
       await runIntelligenceJob({ sources: selected, edition_date: "today" });
-      setStatus("Job started — downloading and OCR may take 15–40 minutes for Odia papers.");
+      setStatus("Job started - downloading and OCR may take 15-40 minutes for Odia papers.");
       refreshProgress();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Job failed");
@@ -194,8 +194,8 @@ export function PsIntelligenceJobs() {
   return (
     <div className="space-y-6">
       <IntelligencePageIntro
-        title="Step 1 — Collect clips"
-        description="Run e-papers or upload a scan. After analysis finishes, download the Department Information PDF (Commerce & Transport + Steel & Mines) for PS reading — then use Review queue for actionable Transport grievances."
+        title="Step 1 - Collect clips"
+        description="Run e-papers or upload a scan. After analysis finishes, download the Department Information PDF (Commerce & Transport + Steel & Mines) for PS reading - then use Review queue for actionable Transport grievances."
         action={
           <LinkButton href="/ps/intelligence/candidates" variant="outline">
             Next: Review queue →
@@ -210,10 +210,10 @@ export function PsIntelligenceJobs() {
       ) : null}
 
       <section className={intelCard}>
-        <h2 className="text-lg font-semibold text-slate-900">Option A — E-paper scrape</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Option A - E-paper scrape</h2>
         <p className={`mt-1 ${intelMuted}`}>
           Select Odia/English papers and run Transport extraction. Samaja + Sambad alone can take
-          20–35 minutes (OCR on ~37 pages).
+          20-35 minutes (OCR on ~37 pages).
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {sources.map((s) => (
@@ -244,9 +244,9 @@ export function PsIntelligenceJobs() {
       </section>
 
       <section className={intelCard}>
-        <h2 className="text-lg font-semibold text-slate-900">Option B — Upload PDF or scan</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Option B - Upload PDF or scan</h2>
         <p className={`mt-1 ${intelMuted}`}>
-          Upload JPG, PNG, or PDF (e.g. daily grievance report). Usually finishes in 1–3 minutes.
+          Upload JPG, PNG, or PDF (e.g. daily grievance report). Usually finishes in 1-3 minutes.
         </p>
         <input
           type="file"

@@ -14,7 +14,7 @@ export function PsDashboardOverview({ data }: { data: PsDashboardData }) {
 
   return (
     <div className="space-y-4">
-      {/* Full-width compact KPIs — no empty column beside a tall panel */}
+      {/* Full-width compact KPIs - no empty column beside a tall panel */}
       <Section
         title={t("ps", "sections.summary")}
         className="rounded-2xl bg-white/55 p-4 shadow-sm ring-1 ring-white/70"

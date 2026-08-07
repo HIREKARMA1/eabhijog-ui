@@ -64,7 +64,7 @@ Browser requests use `/backend/*` rewrites so session cookies stay on the UI ori
 ## Theming
 
 Edit `src/config/theme.ts` and CSS variables in `src/app/globals.css`.  
-All visible text lives in `src/content/{locale}/*.json` — not hardcoded in components.
+All visible text lives in `src/content/{locale}/*.json` - not hardcoded in components.
 
 ## Deploy separately
 

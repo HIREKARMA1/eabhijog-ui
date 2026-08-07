@@ -421,3 +421,127 @@ export type OsdConversationActions = {
   osd_categories: string[];
   can_mark_resolved: boolean;
 };
+
+export type HearingPublicSummary = {
+  id: number;
+  title: string;
+  description: string;
+  hearing_date: string;
+  hearing_end_at: string | null;
+  registration_opens_at: string;
+  registration_closes_at: string;
+  status: string;
+  registration_open: boolean;
+};
+
+export type HearingScreeningStats = {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  notified: number;
+  heard: number;
+};
+
+export type HearingDetail = {
+  id: number;
+  title: string;
+  description: string;
+  hearing_date: string;
+  hearing_end_at: string | null;
+  registration_opens_at: string;
+  registration_closes_at: string;
+  google_meet_link: string;
+  status: string;
+  registration_open: boolean;
+  created_at: string;
+  shortlisted_at: string | null;
+  notified_at: string | null;
+  completed_at: string | null;
+  stats: HearingScreeningStats | null;
+};
+
+export type HearingListData = {
+  items: HearingDetail[];
+  total: number;
+};
+
+export type HearingRegistrationRow = {
+  id: number;
+  hearing_id: number;
+  grievance_id: number;
+  reference_number: string;
+  citizen_name: string;
+  citizen_phone: string;
+  citizen_email: string;
+  citizen_pincode: string;
+  title: string;
+  grievance_text: string;
+  area: string;
+  service_category: string;
+  department: string;
+  sub_department: string;
+  organization: string;
+  osd_category: string;
+  geographic_district: string;
+  constituency: string;
+  screening_status: string;
+  rejection_remarks: string | null;
+  serial_number: number | null;
+  screened_at: string | null;
+  notified_at: string | null;
+  minister_remarks: string | null;
+  heard_at: string | null;
+  grievance_status: string;
+  attachments: GrievanceAttachment[];
+  created_at: string;
+};
+
+export type HearingRegistrationListData = {
+  items: HearingRegistrationRow[];
+  stats: HearingScreeningStats;
+  total: number;
+};
+
+export type HearingRegisterResult = {
+  registration_id: number;
+  reference_number: string;
+  hearing_id: number;
+  message: string;
+};
+
+export type HearingActionResult = {
+  hearing_id: number;
+  status: string;
+  message: string;
+  stats: HearingScreeningStats | null;
+  notified_count: number | null;
+};
+
+export type PublicTaxonomyOrganization = {
+  name: string;
+  is_other: boolean;
+};
+
+export type PublicTaxonomySubDepartment = {
+  name: string;
+  is_other: boolean;
+  organizations: PublicTaxonomyOrganization[];
+  issue_types: string[];
+};
+
+export type PublicTaxonomyDepartment = {
+  name: string;
+  is_other: boolean;
+  sub_departments: PublicTaxonomySubDepartment[];
+  skip_sub_steps: boolean;
+};
+
+export type PublicRegistrationTaxonomy = {
+  category: string;
+  is_district_picker: boolean;
+  auto_geographic_district: string | null;
+  auto_constituency: string | null;
+  organization_multi_select_department: string | null;
+  departments: PublicTaxonomyDepartment[];
+};

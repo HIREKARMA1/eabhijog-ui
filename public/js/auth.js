@@ -29,7 +29,7 @@
     });
   }
 
-  /* Reset form — live password match hint */
+  /* Reset form - live password match hint */
   var resetForm = document.getElementById("auth-reset-form");
   var pwdInput = document.getElementById("password");
   var confirmInput = document.getElementById("password_confirm");
