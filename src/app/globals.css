@@ -307,4 +307,25 @@ html[lang="hi"] body {
     outline: 2px solid var(--navy-700);
     outline-offset: 2px;
   }
+
+  /* Bilingual Bi() helper — mirrors legacy lang-toggle.css */
+  .i18n-or {
+    display: none !important;
+  }
+
+  body.ui-lang-or .i18n-en {
+    display: none !important;
+  }
+
+  body.ui-lang-or .i18n-or {
+    display: inline !important;
+  }
+
+  body:not(.ui-lang-or) .i18n-en.i18n-block {
+    display: block !important;
+  }
+
+  body.ui-lang-or .i18n-or.i18n-block {
+    display: block !important;
+  }
 }

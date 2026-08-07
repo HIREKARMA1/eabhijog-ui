@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 
 import { cn } from "@/lib/utils/cn";
 
@@ -293,7 +293,9 @@ export function DateTimePicker({
     onChange?.(nextValue);
   }
 
-  function applyDraft() {
+  function applyDraft(event?: MouseEvent) {
+    event?.preventDefault();
+    event?.stopPropagation();
     commit(draft);
     setOpen(false);
   }
@@ -307,13 +309,17 @@ export function DateTimePicker({
     }));
   }
 
-  function setToday() {
+  function setToday(event?: MouseEvent) {
+    event?.preventDefault();
+    event?.stopPropagation();
     const now = partsFromDate(new Date());
     setDraft(now);
     setViewMonth(startOfMonth(now.year, now.month));
   }
 
-  function clearValue() {
+  function clearValue(event?: MouseEvent) {
+    event?.preventDefault();
+    event?.stopPropagation();
     commit(null);
     setOpen(false);
   }
@@ -348,6 +354,8 @@ export function DateTimePicker({
           role="dialog"
           aria-label="Choose date and time"
           className="absolute left-0 right-0 z-40 mt-1.5 w-full max-w-[17rem] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl sm:right-auto"
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
         >
           <div className="bg-navy-700 px-2.5 py-1.5 text-white">
             <p className="text-[9px] font-medium uppercase tracking-wide text-white/70">

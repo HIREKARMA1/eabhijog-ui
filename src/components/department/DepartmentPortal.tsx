@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n/context";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Spinner } from "@/components/ui/Spinner";
 import { Textarea } from "@/components/ui/Textarea";
 import { ApiError } from "@/lib/api/client";
@@ -159,7 +160,7 @@ export function DepartmentPortal({ token }: { token: string }) {
   }
 
   return (
-    <div className="min-h-full bg-surface">
+    <div className="flex min-h-screen flex-col bg-surface">
       <header className="border-b border-border bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <div>
@@ -171,7 +172,7 @@ export function DepartmentPortal({ token }: { token: string }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
         {loading ? (
           <div className="flex justify-center py-20">
             <Spinner className="h-8 w-8" />
@@ -419,6 +420,8 @@ export function DepartmentPortal({ token }: { token: string }) {
           </div>
         ) : null}
       </main>
+
+      <PortalFooter />
     </div>
   );
 }

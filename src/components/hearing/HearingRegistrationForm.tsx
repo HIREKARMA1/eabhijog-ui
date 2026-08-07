@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Icon } from "@/components/icons/Icon";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Button } from "@/components/ui/Button";
 import { SectionLoader } from "@/components/ui/Spinner";
 import { HearingFieldLabel, HearingSelectField } from "@/components/hearing/HearingSelectField";
@@ -1161,6 +1162,8 @@ export function HearingRegistrationForm({ hearing }: Props) {
           </div>
         )}
       </main>
+
+      <PortalFooter />
 
       {imageModal ? (
         <MediaPreviewModal preview={imageModal} onClose={() => setImageModal(null)} />

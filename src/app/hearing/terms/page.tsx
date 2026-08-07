@@ -1,6 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 
 export const metadata = {
   title: "Terms & Conditions | Online Grievance Hearing",
@@ -28,7 +29,7 @@ export default function HearingTermsPage() {
           Terms &amp; Conditions - Online Grievance Hearing
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Government of Odisha · Jana Samadhan Grievance Management Portal
+          Government of Odisha ┬╖ Jana Samadhan Grievance Management Portal
         </p>
 
         <div className="prose prose-slate mt-8 max-w-none space-y-6 text-sm leading-relaxed text-slate-700">
@@ -102,6 +103,8 @@ export default function HearingTermsPage() {
           You may close this page and return to your registration form to continue.
         </p>
       </main>
+
+      <PortalFooter />
     </div>
   );
 }

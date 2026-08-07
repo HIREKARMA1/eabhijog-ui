@@ -242,37 +242,46 @@ export function HearingDesk({ canManage }: Props) {
             <span className="mb-1 block font-medium">Description</span>
             <textarea name="description" rows={2} className="w-full rounded-xl border px-3 py-2" />
           </label>
-          <label className="text-sm">
+          <div className="text-sm">
             <span className="mb-1 block font-medium">Hearing start</span>
             <DateTimePicker name="hearing_date" required placeholder="Select hearing start" />
-          </label>
-          <label className="text-sm">
+          </div>
+          <div className="text-sm">
             <span className="mb-1 block font-medium">Hearing end</span>
             <DateTimePicker name="hearing_end_at" placeholder="Select hearing end (optional)" />
-          </label>
-          <label className="text-sm">
+          </div>
+          <div className="text-sm">
             <span className="mb-1 block font-medium">Registration opens</span>
             <DateTimePicker
               name="registration_opens_at"
               required
               placeholder="Select registration open time"
             />
-          </label>
-          <label className="text-sm">
+          </div>
+          <div className="text-sm">
             <span className="mb-1 block font-medium">Registration closes</span>
             <DateTimePicker
               name="registration_closes_at"
               required
               placeholder="Select registration close time"
             />
-          </label>
+          </div>
           <label className="text-sm md:col-span-2">
             <span className="mb-1 block font-medium">Google Meet link</span>
             <input name="google_meet_link" className="w-full rounded-xl border px-3 py-2" />
           </label>
-          <div className="md:col-span-2">
+          <div className="flex flex-col gap-2 md:col-span-2 sm:flex-row sm:items-center">
             <Button type="submit" loading={busy} className="w-full sm:w-auto">
               Publish hearing
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={busy}
+              onClick={() => setShowCreate(false)}
+            >
+              Cancel
             </Button>
           </div>
         </form>

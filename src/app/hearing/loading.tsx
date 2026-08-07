@@ -2,6 +2,7 @@ import { Icon } from "@/components/icons/Icon";
 import Link from "next/link";
 
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { SectionLoader } from "@/components/ui/Spinner";
 
 export default function HearingLoading() {
@@ -27,6 +28,8 @@ export default function HearingLoading() {
           <SectionLoader label="Loading hearings…" />
         </div>
       </main>
+
+      <PortalFooter />
     </div>
   );
 }

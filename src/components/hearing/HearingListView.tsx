@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Icon } from "@/components/icons/Icon";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { cn } from "@/lib/utils/cn";
 import type { HearingPublicSummary } from "@/types/api";
 
@@ -182,6 +183,8 @@ export function HearingListView({ hearings }: HearingListViewProps) {
           </div>
         </div>
       </main>
+
+      <PortalFooter />
     </div>
   );
 }
@@ -195,9 +198,6 @@ function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-navy-700">
-              Hearing #{hearing.id}
-            </span>
             <RegistrationBadge open={hearing.registration_open} status={hearing.status} />
             {closesSoon ? (
               <span className="text-xs font-semibold text-amber-700">
@@ -209,7 +209,7 @@ function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
           <h3 className="mt-1.5 text-lg font-bold leading-snug text-slate-900">{hearing.title}</h3>
 
           {hearing.description ? (
-            <p className="mt-1 line-clamp-1 text-sm text-slate-600">{hearing.description}</p>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">{hearing.description}</p>
           ) : null}
 
           <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-700">

@@ -61,6 +61,9 @@ export function translate(
   params?: Record<string, string | number>,
 ): string {
   let value = resolvePath(getNamespace(locale, namespace), key);
+  if (!value && locale !== "en") {
+    value = resolvePath(getNamespace("en", namespace), key);
+  }
   if (!value) return key;
   if (params) {
     for (const [k, v] of Object.entries(params)) {
