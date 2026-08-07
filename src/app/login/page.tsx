@@ -10,7 +10,7 @@ export default async function LoginPage() {
     const staff = await getCurrentUser();
     redirect(homePathFor(staff));
   } catch {
-    // Session missing or expired — show login form.
+    // Session missing or expired - show login form.
   }
 
   return (

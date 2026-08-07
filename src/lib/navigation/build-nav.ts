@@ -37,6 +37,12 @@ export function buildPortalNav(
 
   if (isPortalAdmin(staff)) {
     items.push({
+      href: "/dashboard/hearings",
+      labelKey: "nav.hearings",
+      icon: "reports",
+      section: "nav.operational",
+    });
+    items.push({
       href: "/ps/intelligence",
       labelKey: "ps.nav.intelligence",
       icon: "reports",
@@ -73,6 +79,7 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
       icon: "grievances",
       badge: pendingCount,
     },
+    { href: `${base}/hearings`, labelKey: "nav.hearings", icon: "reports" },
     { href: `${base}/departments`, labelKey: "nav.departments", icon: "departments" },
   ];
   if (osdSlug === "commerce-transport") {
@@ -97,8 +104,9 @@ export function buildPsNav(): NavItem[] {
       section: "nav.main",
     },
     { href: "/ps/grievances", labelKey: "ps.nav.grievances", icon: "grievances" },
+    { href: "/ps/hearings", labelKey: "ps.nav.hearings", icon: "reports" },
     { href: "/ps/mis", labelKey: "ps.nav.mis", icon: "reports" },
-    // Press Intelligence nav hidden for now — routes still exist; re-enable via
+    // Press Intelligence nav hidden for now - routes still exist; re-enable via
     // ...buildIntelligenceNavItems() when ready to show again.
     { href: "/ps/taxonomy", labelKey: "ps.nav.taxonomy", icon: "departments" },
     { href: "/ps/osd", labelKey: "ps.nav.osd", icon: "staff" },

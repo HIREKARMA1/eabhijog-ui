@@ -13,7 +13,7 @@ export function AnalyticsOverview({ data }: { data: PortalAnalyticsData }) {
     { label: t("dashboard", "kpi.total"), value: overview.total_grievances },
     { label: t("dashboard", "kpi.open"), value: overview.open_count },
     { label: t("dashboard", "kpi.closed"), value: overview.closed_count },
-    { label: t("dashboard", "analytics.avgRating"), value: feedback.average_rating?.toFixed(1) ?? "—" },
+    { label: t("dashboard", "analytics.avgRating"), value: feedback.average_rating?.toFixed(1) ?? "-" },
   ];
 
   return (

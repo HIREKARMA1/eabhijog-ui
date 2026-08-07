@@ -36,7 +36,7 @@ export function PsIntelligenceIncidents() {
       <div className="space-y-6">
         <IntelligencePageIntro
           title="Incidents"
-          description="Grouped Transport issues from multiple clips. Optional — use after reviewing the main queue."
+          description="Grouped Transport issues from multiple clips. Optional - use after reviewing the main queue."
         />
         <div className={intelCard}>
           <SectionLoader label="Loading incidents…" />
@@ -49,7 +49,7 @@ export function PsIntelligenceIncidents() {
     <div className="space-y-6">
       <IntelligencePageIntro
         title="Incidents"
-        description="Grouped Transport issues from multiple clips. Optional — use after reviewing the main queue."
+        description="Grouped Transport issues from multiple clips. Optional - use after reviewing the main queue."
       />
 
       <div className="grid gap-4 sm:grid-cols-2">

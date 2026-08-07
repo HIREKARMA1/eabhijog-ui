@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { BreadcrumbProvider, useBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
 import type { NavItem } from "@/lib/navigation/build-nav";
@@ -43,9 +44,9 @@ function PortalShellInner({
   const { breadcrumb: dynamicBreadcrumb } = useBreadcrumb();
   const breadcrumb = dynamicBreadcrumb ?? staticBreadcrumb;
   const pathname = usePathname();
-  const mainRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
 
-  // Content scrolls inside <main>, not the window — reset on every route change.
+  // Content scrolls inside <main>, not the window - reset on every route change.
   useEffect(() => {
     if (mainRef.current) {
       mainRef.current.scrollTop = 0;
@@ -72,12 +73,10 @@ function PortalShellInner({
         />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Topbar breadcrumb={breadcrumb} onMenuClick={() => setSidebarOpen(true)} />
-          <main
-            ref={mainRef}
-            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 md:px-6 md:py-6"
-          >
-            {children}
-          </main>
+          <div ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <main className="px-3 py-3 sm:px-4 sm:py-5 md:px-6 md:py-6">{children}</main>
+            <PortalFooter />
+          </div>
         </div>
       </div>
     </div>

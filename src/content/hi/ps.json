@@ -121,6 +121,7 @@
   "nav": {
     "dashboard": "डैशबोर्ड",
     "grievances": "शिकायतें",
+    "hearings": "ऑनलाइन सुनवाई",
     "mis": "MIS",
     "intelligence": "प्रेस इंटेलिजेंस",
     "intelligenceQueue": "समीक्षा कतार",
@@ -155,7 +156,7 @@
       "priority": "प्राथमिकता के अनुसार",
       "byOsd": "OSD / श्रेणी के अनुसार",
       "byDepartment": "विभाग के अनुसार",
-      "trend14d": "दाखिल — पिछले 14 दिन",
+      "trend14d": "दाखिल - पिछले 14 दिन",
       "empty": "अभी कोई डेटा नहीं"
     },
     "status": {

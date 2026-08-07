@@ -32,6 +32,18 @@
     "ministerAlt": "Shri Bibhuti Bhusan Jena, Cabinet Minister, Government of Odisha",
     "logoAlt": "Government of Odisha emblem"
   },
+  "footer": {
+    "forCitizens": "For citizens",
+    "fileWhatsapp": "File on WhatsApp",
+    "hearing": "Online Hearing",
+    "followMinister": "Follow the Minister",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "twitter": "X (Twitter)",
+    "copyright": "Copyright reserved © 2026 Department of Commerce, Transport, Steel & Mines, Government of Odisha. All Rights Reserved.",
+    "poweredByPrefix": "Website Powered by",
+    "poweredByName": "Hirekarma Private Limited"
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "network": "Unable to reach the server. Check your connection."

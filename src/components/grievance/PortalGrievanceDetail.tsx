@@ -57,15 +57,15 @@ export function PortalGrievanceDetail({
           </div>
           <div>
             <dt className="text-text-muted">{t("dashboard", "table.district")}</dt>
-            <dd>{grievance.district ?? "—"}</dd>
+            <dd>{grievance.district ?? "-"}</dd>
           </div>
           <div>
             <dt className="text-text-muted">{t("dashboard", "table.category")}</dt>
-            <dd>{grievance.category ?? grievance.osd_category ?? "—"}</dd>
+            <dd>{grievance.category ?? grievance.osd_category ?? "-"}</dd>
           </div>
           <div className="sm:col-span-2">
             <dt className="text-text-muted">Description</dt>
-            <dd className="mt-1 whitespace-pre-wrap">{grievance.grievance_text ?? grievance.title ?? "—"}</dd>
+            <dd className="mt-1 whitespace-pre-wrap">{grievance.grievance_text ?? grievance.title ?? "-"}</dd>
           </div>
         </dl>
         <div className="mt-5 border-t border-border pt-5">

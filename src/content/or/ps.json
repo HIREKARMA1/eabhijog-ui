@@ -121,6 +121,7 @@
   "nav": {
     "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
     "grievances": "ଅଭିଯୋଗ",
+    "hearings": "ଅନଲାଇନ୍ ଶୁଣାଣି",
     "mis": "MIS",
     "intelligence": "ପ୍ରେସ୍ ବୁଦ୍ଧିମତ୍ତା",
     "intelligenceQueue": "ସମୀକ୍ଷା ଧାଡ଼ି",
@@ -156,7 +157,7 @@
       "priority": "ପ୍ରାଥମିକତା ଅନୁଯାୟୀ",
       "byOsd": "OSD / ବର୍ଗ ଅନୁଯାୟୀ",
       "byDepartment": "ବିଭାଗ ଅନୁଯାୟୀ",
-      "trend14d": "ଦାଖଲ — ଗତ 14 ଦିନ",
+      "trend14d": "ଦାଖଲ - ଗତ 14 ଦିନ",
       "empty": "ଏପର୍ଯ୍ୟନ୍ତ ତଥ୍ୟ ନାହିଁ"
     },
     "status": {

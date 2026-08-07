@@ -5,6 +5,7 @@ import { FormEvent, ReactNode, useState } from "react";
 
 import { AuthPanel } from "@/components/auth/AuthPanel";
 import { LangSwitcher } from "@/components/i18n/LangSwitcher";
+import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -23,23 +24,26 @@ export function AuthFormLayout({
 }: AuthFormLayoutProps) {
   const { t } = useI18n();
   return (
-    <div className="grid min-h-screen lg:grid-cols-[minmax(440px,560px)_1fr]">
-      <AuthPanel />
-      <div className="flex flex-col justify-center px-6 py-10 lg:px-12">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">{t("auth", titleKey)}</h1>
-            <p className="mt-1 text-sm text-text-muted">{t("auth", subtitleKey)}</p>
+    <div className="flex min-h-screen flex-col">
+      <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(440px,560px)_1fr]">
+        <AuthPanel />
+        <div className="flex flex-col justify-center px-6 py-10 lg:px-12">
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">{t("auth", titleKey)}</h1>
+              <p className="mt-1 text-sm text-text-muted">{t("auth", subtitleKey)}</p>
+            </div>
+            <LangSwitcher />
           </div>
-          <LangSwitcher />
+          <div className="mx-auto w-full max-w-md">{children}</div>
+          <p className="mx-auto mt-6 max-w-md text-sm">
+            <Link href={backHref} className="font-semibold text-navy-700 hover:underline">
+              {t("auth", "forgotPassword.backToLogin")}
+            </Link>
+          </p>
         </div>
-        <div className="mx-auto w-full max-w-md">{children}</div>
-        <p className="mx-auto mt-6 max-w-md text-sm">
-          <Link href={backHref} className="font-semibold text-navy-700 hover:underline">
-            {t("auth", "forgotPassword.backToLogin")}
-          </Link>
-        </p>
       </div>
+      <PortalFooter />
     </div>
   );
 }

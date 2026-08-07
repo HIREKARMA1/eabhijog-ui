@@ -30,7 +30,7 @@ export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: Da
               </h1>
               <p className="portal-hero-sub">
                 <strong>{summary.total_count}</strong>{" "}
-                <Bi en="grievances on record across 30 districts —" or="ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲାରେ ମୋଟ ଅଭିଯୋଗ —" />{" "}
+                <Bi en="grievances on record across 30 districts -" or="ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲାରେ ମୋଟ ଅଭିଯୋଗ -" />{" "}
                 <strong>{openCount}</strong> <Bi en="awaiting action." or="କାର୍ଯ୍ୟ ବାକି।" />
               </p>
             </div>

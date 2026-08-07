@@ -34,6 +34,9 @@ function readStoredLocale(): Locale {
 
 function applyDocumentLocale(locale: Locale) {
   document.documentElement.lang = locale;
+  if (typeof document !== "undefined" && document.body) {
+    document.body.classList.toggle("ui-lang-or", locale === "or");
+  }
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {

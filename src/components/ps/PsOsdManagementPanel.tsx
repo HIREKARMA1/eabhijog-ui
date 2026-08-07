@@ -363,7 +363,7 @@ export function PsOsdManagementPanel() {
             {
               key: "phone",
               header: t("ps", "osd.phone"),
-              cell: (row) => row.phone || "—",
+              cell: (row) => row.phone || "-",
             },
             {
               key: "status",
