@@ -155,8 +155,8 @@ export function LandingPage({
                 </h1>
                 <p className="landing-lead l-reveal" data-delay="240">
                   <Bi
-                    en="File a grievance on WhatsApp in Odia or English. Government officers respond from a single command center — with SLAs, audit trails, and accountability that survives transfers and political cycles."
-                    or="WhatsApp ମାଧ୍ୟମରେ ଓଡ଼ିଆ କିମ୍ବା ଇଂରାଜୀରେ ଅଭିଯୋଗ ଦାଖଲ କରନ୍ତୁ। ସରକାରୀ ଅଧିକାରୀମାନେ ଏକ କମାଣ୍ଡ ସେଣ୍ଟରରୁ ପ୍ରତିଉତ୍ତର ଦିଅନ୍ତି — SLA, ଅଡିଟ୍ ଟ୍ରେଲ୍ ଓ ଜବାବଦାରି ସହ।"
+                    en="File a grievance on WhatsApp in Odia or English. Government officers respond from a single command center - with SLAs, audit trails, and accountability that survives transfers and political cycles."
+                    or="WhatsApp ମାଧ୍ୟମରେ ଓଡ଼ିଆ କିମ୍ବା ଇଂରାଜୀରେ ଅଭିଯୋଗ ଦାଖଲ କରନ୍ତୁ। ସରକାରୀ ଅଧିକାରୀମାନେ ଏକ କମାଣ୍ଡ ସେଣ୍ଟରରୁ ପ୍ରତିଉତ୍ତର ଦିଅନ୍ତି - SLA, ଅଡିଟ୍ ଟ୍ରେଲ୍ ଓ ଜବାବଦାରି ସହ।"
                     block
                   />
                 </p>
@@ -264,8 +264,8 @@ export function LandingPage({
                 <h2 className="l-section-title">
                   <span className="steps-headline-lead">
                     <Bi
-                      en="From a WhatsApp message to a closed grievance —"
-                      or="WhatsApp ମେସେଜ୍ ରୁ ସମାଧାନ ପର୍ଯ୍ୟନ୍ତ —"
+                      en="From a WhatsApp message to a closed grievance -"
+                      or="WhatsApp ମେସେଜ୍ ରୁ ସମାଧାନ ପର୍ଯ୍ୟନ୍ତ -"
                       block
                     />
                   </span>
@@ -373,8 +373,8 @@ export function LandingPage({
                       {recentGrievances.length === 0 ? (
                         <div className="preview-empty text-sm text-gray-500 py-4" id="portal-preview-empty">
                           <Bi
-                            en="No grievances on record yet — be the first to file via WhatsApp."
-                            or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ — WhatsApp ମାଧ୍ୟମରେ ପ୍ରଥମେ ଦାଖଲ କରନ୍ତୁ।"
+                            en="No grievances on record yet - be the first to file via WhatsApp."
+                            or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ - WhatsApp ମାଧ୍ୟମରେ ପ୍ରଥମେ ଦାଖଲ କରନ୍ତୁ।"
                             block
                           />
                         </div>
@@ -421,7 +421,7 @@ export function LandingPage({
                 citizen.
               </span>
               <span className="i18n-or i18n-block" lang="or">
-                {stats.onboarded_categories} ମନ୍ତ୍ରୀ ଡେସ୍କ, {stats.district_count} ଜିଲ୍ଲା — ନାଗରିକଙ୍କ ପାଇଁ ଗୋଟିଏ ଚ୍ୟାନେଲ।
+                {stats.onboarded_categories} ମନ୍ତ୍ରୀ ଡେସ୍କ, {stats.district_count} ଜିଲ୍ଲା - ନାଗରିକଙ୍କ ପାଇଁ ଗୋଟିଏ ଚ୍ୟାନେଲ।
               </span>
             </h2>
             <div className="dept-grid" style={{ marginTop: "2rem" }} id="portal-dept-grid">
@@ -476,8 +476,8 @@ export function LandingPage({
                 <div
                   className="impact-val"
                   id="portal-impact-sla"
-                  data-count-end={stats.resolved_on_time.replace("%", "").replace("—", "0")}
-                  data-count-suffix={stats.resolved_on_time !== "—" ? "%" : ""}
+                  data-count-end={stats.resolved_on_time.replace("%", "").replace("-", "0")}
+                  data-count-suffix={stats.resolved_on_time !== "-" ? "%" : ""}
                 >
                   {stats.resolved_on_time}
                 </div>

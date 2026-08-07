@@ -47,8 +47,8 @@ export function GrievanceTable({ rows, detailHrefPrefix }: GrievanceTableProps) 
               <TableCell>
                 <span className="font-semibold text-navy-700">{row.reference_number}</span>
               </TableCell>
-              <TableCell>{row.district ?? row.geographic_district ?? "—"}</TableCell>
-              <TableCell>{row.category ?? row.osd_category ?? "—"}</TableCell>
+              <TableCell>{row.district ?? row.geographic_district ?? "-"}</TableCell>
+              <TableCell>{row.category ?? row.osd_category ?? "-"}</TableCell>
               <TableCell>
                 <Badge tone="info">{row.status_label ?? row.status}</Badge>
               </TableCell>

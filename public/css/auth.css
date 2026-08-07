@@ -1,4 +1,4 @@
-/* e-Abhijog — officer login & account recovery */
+/* e-Abhijog - officer login & account recovery */
 
 :root {
   --auth-navy: #0f1b2d;
@@ -33,7 +33,7 @@
 }
 
 @media (min-width: 960px) {
-  /* Brand strip — scene + ticker, no vertical scroll */
+  /* Brand strip - scene + ticker, no vertical scroll */
   .auth-page {
     grid-template-columns: minmax(440px, 560px) minmax(0, 1fr);
     height: 100vh;
@@ -546,7 +546,7 @@
   50% { opacity: 0.8; box-shadow: 0 0 0 5px rgb(74 222 128 / 0); }
 }
 
-/* Right panel — bright, fills remaining width */
+/* Right panel - bright, fills remaining width */
 .auth-form-side {
   position: relative;
   display: flex;

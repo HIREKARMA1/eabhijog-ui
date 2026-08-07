@@ -38,7 +38,7 @@ export function PsIntelligenceCandidatesView() {
   return (
     <div className="space-y-6">
       <IntelligencePageIntro
-        title="Step 2 — Review queue"
+        title="Step 2 - Review queue"
         description="Open each clip, check the text and evidence image, then Approve or Push to grievances. Reject clips that are not Commerce & Transport."
         action={
           <LinkButton href="/ps/grievances" variant="outline">

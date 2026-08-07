@@ -266,10 +266,10 @@ export function DepartmentManagementPanel({ osdSlug, psMode = false }: Departmen
                     <p className="text-text-muted">{contact.osd_category}</p>
                   ) : null}
                   <p className="text-text-muted">
-                    {contact.officer_name || "—"} · {contact.email || "—"}
+                    {contact.officer_name || "-"} · {contact.email || "-"}
                   </p>
                   <p className="text-text-muted">
-                    WhatsApp: {contact.whatsapp_number || "—"}
+                    WhatsApp: {contact.whatsapp_number || "-"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

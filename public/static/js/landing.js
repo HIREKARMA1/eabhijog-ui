@@ -11,7 +11,7 @@
   var LANDING_I18N = {
     en: {
       closed: "Closed",
-      noGrievances: "No grievances on record yet — be the first to file via WhatsApp.",
+      noGrievances: "No grievances on record yet - be the first to file via WhatsApp.",
       deptEmpty: "Department statistics will appear as grievances are registered.",
       deptOpen: " open",
       syncJustNow: "updated just now",
@@ -23,14 +23,14 @@
     },
     or: {
       closed: "ବନ୍ଦ",
-      noGrievances: "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ — WhatsApp ମାଧ୍ୟମରେ ପ୍ରଥମେ ଦାଖଲ କରନ୍ତୁ।",
+      noGrievances: "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ - WhatsApp ମାଧ୍ୟମରେ ପ୍ରଥମେ ଦାଖଲ କରନ୍ତୁ।",
       deptEmpty: "ଅଭିଯୋଗ ପଞ୍ଜିକରଣ ହେବା ସହ ବିଭାଗ ପରିସଂଖ୍ୟା ଦେଖାଯିବ।",
       deptOpen: " ଖୋଲା",
       syncJustNow: "ଏବେ ଅପଡେଟ୍",
       syncSecs: "{n} ସେକେଣ୍ଡ ପୂର୍ବେ",
       syncMins: "{n} ମିନିଟ ପୂର୍ବେ",
       deptTitle: function (cats, districts) {
-        return cats + " ମନ୍ତ୍ରୀ ଡେସ୍କ, " + districts + " ଜିଲ୍ଲା — ନାଗରିକଙ୍କ ପାଇଁ ଗୋଟିଏ ଚ୍ୟାନେଲ।";
+        return cats + " ମନ୍ତ୍ରୀ ଡେସ୍କ, " + districts + " ଜିଲ୍ଲା - ନାଗରିକଙ୍କ ପାଇଁ ଗୋଟିଏ ଚ୍ୟାନେଲ।";
       },
     },
   };
@@ -441,7 +441,7 @@
     if (s.sla_compliance_rate_pct != null) {
       setCountEnd("portal-impact-sla", Math.round(s.sla_compliance_rate_pct), "%");
     } else {
-      setCountText("portal-impact-sla", "—");
+      setCountText("portal-impact-sla", "-");
     }
     setCountText("portal-impact-median", s.median_reply_display);
     setCountEnd("portal-impact-total", s.total_grievances);

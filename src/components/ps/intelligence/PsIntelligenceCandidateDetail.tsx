@@ -82,13 +82,13 @@ export function PsIntelligenceCandidateDetail({ id }: { id: number }) {
         <ol className="mt-2 list-decimal space-y-1 pl-5">
           <li>Check title, briefing text, and district against the evidence image.</li>
           <li>
-            <strong>Approve</strong> — mark as reviewed without creating a ticket.
+            <strong>Approve</strong> - mark as reviewed without creating a ticket.
           </li>
           <li>
-            <strong>Push to grievances</strong> — create a PS desk ticket (Step 3).
+            <strong>Push to grievances</strong> - create a PS desk ticket (Step 3).
           </li>
           <li>
-            <strong>Reject</strong> — not Commerce &amp; Transport or duplicate.
+            <strong>Reject</strong> - not Commerce &amp; Transport or duplicate.
           </li>
         </ol>
       </div>

@@ -74,10 +74,10 @@ export function PsIntelligenceCandidates({
           ) : (
             rows.map((c) => (
               <tr key={c.id} className="border-b border-border/60 hover:bg-surface-muted/60">
-                <td className="px-4 py-3 font-medium text-slate-900">{c.title || "—"}</td>
+                <td className="px-4 py-3 font-medium text-slate-900">{c.title || "-"}</td>
                 <td className="px-4 py-3 text-slate-700">{c.source}</td>
                 <td className="px-4 py-3 capitalize text-slate-700">{c.channel || "-"}</td>
-                <td className="px-4 py-3 text-slate-700">{c.district || "—"}</td>
+                <td className="px-4 py-3 text-slate-700">{c.district || "-"}</td>
                 <td className="px-4 py-3 text-slate-700">{Math.round((c.confidence ?? 0) * 100)}%</td>
                 <td className="px-4 py-3 text-right">
                   <Link

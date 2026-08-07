@@ -17,9 +17,9 @@ import {
 import type { DepartmentGrievanceView } from "@/types/api";
 
 function formatDate(value: string | null, withTime = false): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return date.toLocaleString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -333,7 +333,7 @@ export function DepartmentPortal({ token }: { token: string }) {
                 {view.status === "action_taken" ? (
                   <p className="mb-3 text-sm text-text-muted">
                     Action already recorded. You can post additional updates (with photos/video)
-                    — each one is shared with the citizen on WhatsApp.
+                    - each one is shared with the citizen on WhatsApp.
                   </p>
                 ) : null}
                 <form
@@ -407,7 +407,7 @@ export function DepartmentPortal({ token }: { token: string }) {
               </Card>
             ) : COMPLETED_STATUSES.has(view.status) ? (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-success">
-                Action completed — no further steps required on this link.
+                Action completed - no further steps required on this link.
               </div>
             ) : null}
 

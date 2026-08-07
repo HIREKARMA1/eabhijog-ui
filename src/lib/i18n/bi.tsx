@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-/** Bilingual text matching original Jinja `bi()` macro — uses .i18n-en / .i18n-or CSS. */
+/** Bilingual text matching original Jinja `bi()` macro - uses .i18n-en / .i18n-or CSS. */
 export function Bi({
   en,
   or,

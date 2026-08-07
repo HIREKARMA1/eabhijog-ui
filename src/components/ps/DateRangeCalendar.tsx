@@ -241,7 +241,7 @@ export function DateRangeCalendar({ from, to, onChange, labels }: Props) {
         <p className="mt-1 text-[10px] leading-snug text-white/70">
           {picking === "from" ? labels.from : labels.to}
           {fromDate || toDate
-            ? ` · ${fromDate ? toLocalISODate(fromDate) : "—"} → ${toDate ? toLocalISODate(toDate) : "—"}`
+            ? ` · ${fromDate ? toLocalISODate(fromDate) : "-"} → ${toDate ? toLocalISODate(toDate) : "-"}`
             : null}
         </p>
       </div>

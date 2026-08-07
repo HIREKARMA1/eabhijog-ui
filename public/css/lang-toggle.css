@@ -55,7 +55,7 @@ body.ui-lang-or .step-bubble-num .i18n-or.i18n-block { display: inline !importan
 body.ui-lang-or .step-bubble-num .i18n-step-num-en { display: none !important; }
 body:not(.ui-lang-or) .step-bubble-num .i18n-step-num-or { display: none !important; }
 
-/* Staff app — Odia typography */
+/* Staff app - Odia typography */
 body.ui-lang-or.app-body {
   font-family: "Noto Sans Oriya", "Segoe UI", system-ui, sans-serif;
 }
@@ -65,7 +65,7 @@ body.ui-lang-or.app-body {
   border-color: var(--landing-border, #e2e8f0);
 }
 
-/* Auth pages — toggle in header row */
+/* Auth pages - toggle in header row */
 .auth-form-top .lang-toggle {
   margin-right: auto;
 }

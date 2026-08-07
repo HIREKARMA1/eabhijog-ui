@@ -1,11 +1,12 @@
 {
   "meta": {
-    "title": "Jana Samadhan — Government of Odisha",
+    "title": "Jana Samadhan - Government of Odisha",
     "description": "File a grievance on WhatsApp in Odia or English. Government officers respond from a single command center with SLAs, audit trails, and accountability."
   },
   "nav": {
     "howItWorks": "How it works",
     "departments": "Departments",
+    "hearing": "Online Hearing",
     "dashboard": "Dashboard",
     "requestDemo": "Request demo",
     "fileGrievance": "File grievance"
@@ -14,7 +15,7 @@
     "badge": "TWILIO WHATSAPP",
     "headlineLine1": "Every citizen heard.",
     "headlineLine2": "Every grievance tracked.",
-    "lead": "File a grievance on WhatsApp in Odia or English. Government officers respond from a single command center — with SLAs, audit trails, and accountability that survives transfers and political cycles.",
+    "lead": "File a grievance on WhatsApp in Odia or English. Government officers respond from a single command center - with SLAs, audit trails, and accountability that survives transfers and political cycles.",
     "whatsappCta": "Message on WhatsApp",
     "officerSignIn": "Officer sign in",
     "statDistricts": "Districts",

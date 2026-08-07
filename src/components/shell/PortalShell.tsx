@@ -45,7 +45,7 @@ function PortalShellInner({
   const pathname = usePathname();
   const mainRef = useRef<HTMLElement>(null);
 
-  // Content scrolls inside <main>, not the window — reset on every route change.
+  // Content scrolls inside <main>, not the window - reset on every route change.
   useEffect(() => {
     if (mainRef.current) {
       mainRef.current.scrollTop = 0;
@@ -74,7 +74,7 @@ function PortalShellInner({
           <Topbar breadcrumb={breadcrumb} onMenuClick={() => setSidebarOpen(true)} />
           <main
             ref={mainRef}
-            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 md:px-6 md:py-6"
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4 sm:py-5 md:px-6 md:py-6"
           >
             {children}
           </main>

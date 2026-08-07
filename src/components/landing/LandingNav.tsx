@@ -31,6 +31,9 @@ export function LandingNav({ whatsappUrl }: { whatsappUrl: string }) {
           <a href="#departments" className="hover:text-navy-700">
             {t("landing", "nav.departments")}
           </a>
+          <Link href="/hearing" className="hover:text-navy-700">
+            {t("landing", "nav.hearing")}
+          </Link>
           <Link href="/login" className="hover:text-navy-700">
             {t("landing", "nav.dashboard")}
           </Link>

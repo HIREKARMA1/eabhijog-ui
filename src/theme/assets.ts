@@ -1,4 +1,4 @@
-/** Static asset paths — Odisha-themed SVGs from public/images. */
+/** Static asset paths - Odisha-themed SVGs from public/images. */
 
 export const assets = {
   pattachitraPattern: "/images/auth-pattachitra-pattern.svg",

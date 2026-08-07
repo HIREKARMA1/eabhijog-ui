@@ -46,23 +46,23 @@ export function GovtNavbar({ homeHref = "/", onMenuClick }: GovtNavbarProps) {
       </div>
 
       <div className="overflow-hidden bg-saffron">
-        <div className="mx-auto flex h-20 max-w-[1920px] items-center justify-between gap-2 px-3 sm:h-24 sm:gap-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-2 px-3 sm:h-24 sm:gap-4 sm:px-6 lg:px-8">
           <Link
             href={homeHref}
             className="flex min-w-0 shrink items-center gap-2 text-white no-underline transition-opacity hover:opacity-90 sm:gap-4"
           >
-            <div className="relative h-14 w-14 shrink-0 sm:h-20 sm:w-20">
+            <div className="relative h-11 w-11 shrink-0 sm:h-20 sm:w-20">
               <Image
                 src={assets.logoOdisha}
                 alt={t("common", "navbar.logoAlt")}
                 fill
                 className="object-contain"
-                sizes="(max-width: 640px) 56px, 80px"
+                sizes="(max-width: 640px) 44px, 80px"
                 priority
               />
             </div>
             <div className="min-w-0">
-              <span className="block truncate text-lg font-extrabold tracking-tight text-white sm:text-2xl">
+              <span className="block truncate text-base font-extrabold tracking-tight text-white sm:text-2xl">
                 {t("common", "brand.name")}
               </span>
               <span className="hidden truncate text-sm font-semibold text-orange-100 sm:block sm:text-base">

@@ -12,8 +12,8 @@ export function portalStatsToDisplay(portal: PortalPublicData | null): Record<st
   if (!portal) {
     return {
       grievances_30d: "0",
-      resolved_on_time: "—",
-      median_reply: "—",
+      resolved_on_time: "-",
+      median_reply: "-",
       resolution_rate: "0",
       district_count: String(ODISHA_DISTRICT_COUNT),
       active_district_count: "0",
@@ -23,7 +23,7 @@ export function portalStatsToDisplay(portal: PortalPublicData | null): Record<st
       preview_active: "0",
       preview_resolved: "0",
       preview_wa_active: "0",
-      avg_resolution_display: "—",
+      avg_resolution_display: "-",
       total_grievances: "0",
       onboarded_categories: String(OSD_CATEGORY_COUNT),
     };

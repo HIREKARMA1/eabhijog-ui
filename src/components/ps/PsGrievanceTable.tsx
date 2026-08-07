@@ -28,7 +28,7 @@ function priorityTone(priority: string) {
 }
 
 function daysPendingClass(days: string) {
-  if (days === "—") return "bg-slate-100 text-slate-600";
+  if (days === "-") return "bg-slate-100 text-slate-600";
   const count = Number(days);
   if (count >= 7) return "bg-red-50 text-red-700 ring-1 ring-red-100";
   if (count >= 3) return "bg-amber-50 text-amber-700 ring-1 ring-amber-100";

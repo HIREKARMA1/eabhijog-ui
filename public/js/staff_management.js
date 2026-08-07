@@ -154,7 +154,7 @@
     var metaEl = document.getElementById("staff-edit-preview-meta");
     var statusEl = document.getElementById("staff-edit-preview-status");
     if (avatar) avatar.textContent = initialsFromName(account.name);
-    if (nameEl) nameEl.textContent = account.name || "—";
+    if (nameEl) nameEl.textContent = account.name || "-";
     if (metaEl) {
       metaEl.textContent = (account.email || "") + (account.username ? " · @" + account.username : "");
     }

@@ -101,6 +101,111 @@
       padding: 2rem;
     }
   }
+
+  /* Online Grievance Hearing - flat form controls (no shadow boxes) */
+  .hearing-form-input {
+    width: 100%;
+    border-radius: 0.625rem;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    padding: 0.6875rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .hearing-form-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .hearing-form-input:hover:not(:focus):not(:disabled) {
+    border-color: #cbd5e1;
+    background: #fafbfc;
+  }
+
+  .hearing-form-input:focus {
+    border-color: var(--saffron);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(234 88 12 / 0.12);
+  }
+
+  .hearing-form-select-wrap {
+    position: relative;
+  }
+
+  .hearing-form-select {
+    width: 100%;
+    appearance: none;
+    cursor: pointer;
+    border-radius: 0.625rem;
+    border: 1.5px solid var(--border);
+    background-color: var(--white);
+    background-image: none;
+    padding: 0.6875rem 2.5rem 0.6875rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .hearing-form-select:hover:not(:focus):not(:disabled) {
+    border-color: var(--navy-700);
+    background-color: #f8fafc;
+  }
+
+  .hearing-form-select:focus {
+    border-color: var(--saffron);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(234 88 12 / 0.12);
+  }
+
+  .hearing-form-select:invalid,
+  .hearing-form-select option[value=""][disabled] {
+    color: var(--text-muted);
+  }
+
+  .hearing-form-select-chevron {
+    pointer-events: none;
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--navy-700);
+  }
+
+  .hearing-form-dropdown {
+    border-radius: 0.625rem;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    overflow: hidden;
+  }
+
+  .hearing-form-dropdown-option {
+    color: var(--text-primary);
+    transition: background-color 0.12s ease, color 0.12s ease;
+  }
+
+  .hearing-form-dropdown-option:hover:not(:disabled):not(.is-selected) {
+    background: rgb(234 88 12 / 0.06);
+  }
+
+  .hearing-form-dropdown-option.is-selected {
+    background: rgb(234 88 12 / 0.1);
+    color: var(--navy-900);
+    font-weight: 600;
+  }
+
+  .hearing-stepper-line {
+    flex: 1;
+    height: 2px;
+    margin-top: 1.125rem;
+    background: var(--border);
+  }
+
+  .hearing-stepper-line.is-done {
+    background: var(--success);
+  }
 }
 
 @theme inline {
