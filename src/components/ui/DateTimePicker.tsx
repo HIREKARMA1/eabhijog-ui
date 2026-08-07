@@ -129,12 +129,12 @@ function MiniSelect({
 
   useEffect(() => {
     if (!open) return;
-    function onDoc(event: MouseEvent) {
+    function onDoc(event: globalThis.MouseEvent) {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-    function onKey(event: KeyboardEvent) {
+    function onKey(event: globalThis.KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
     document.addEventListener("mousedown", onDoc);
@@ -239,12 +239,12 @@ export function DateTimePicker({
 
   useEffect(() => {
     if (!open) return;
-    function onDoc(event: MouseEvent) {
+    function onDoc(event: globalThis.MouseEvent) {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-    function onKey(event: KeyboardEvent) {
+    function onKey(event: globalThis.KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
     document.addEventListener("mousedown", onDoc);
