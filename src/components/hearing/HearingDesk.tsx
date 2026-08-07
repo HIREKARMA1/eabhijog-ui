@@ -1,12 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useState, type ReactNode } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 
 import { Button } from "@/components/ui/Button";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { SectionLoader } from "@/components/ui/Spinner";
 import { Section } from "@/components/ui/Section";
+import { ToastViewport, useToast } from "@/components/ui/Toast";
+import { cn } from "@/lib/utils/cn";
 import { ApiError } from "@/lib/api/client";
 import {
   closeHearingRegistration,
@@ -75,8 +84,7 @@ export function HearingDesk({ canManage }: Props) {
   const [regs, setRegs] = useState<HearingRegistrationRow[]>([]);
   const [stats, setStats] = useState<HearingScreeningStats | null>(null);
   const [filter, setFilter] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { toasts, success: toastSuccess, error: toastError, dismiss: dismissToast } = useToast();
   const [busy, setBusy] = useState(false);
   const [listLoading, setListLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -113,10 +121,10 @@ export function HearingDesk({ canManage }: Props) {
     setListLoading(true);
     loadList()
       .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Failed to load hearings"),
+        toastError(err instanceof ApiError ? err.message : "Failed to load hearings"),
       )
       .finally(() => setListLoading(false));
-  }, [loadList]);
+  }, [loadList, toastError]);
 
   useEffect(() => {
     if (!selectedId) {
@@ -129,23 +137,21 @@ export function HearingDesk({ canManage }: Props) {
     setDetailLoading(true);
     loadSelected(selectedId)
       .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Failed to load screening data"),
+        toastError(err instanceof ApiError ? err.message : "Failed to load screening data"),
       )
       .finally(() => setDetailLoading(false));
-  }, [selectedId, loadSelected]);
+  }, [selectedId, loadSelected, toastError]);
 
   async function runAction(fn: () => Promise<unknown>) {
     setBusy(true);
-    setError(null);
-    setMessage(null);
     try {
       const res = await fn();
       const envelope = res as { data?: { message?: string }; message?: string };
-      setMessage(envelope.data?.message ?? envelope.message ?? "Done.");
+      toastSuccess(envelope.data?.message ?? envelope.message ?? "Done.");
       if (selectedId) await loadSelected(selectedId);
       await loadList();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Action failed");
+      toastError(err instanceof ApiError ? err.message : "Action failed");
     } finally {
       setBusy(false);
     }
@@ -160,7 +166,7 @@ export function HearingDesk({ canManage }: Props) {
     const closesAt = String(form.get("registration_closes_at") || "");
 
     if (!hearingDate || !opensAt || !closesAt) {
-      setError("Please select hearing start, registration open, and registration close times.");
+      toastError("Please select hearing start, registration open, and registration close times.");
       return;
     }
 
@@ -183,6 +189,25 @@ export function HearingDesk({ canManage }: Props) {
   }
 
   const selectedReg = regs.find((r) => r.id === detailId) ?? null;
+  const hearingStatus = hearing?.status ?? "";
+  const shortlistFinalized = Boolean(
+    hearing?.shortlisted_at ||
+      ["shortlisted", "notified", "in_progress", "completed"].includes(hearingStatus),
+  );
+  const notificationsSent = Boolean(
+    hearing?.notified_at ||
+      ["notified", "in_progress", "completed"].includes(hearingStatus),
+  );
+  const hearingStarted = hearingStatus === "in_progress";
+  const hearingCompleted = hearingStatus === "completed";
+  const canStartHearing = ["shortlisted", "notified"].includes(hearingStatus);
+  const startHearingTooltip = hearingCompleted
+    ? "Hearing already completed"
+    : hearingStarted
+      ? "Hearing already in progress"
+      : !shortlistFinalized
+        ? "Finalize shortlist first"
+        : "Hearing cannot be started in the current state";
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -203,17 +228,6 @@ export function HearingDesk({ canManage }: Props) {
           number.
         </p>
       </Section>
-
-      {message ? (
-        <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900 sm:rounded-xl sm:px-4 sm:py-3">
-          {message}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-800 sm:rounded-xl sm:px-4 sm:py-3">
-          {error}
-        </p>
-      ) : null}
 
       {showCreate && canManage ? (
         <form
@@ -349,69 +363,58 @@ export function HearingDesk({ canManage }: Props) {
                 ) : null}
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
                   {canManage ? (
-                    <span className="group relative col-span-2 inline-flex w-full sm:col-auto sm:w-auto">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        loading={busy}
-                        disabled={!hearing.registration_open}
-                        aria-disabled={!hearing.registration_open}
-                        className="w-full sm:w-auto"
-                        onClick={() => runAction(() => closeHearingRegistration(hearing.id))}
-                      >
-                        Close registration
-                      </Button>
-                      {!hearing.registration_open ? (
-                        <>
-                          <span
-                            className="absolute inset-0 z-10 cursor-not-allowed"
-                            aria-hidden
-                          />
-                          <span
-                            role="tooltip"
-                            className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 w-max max-w-[14rem] -translate-x-1/2 rounded-md bg-slate-900 px-2.5 py-1.5 text-center text-[11px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-                          >
-                            Registration has closed
-                          </span>
-                        </>
-                      ) : null}
-                    </span>
+                    <ActionButton
+                      className="col-span-2 sm:col-auto"
+                      size="sm"
+                      variant="outline"
+                      loading={busy}
+                      disabled={!hearing.registration_open}
+                      tooltip={!hearing.registration_open ? "Registration has closed" : undefined}
+                      onClick={() => runAction(() => closeHearingRegistration(hearing.id))}
+                    >
+                      Close registration
+                    </ActionButton>
                   ) : null}
-                  <Button
+                  <ActionButton
                     size="sm"
                     variant="secondary"
                     loading={busy}
-                    className="w-full sm:w-auto"
+                    disabled={shortlistFinalized}
+                    tooltip={shortlistFinalized ? "Shortlist already finalized" : undefined}
                     onClick={() => runAction(() => finalizeHearingShortlist(hearing.id))}
                   >
                     Finalize shortlist
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
                     size="sm"
                     loading={busy}
-                    className="col-span-2 w-full sm:col-auto sm:w-auto"
+                    className="col-span-2 sm:col-auto"
+                    disabled={notificationsSent}
+                    tooltip={notificationsSent ? "Notifications already sent" : undefined}
                     onClick={() => runAction(() => notifyHearingApproved(hearing.id))}
                   >
                     Notify approved (WhatsApp)
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
                     size="sm"
                     variant="outline"
                     loading={busy}
-                    className="w-full sm:w-auto"
+                    disabled={!canStartHearing}
+                    tooltip={!canStartHearing ? startHearingTooltip : undefined}
                     onClick={() => runAction(() => startHearing(hearing.id))}
                   >
                     Start hearing
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
                     size="sm"
                     variant="ghost"
                     loading={busy}
-                    className="w-full sm:w-auto"
+                    disabled={hearingCompleted}
+                    tooltip={hearingCompleted ? "Hearing already completed" : undefined}
                     onClick={() => runAction(() => completeHearing(hearing.id))}
                   >
                     Complete
-                  </Button>
+                  </ActionButton>
                 </div>
               </Section>
 
@@ -954,7 +957,43 @@ export function HearingDesk({ canManage }: Props) {
           </div>
         </div>
       ) : null}
+
+      <ToastViewport toasts={toasts} onDismiss={dismissToast} />
     </div>
+  );
+}
+
+function ActionButton({
+  tooltip,
+  className,
+  disabled,
+  children,
+  ...props
+}: ComponentProps<typeof Button> & {
+  tooltip?: string;
+}) {
+  return (
+    <span className={cn("group relative inline-flex w-full sm:w-auto", className)}>
+      <Button
+        {...props}
+        disabled={disabled}
+        aria-disabled={disabled}
+        className="w-full sm:w-auto"
+      >
+        {children}
+      </Button>
+      {disabled && tooltip ? (
+        <>
+          <span className="absolute inset-0 z-10 cursor-not-allowed" aria-hidden />
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 w-max max-w-[14rem] -translate-x-1/2 rounded-md bg-slate-900 px-2.5 py-1.5 text-center text-[11px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+          >
+            {tooltip}
+          </span>
+        </>
+      ) : null}
+    </span>
   );
 }
 
