@@ -153,7 +153,7 @@ export function PsIntelligenceJobs() {
     setStatus("Starting e-paper job…");
     try {
       await runIntelligenceJob({ sources: selected, edition_date: "today" });
-      setStatus("Job started - downloading and OCR may take 15–40 minutes for Odia papers.");
+      setStatus("Job started - downloading and OCR may take 15-40 minutes for Odia papers.");
       refreshProgress();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Job failed");
@@ -213,7 +213,7 @@ export function PsIntelligenceJobs() {
         <h2 className="text-lg font-semibold text-slate-900">Option A - E-paper scrape</h2>
         <p className={`mt-1 ${intelMuted}`}>
           Select Odia/English papers and run Transport extraction. Samaja + Sambad alone can take
-          20–35 minutes (OCR on ~37 pages).
+          20-35 minutes (OCR on ~37 pages).
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {sources.map((s) => (
@@ -246,7 +246,7 @@ export function PsIntelligenceJobs() {
       <section className={intelCard}>
         <h2 className="text-lg font-semibold text-slate-900">Option B - Upload PDF or scan</h2>
         <p className={`mt-1 ${intelMuted}`}>
-          Upload JPG, PNG, or PDF (e.g. daily grievance report). Usually finishes in 1–3 minutes.
+          Upload JPG, PNG, or PDF (e.g. daily grievance report). Usually finishes in 1-3 minutes.
         </p>
         <input
           type="file"

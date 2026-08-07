@@ -424,7 +424,7 @@ export function LandingPage({
                 <blockquote className="mt-4 text-lg font-medium leading-relaxed text-slate-800 sm:text-xl sm:leading-relaxed">
                   {L("minister.quote")}
                 </blockquote>
-                <p className="mt-6 text-sm font-bold text-navy-700">— {t("common", "navbar.ministerName")}</p>
+                <p className="mt-6 text-sm font-bold text-navy-700">- {t("common", "navbar.ministerName")}</p>
                 <p className="text-sm text-text-muted">{t("common", "navbar.ministerSubtitle")}</p>
               </div>
             </div>

@@ -308,7 +308,7 @@ html[lang="hi"] body {
     outline-offset: 2px;
   }
 
-  /* Bilingual Bi() helper — mirrors legacy lang-toggle.css */
+  /* Bilingual Bi() helper - mirrors legacy lang-toggle.css */
   .i18n-or {
     display: none !important;
   }
