@@ -21,6 +21,7 @@ import {
   closeHearingRegistration,
   completeHearing,
   createHearing,
+  deleteHearing,
   fetchHearing,
   fetchHearingRegistrations,
   fetchHearings,
@@ -89,6 +90,7 @@ export function HearingDesk({ canManage }: Props) {
   const [listLoading, setListLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
   const [rejectId, setRejectId] = useState<number | null>(null);
   const [rejectRemarks, setRejectRemarks] = useState("");
@@ -127,6 +129,7 @@ export function HearingDesk({ canManage }: Props) {
   }, [loadList, toastError]);
 
   useEffect(() => {
+    setConfirmDelete(false);
     if (!selectedId) {
       setHearing(null);
       setRegs([]);
@@ -142,13 +145,13 @@ export function HearingDesk({ canManage }: Props) {
       .finally(() => setDetailLoading(false));
   }, [selectedId, loadSelected, toastError]);
 
-  async function runAction(fn: () => Promise<unknown>) {
+  async function runAction(fn: () => Promise<unknown>, opts?: { skipReloadSelected?: boolean }) {
     setBusy(true);
     try {
       const res = await fn();
       const envelope = res as { data?: { message?: string }; message?: string };
       toastSuccess(envelope.data?.message ?? envelope.message ?? "Done.");
-      if (selectedId) await loadSelected(selectedId);
+      if (!opts?.skipReloadSelected && selectedId) await loadSelected(selectedId);
       await loadList();
     } catch (err) {
       toastError(err instanceof ApiError ? err.message : "Action failed");
@@ -424,6 +427,17 @@ export function HearingDesk({ canManage }: Props) {
                   >
                     Complete
                   </ActionButton>
+                  {canManage ? (
+                    <ActionButton
+                      size="sm"
+                      variant="danger"
+                      loading={busy}
+                      className="col-span-2 sm:col-auto sm:ml-auto"
+                      onClick={() => setConfirmDelete(true)}
+                    >
+                      Delete hearing
+                    </ActionButton>
+                  ) : null}
                 </div>
               </Section>
 
@@ -598,6 +612,67 @@ export function HearingDesk({ canManage }: Props) {
           )}
         </div>
       </div>
+
+      {confirmDelete && hearing ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">
+          <button
+            type="button"
+            aria-label="Close"
+            className="absolute inset-0"
+            onClick={() => !busy && setConfirmDelete(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-hearing-title"
+            className="relative z-10 max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-4 shadow-xl sm:rounded-2xl sm:p-5"
+          >
+            <h3 id="delete-hearing-title" className="text-lg font-semibold text-slate-900">
+              Delete hearing?
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              You are about to permanently delete{" "}
+              <span className="font-semibold text-slate-900">&ldquo;{hearing.title}&rdquo;</span>.
+            </p>
+            {(stats?.total ?? 0) > 0 ? (
+              <p className="mt-3 rounded-lg border border-danger/20 bg-red-50 px-3 py-2 text-sm text-danger">
+                This removes {stats?.total} registration
+                {(stats?.total ?? 0) === 1 ? "" : "s"} and linked grievances. This cannot be undone.
+              </p>
+            ) : (
+              <p className="mt-3 text-sm text-slate-500">This action cannot be undone.</p>
+            )}
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                variant="ghost"
+                className="w-full sm:w-auto"
+                disabled={busy}
+                onClick={() => setConfirmDelete(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                loading={busy}
+                className="w-full sm:w-auto"
+                onClick={() =>
+                  void runAction(
+                    async () => {
+                      const res = await deleteHearing(hearing.id);
+                      setConfirmDelete(false);
+                      setSelectedId(null);
+                      return res;
+                    },
+                    { skipReloadSelected: true },
+                  )
+                }
+              >
+                Delete hearing
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {rejectId && hearing ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">

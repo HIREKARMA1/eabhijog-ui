@@ -100,6 +100,12 @@ export async function closeHearingRegistration(hearingId: number) {
   });
 }
 
+export async function deleteHearing(hearingId: number) {
+  return apiRequest<HearingActionResult>(`/api/hearings/${hearingId}`, {
+    method: "DELETE",
+  });
+}
+
 export async function finalizeHearingShortlist(hearingId: number) {
   return apiRequest<HearingActionResult>(`/api/hearings/${hearingId}/finalize-shortlist`, {
     method: "POST",
