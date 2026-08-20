@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
 type SectionProps = {
-  title: string;
+  title: ReactNode;
   children: ReactNode;
   action?: ReactNode;
   className?: string;

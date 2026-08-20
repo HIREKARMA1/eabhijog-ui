@@ -8,35 +8,34 @@ import { GovtNavbar } from "@/components/shell/GovtNavbar";
 import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Button } from "@/components/ui/Button";
 import { SectionLoader } from "@/components/ui/Spinner";
+import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { HearingFieldLabel, HearingSelectField } from "@/components/hearing/HearingSelectField";
 import { HearingRichTextContent } from "@/components/hearing/HearingRichTextContent";
-import { ApiError } from "@/lib/api/client";
-import { fetchPublicRegistrationTaxonomy, registerForHearing } from "@/lib/api/hearing";
+import { registerForHearing } from "@/lib/api/hearing";
 import {
   formatHearingSubmitError,
   invalidPhoneMessage,
   missingFieldsMessage,
-  orgRequiredMessage,
-  termsNotAcceptedMessage,
 } from "@/lib/hearing/registrationErrors";
 import { formatHearingWhen } from "@/lib/hearing/formatWhen";
+import { resolveHearingContent } from "@/lib/hearing/resolveContent";
 import { useI18n } from "@/lib/i18n/context";
 import { isEmptyHearingHtml, toEditorHtml } from "@/lib/hearing/richText";
 import { cn } from "@/lib/utils/cn";
-import type { HearingPublicSummary, HearingRegisterResult, PublicRegistrationTaxonomy } from "@/types/api";
+import type { HearingPublicSummary, HearingRegisterResult } from "@/types/api";
 
 const SERVICE_CATEGORIES = [
   { value: "Commerce & Transport", key: "categories.commerce" },
   { value: "Steel & Mines", key: "categories.steel" },
   { value: "Ganjam District", key: "categories.ganjam" },
   { value: "Gopalpur Constituency", key: "categories.gopalpur" },
+  { value: "Others", key: "categories.others" },
 ] as const;
 
 const LANGUAGE_VALUES = ["or", "en", "hi"] as const;
 
 const STEP_DEFS = [
   { id: "personal", labelKey: "register.stepPersonal" },
-  { id: "category", labelKey: "register.stepCategory" },
   { id: "grievance", labelKey: "register.stepGrievance" },
   { id: "attachments", labelKey: "register.stepFiles" },
   { id: "review", labelKey: "register.stepReview" },
@@ -49,25 +48,17 @@ type Props = {
 export function HearingRegistrationForm({ hearing }: Props) {
   const { locale: uiLocale, t } = useI18n();
   const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+  const content = resolveHearingContent(hearing, uiLocale);
   const STEPS = STEP_DEFS.map((step) => ({ id: step.id, label: H(step.labelKey) }));
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const submitErrorRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [serviceCategory, setServiceCategory] = useState("");
-  const [taxonomy, setTaxonomy] = useState<PublicRegistrationTaxonomy | null>(null);
-  const [taxonomyLoading, setTaxonomyLoading] = useState(false);
-  const [department, setDepartment] = useState("");
-  const [subDepartment, setSubDepartment] = useState("");
-  const [organization, setOrganization] = useState("");
-  const [organizations, setOrganizations] = useState<string[]>([]);
-  const [organizationSearch, setOrganizationSearch] = useState("");
-  const [issueType, setIssueType] = useState("");
+  const [citizenAddress, setCitizenAddress] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [phoneDigits, setPhoneDigits] = useState("");
   const [preferredLanguage, setPreferredLanguage] = useState("or");
-  const [taxonomyError, setTaxonomyError] = useState<string | null>(null);
-  const [taxonomyReloadKey, setTaxonomyReloadKey] = useState(0);
   const [imageModal, setImageModal] = useState<{
     url: string;
     name: string;
@@ -82,46 +73,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [registrationResult, setRegistrationResult] = useState<HearingRegisterResult | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-
-  useEffect(() => {
-    if (!serviceCategory) {
-      setTaxonomy(null);
-      setTaxonomyError(null);
-      return;
-    }
-    let cancelled = false;
-    setTaxonomyLoading(true);
-    setTaxonomyError(null);
-    setDepartment("");
-    setSubDepartment("");
-    setOrganization("");
-    setOrganizations([]);
-    setOrganizationSearch("");
-    setIssueType("");
-    fetchPublicRegistrationTaxonomy(serviceCategory)
-      .then((res) => {
-        if (cancelled) return;
-        if (!res.data?.departments?.length) {
-          setTaxonomy(null);
-          setTaxonomyError(H("register.taxonomyNone"));
-          return;
-        }
-        setTaxonomy(res.data);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        setTaxonomy(null);
-        setTaxonomyError(
-          err instanceof ApiError ? err.message : H("register.taxonomyLoadError"),
-        );
-      })
-      .finally(() => {
-        if (!cancelled) setTaxonomyLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [serviceCategory, taxonomyReloadKey, t]);
+  const { toasts, success: toastSuccess, error: toastError, dismiss: dismissToast } = useToast();
 
   const mediaPreviewUrls = useMemo(
     () => filePreviews.filter((p) => p.kind === "image" || p.kind === "video"),
@@ -156,38 +108,6 @@ export function HearingRegistrationForm({ hearing }: Props) {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [imageModal]);
 
-  const selectedDept = useMemo(
-    () => taxonomy?.departments.find((d) => d.name === department) ?? null,
-    [taxonomy, department],
-  );
-
-  const selectedSub = useMemo(
-    () => selectedDept?.sub_departments.find((s) => s.name === subDepartment) ?? null,
-    [selectedDept, subDepartment],
-  );
-
-  const orgMultiSelect = useMemo(() => {
-    if (!taxonomy?.organization_multi_select_department) return false;
-    return department === taxonomy.organization_multi_select_department;
-  }, [taxonomy, department]);
-
-  const showSubDepartment =
-    !!selectedDept && !selectedDept.skip_sub_steps && (selectedDept.sub_departments?.length ?? 0) > 0;
-
-  const showOrganization =
-    !!selectedSub &&
-    !selectedDept?.skip_sub_steps &&
-    (selectedSub.organizations?.length ?? 0) > 0;
-
-  const showIssueType =
-    !!selectedSub &&
-    !selectedDept?.skip_sub_steps &&
-    (selectedSub.issue_types?.length ?? 0) > 0;
-
-  const deptLabel = taxonomy?.is_district_picker ? H("register.issueType") : H("register.department");
-  const deptPlaceholder = taxonomy?.is_district_picker
-    ? H("register.selectIssueTypeField")
-    : H("register.selectDepartment");
   const isLastStep = activeStep === STEPS.length - 1;
   const isFirstStep = activeStep === 0;
 
@@ -211,11 +131,8 @@ export function HearingRegistrationForm({ hearing }: Props) {
     }
 
     if (activeStep === 0 && !/^[6-9]\d{9}$/.test(phoneDigits)) return false;
-
-    if (activeStep === 1) {
-      if (!serviceCategory) return false;
-      if (orgMultiSelect && showOrganization && organizations.length === 0) return false;
-    }
+    if (activeStep === 0 && citizenAddress.trim().length < 5) return false;
+    if (activeStep === 1 && !serviceCategory) return false;
 
     return true;
   }
@@ -224,21 +141,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
     if (error && activeStep !== STEPS.length - 1 && isCurrentStepValid()) {
       setError(null);
     }
-  }, [
-    error,
-    activeStep,
-    phoneDigits,
-    serviceCategory,
-    department,
-    subDepartment,
-    organization,
-    organizations,
-    issueType,
-    orgMultiSelect,
-    showOrganization,
-    showSubDepartment,
-    showIssueType,
-  ]);
+  }, [error, activeStep, phoneDigits, serviceCategory, citizenAddress]);
 
   useEffect(() => {
     const form = formRef.current;
@@ -255,20 +158,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
       form.removeEventListener("input", tryClearStepError);
       form.removeEventListener("change", tryClearStepError);
     };
-  }, [
-    activeStep,
-    phoneDigits,
-    serviceCategory,
-    department,
-    subDepartment,
-    organization,
-    organizations,
-    issueType,
-    orgMultiSelect,
-    showOrganization,
-    showSubDepartment,
-    showIssueType,
-  ]);
+  }, [activeStep, phoneDigits, serviceCategory, citizenAddress]);
 
   function validateCurrentStep(): boolean {
     const form = formRef.current;
@@ -305,17 +195,15 @@ export function HearingRegistrationForm({ hearing }: Props) {
         setError(H("register.errPhone"));
         return false;
       }
+      if (citizenAddress.trim().length < 5) {
+        setError(H("register.errAddress"));
+        return false;
+      }
     }
 
-    if (activeStep === 1) {
-      if (!serviceCategory) {
-        setError(H("register.errCategory"));
-        return false;
-      }
-      if (orgMultiSelect && showOrganization && organizations.length === 0) {
-        setError(H("register.errOrganization"));
-        return false;
-      }
+    if (activeStep === 1 && !serviceCategory) {
+      setError(H("register.errCategory"));
+      return false;
     }
 
     return false;
@@ -375,25 +263,20 @@ export function HearingRegistrationForm({ hearing }: Props) {
     const form = new FormData();
 
     form.set("citizen_name", readFormValue("citizen_name"));
-    form.set("citizen_pincode", readFormValue("citizen_pincode"));
+    form.set("citizen_address", citizenAddress.trim());
     form.set("citizen_email", readFormValue("citizen_email"));
     form.set("preferred_language", readFormValue("preferred_language") || "or");
     form.set("title", readFormValue("title"));
     form.set("grievance_text", readFormValue("grievance_text"));
-    form.set("area", readFormValue("area"));
+    form.set("area", "");
     form.set("citizen_phone", phoneDigits);
     form.set("service_category", serviceCategory);
-    form.set("department", department);
-    form.set("sub_department", subDepartment);
-    form.set("issue_type", issueType);
-
-    if (orgMultiSelect && organizations.length > 0) {
-      form.set("organization", organizations.join(" | "));
-    } else {
-      form.set("organization", organization);
-    }
-    form.set("geographic_district", taxonomy?.auto_geographic_district ?? "");
-    form.set("constituency", taxonomy?.auto_constituency ?? "");
+    form.set("department", "");
+    form.set("sub_department", "");
+    form.set("issue_type", "");
+    form.set("organization", "");
+    form.set("geographic_district", "");
+    form.set("constituency", "");
 
     for (const file of files) {
       form.append("files", file);
@@ -415,17 +298,11 @@ export function HearingRegistrationForm({ hearing }: Props) {
     const lang = uiLocale;
 
     if (!acceptedTerms) {
-      showSubmitError(termsNotAcceptedMessage(lang));
+      toastError(H("register.toastAcceptTerms"));
       return;
     }
 
     setSubmitting(true);
-
-    if (orgMultiSelect && showOrganization && organizations.length === 0) {
-      showSubmitError(orgRequiredMessage(lang));
-      setSubmitting(false);
-      return;
-    }
 
     if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
       showSubmitError(invalidPhoneMessage(lang));
@@ -435,14 +312,12 @@ export function HearingRegistrationForm({ hearing }: Props) {
 
     const required: { key: string; label: string; value: string }[] = [
       { key: "citizen_name", label: H("register.missingName"), value: readFormValue("citizen_name") },
-      { key: "citizen_pincode", label: H("register.missingPincode"), value: readFormValue("citizen_pincode") },
+      { key: "citizen_address", label: H("register.missingAddress"), value: citizenAddress.trim() },
       { key: "service_category", label: H("register.missingCategory"), value: serviceCategory },
-      { key: "department", label: H("register.missingDepartment"), value: department },
       { key: "title", label: H("register.missingTitle"), value: readFormValue("title") },
       { key: "grievance_text", label: H("register.missingDetails"), value: readFormValue("grievance_text") },
-      { key: "area", label: H("register.missingArea"), value: readFormValue("area") },
     ];
-    const missing = required.filter((item) => !item.value);
+    const missing = required.filter((item) => !item.value || (item.key === "citizen_address" && item.value.length < 5));
     if (missing.length > 0) {
       showSubmitError(missingFieldsMessage(lang, missing.map((m) => m.label)));
       setSubmitting(false);
@@ -454,17 +329,13 @@ export function HearingRegistrationForm({ hearing }: Props) {
     try {
       const res = await registerForHearing(hearing.id, form);
       setRegistrationResult(res.data);
+      toastSuccess(H("register.toastSuccess"));
       setAcceptedTerms(false);
       setSubmitError(null);
       event.currentTarget.reset();
       setActiveStep(0);
       setServiceCategory("");
-      setDepartment("");
-      setSubDepartment("");
-      setOrganization("");
-      setOrganizations([]);
-      setOrganizationSearch("");
-      setIssueType("");
+      setCitizenAddress("");
       setFiles([]);
       setPhoneDigits("");
       setPreferredLanguage("or");
@@ -558,37 +429,18 @@ export function HearingRegistrationForm({ hearing }: Props) {
     return {
       name: field("citizen_name"),
       phone: phoneDigits ? `+91 ${phoneDigits}` : "",
-      pincode: field("citizen_pincode"),
+      address: citizenAddress.trim(),
       email: field("citizen_email"),
       language: H(`languages.${field("preferred_language") || "or"}`),
       category: (() => {
         const match = SERVICE_CATEGORIES.find((c) => c.value === serviceCategory);
         return match ? H(match.key) : serviceCategory;
       })(),
-      department,
-      subDepartment,
-      organization: orgMultiSelect ? organizations.join(", ") : organization,
-      issueType,
-      district: taxonomy?.auto_geographic_district ?? "",
-      constituency: taxonomy?.auto_constituency ?? "",
       title: field("title"),
-      area: field("area"),
       grievanceText: field("grievance_text"),
       attachments: filePreviews,
     };
-  }, [
-    activeStep,
-    serviceCategory,
-    department,
-    subDepartment,
-    organization,
-    organizations,
-    issueType,
-    filePreviews,
-    orgMultiSelect,
-    phoneDigits,
-    taxonomy,
-  ]);
+  }, [activeStep, serviceCategory, filePreviews, phoneDigits, citizenAddress, t]);
 
   return (
     <div className="flex min-h-screen flex-col bg-surface">
@@ -615,13 +467,18 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 {H("register.kicker")}
               </p>
               <h1 className="mt-3 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-[2rem] lg:leading-tight">
-                {hearing.title}
+                {content.title}
               </h1>
               <p className="mt-3 max-w-3xl wrap-break-word text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
                 {H("register.intro")}
               </p>
-              {hearing.description ? (
-                <p className="mt-2 max-w-3xl wrap-break-word text-sm text-slate-500">{hearing.description}</p>
+              {!isEmptyHearingHtml(content.description) ? (
+                <div className="mt-2 max-w-3xl text-slate-500">
+                  <HearingRichTextContent
+                    html={toEditorHtml(content.description)}
+                    className="text-slate-500"
+                  />
+                </div>
               ) : null}
             </div>
 
@@ -744,7 +601,20 @@ export function HearingRegistrationForm({ hearing }: Props) {
                     <Field label={H("register.fullName")} name="citizen_name" required />
                     <PhoneField digits={phoneDigits} onChange={setPhoneDigits} />
                     <input type="hidden" name="citizen_phone" value={phoneDigits} />
-                    <Field label={H("register.pincode")} name="citizen_pincode" required placeholder={H("register.pincodePlaceholder")} />
+                    <label className="block min-w-0 sm:col-span-2 lg:col-span-3">
+                      <HearingFieldLabel label={H("register.address")} />
+                      <textarea
+                        name="citizen_address"
+                        required
+                        minLength={5}
+                        maxLength={500}
+                        rows={3}
+                        placeholder={H("register.addressPlaceholder")}
+                        value={citizenAddress}
+                        onChange={(e) => setCitizenAddress(e.target.value)}
+                        className="hearing-form-input min-h-24 resize-y"
+                      />
+                    </label>
                     <Field label={H("register.email")} name="citizen_email" type="email" />
                     <HearingSelectField
                       label={H("register.preferredLanguage")}
@@ -757,153 +627,23 @@ export function HearingRegistrationForm({ hearing }: Props) {
                   </div>
                 </StepPanel>
 
-                {/* Step 1 - Category */}
-                <StepPanel step={1} activeStep={activeStep} title={H("register.stepCategory")} subtitle={H("register.stepCategorySub")}>
-                  <div className="grid min-w-0 gap-5 lg:grid-cols-2 *:min-w-0">
-                    <HearingSelectField
-                      label={H("register.serviceCategory")}
-                      name="service_category"
-                      required
-                      value={serviceCategory}
-                      onChange={setServiceCategory}
-                      placeholder={H("register.selectCategory")}
-                      hint={H("register.serviceCategoryHint")}
-                      options={SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: H(c.key) }))}
-                    />
-
-                    {taxonomyLoading ? (
-                      <SectionLoader
-                        label={H("register.loadingDepartments")}
-                        className="lg:col-span-2"
-                      />
-                    ) : taxonomy ? (
-                      <>
-                        {taxonomy.is_district_picker ? (
-                          <div className="rounded-lg border border-navy-700/15 bg-navy-700/5 px-4 py-3 text-sm text-slate-700 lg:col-span-2">
-                            <span className="font-medium">{H("register.district")}:</span>{" "}
-                            {taxonomy.auto_geographic_district}
-                            {taxonomy.auto_constituency ? (
-                              <>
-                                {" "}
-                                · <span className="font-medium">{H("register.constituency")}:</span>{" "}
-                                {taxonomy.auto_constituency}
-                              </>
-                            ) : null}
-                          </div>
-                        ) : null}
-
-                        <HearingSelectField
-                          label={deptLabel}
-                          name="department"
-                          required
-                          value={department}
-                          onChange={(next) => {
-                            setDepartment(next);
-                            setSubDepartment("");
-                            setOrganization("");
-                            setOrganizations([]);
-                            setOrganizationSearch("");
-                            setIssueType("");
-                          }}
-                          placeholder={deptPlaceholder}
-                          options={taxonomy.departments.map((d) => ({ value: d.name, label: d.name }))}
-                        />
-
-                        {showSubDepartment ? (
-                          <HearingSelectField
-                            label={H("register.subDepartment")}
-                            name="sub_department"
-                            required
-                            value={subDepartment}
-                            onChange={(next) => {
-                              setSubDepartment(next);
-                              setOrganization("");
-                              setOrganizations([]);
-                              setOrganizationSearch("");
-                              setIssueType("");
-                            }}
-                            placeholder={H("register.selectSubDepartment")}
-                            options={(selectedDept?.sub_departments ?? []).map((s) => ({
-                              value: s.name,
-                              label: s.name,
-                            }))}
-                          />
-                        ) : (
-                          <input type="hidden" name="sub_department" value={subDepartment} />
-                        )}
-
-                        {showOrganization && orgMultiSelect ? (
-                          <OrganizationMultiSelectField
-                            organizations={selectedSub?.organizations ?? []}
-                            selected={organizations}
-                            search={organizationSearch}
-                            onSearchChange={setOrganizationSearch}
-                            onChange={setOrganizations}
-                          />
-                        ) : showOrganization ? (
-                          <HearingSelectField
-                            label={H("register.organization")}
-                            name="organization"
-                            value={organization}
-                            onChange={setOrganization}
-                            searchable
-                            searchPlaceholder={H("register.searchOrganization")}
-                            placeholder={H("register.selectOrganization")}
-                            options={[
-                              { value: "", label: H("register.selectOrganization") },
-                              ...(selectedSub?.organizations ?? []).map((org) => ({
-                                value: org.name,
-                                label: org.name,
-                              })),
-                            ]}
-                          />
-                        ) : (
-                          <input type="hidden" name="organization" value={organization} />
-                        )}
-
-                        {showIssueType ? (
-                          <HearingSelectField
-                            label={H("register.issueType")}
-                            name="issue_type"
-                            required
-                            value={issueType}
-                            onChange={setIssueType}
-                            placeholder={H("register.selectIssueType")}
-                            options={(selectedSub?.issue_types ?? []).map((issue) => ({
-                              value: issue,
-                              label: issue,
-                            }))}
-                          />
-                        ) : (
-                          <input type="hidden" name="issue_type" value={issueType} />
-                        )}
-                      </>
-                    ) : serviceCategory ? (
-                      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 lg:col-span-2">
-                        <p className="text-sm text-red-800">
-                          {taxonomyError ?? H("register.taxonomyLoadError")}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setTaxonomyReloadKey((k) => k + 1)}
-                          className="mt-2 text-sm font-semibold text-navy-700 underline hover:text-saffron"
-                        >
-                          {H("register.taxonomyRetry")}
-                        </button>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-slate-500 lg:col-span-2">
-                        {H("register.taxonomyEmpty")}
-                      </p>
-                    )}
-                  </div>
-                </StepPanel>
-
-                {/* Step 2 - Grievance */}
-                <StepPanel step={2} activeStep={activeStep} title={H("register.stepGrievanceTitle")} subtitle={H("register.stepGrievanceSub")}>
+                {/* Step 1 - Grievance (+ related to) */}
+                <StepPanel step={1} activeStep={activeStep} title={H("register.stepGrievanceTitle")} subtitle={H("register.stepGrievanceSub")}>
                   <div className="grid min-w-0 gap-5 lg:grid-cols-2 *:min-w-0">
                     <div className="lg:col-span-2">
                       <Field label={H("register.grievanceTitle")} name="title" required placeholder={H("register.grievanceTitlePlaceholder")} />
+                    </div>
+                    <div className="lg:col-span-2">
+                      <HearingSelectField
+                        label={H("register.serviceCategory")}
+                        name="service_category"
+                        required
+                        value={serviceCategory}
+                        onChange={setServiceCategory}
+                        placeholder={H("register.selectCategory")}
+                        hint={H("register.serviceCategoryHint")}
+                        options={SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: H(c.key) }))}
+                      />
                     </div>
                     <label className="block text-sm lg:col-span-2">
                       <span className="mb-1.5 block font-medium text-slate-700">
@@ -918,17 +658,11 @@ export function HearingRegistrationForm({ hearing }: Props) {
                         className="hearing-form-input min-h-[9rem] resize-y"
                       />
                     </label>
-                    <Field
-                      label={H("register.area")}
-                      name="area"
-                      required
-                      placeholder={H("register.areaPlaceholder")}
-                    />
                   </div>
                 </StepPanel>
 
-                {/* Step 3 - Attachments */}
-                <StepPanel step={3} activeStep={activeStep} title={H("register.stepFilesTitle")} subtitle={H("register.stepFilesSub")}>
+                {/* Step 2 - Attachments */}
+                <StepPanel step={2} activeStep={activeStep} title={H("register.stepFilesTitle")} subtitle={H("register.stepFilesSub")}>
                   <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
                     <div>
                       <div className="rounded-lg border-2 border-dashed border-slate-300 bg-surface-muted px-6 py-10 text-center">
@@ -1002,32 +736,19 @@ export function HearingRegistrationForm({ hearing }: Props) {
                   </div>
                 </StepPanel>
 
-                {/* Step 4 - Review */}
-                <StepPanel step={4} activeStep={activeStep} title={H("register.stepReview")} subtitle={H("register.stepReviewSub")}>
+                {/* Step 3 - Review */}
+                <StepPanel step={3} activeStep={activeStep} title={H("register.stepReview")} subtitle={H("register.stepReviewSub")}>
                   <div className="grid gap-4 lg:grid-cols-2">
                     <ReviewBlock title={H("register.reviewPersonal")}>
                       <ReviewRow label={H("register.reviewName")} value={reviewSnapshot.name} />
                       <ReviewRow label={H("register.reviewPhone")} value={reviewSnapshot.phone} />
-                      <ReviewRow label={H("register.reviewPincode")} value={reviewSnapshot.pincode} />
+                      <ReviewRow label={H("register.reviewAddress")} value={reviewSnapshot.address} />
                       <ReviewRow label={H("register.reviewEmail")} value={reviewSnapshot.email} />
                       <ReviewRow label={H("register.reviewLanguage")} value={reviewSnapshot.language} />
                     </ReviewBlock>
-                    <ReviewBlock title={H("register.reviewCategoryBlock")}>
-                      <ReviewRow label={H("register.reviewCategory")} value={reviewSnapshot.category} />
-                      {reviewSnapshot.district ? (
-                        <ReviewRow label={H("register.district")} value={reviewSnapshot.district} />
-                      ) : null}
-                      {reviewSnapshot.constituency ? (
-                        <ReviewRow label={H("register.constituency")} value={reviewSnapshot.constituency} />
-                      ) : null}
-                      <ReviewRow label={H("register.reviewDepartment")} value={reviewSnapshot.department} />
-                      <ReviewRow label={H("register.reviewSubDepartment")} value={reviewSnapshot.subDepartment} />
-                      <ReviewRow label={H("register.reviewOrganization")} value={reviewSnapshot.organization} />
-                      <ReviewRow label={H("register.reviewIssueType")} value={reviewSnapshot.issueType} />
-                    </ReviewBlock>
                     <ReviewBlock title={H("register.reviewGrievance")} className="lg:col-span-2">
                       <ReviewRow label={H("register.reviewTitle")} value={reviewSnapshot.title} />
-                      <ReviewRow label={H("register.reviewArea")} value={reviewSnapshot.area} />
+                      <ReviewRow label={H("register.reviewCategory")} value={reviewSnapshot.category} />
                       <div className="mt-2">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                           {H("register.reviewDetails")}
@@ -1065,9 +786,6 @@ export function HearingRegistrationForm({ hearing }: Props) {
                         setAcceptedTerms(e.target.checked);
                         if (e.target.checked) {
                           setSubmitError(null);
-                          if (error === termsNotAcceptedMessage(uiLocale)) {
-                            setError(null);
-                          }
                         }
                       }}
                       className="mt-0.5 h-4 w-4 shrink-0 accent-saffron"
@@ -1132,7 +850,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                   <Button
                     type="submit"
                     loading={submitting}
-                    disabled={!acceptedTerms || submitting}
+                    disabled={submitting}
                     className="min-w-[140px]"
                   >
                     {H("register.submit")}
@@ -1158,6 +876,8 @@ export function HearingRegistrationForm({ hearing }: Props) {
       </main>
 
       <PortalFooter />
+
+      <ToastViewport toasts={toasts} onDismiss={dismissToast} />
 
       {imageModal ? (
         <MediaPreviewModal preview={imageModal} onClose={() => setImageModal(null)} />
@@ -1201,83 +921,6 @@ function fileFingerprint(file: File) {
 function filesMatch(a: File, b: File) {
   return (
     a.name === b.name && a.size === b.size && a.lastModified === b.lastModified
-  );
-}
-
-function OrganizationMultiSelectField({
-  organizations,
-  selected,
-  search,
-  onSearchChange,
-  onChange,
-}: {
-  organizations: { name: string }[];
-  selected: string[];
-  search: string;
-  onSearchChange: (value: string) => void;
-  onChange: (values: string[]) => void;
-}) {
-  const { t } = useI18n();
-  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
-  const query = search.trim().toLowerCase();
-  const filtered = query
-    ? organizations.filter((org) => org.name.toLowerCase().includes(query))
-    : organizations;
-
-  return (
-    <fieldset className="min-w-0 text-sm lg:col-span-2">
-      <legend className="mb-2 block text-sm text-slate-800">
-        <span className="font-semibold">{H("register.organization")}</span>
-        <span className="font-normal text-slate-500"> {H("register.organizationMulti")}</span>
-      </legend>
-      <div className="min-w-0 rounded-lg border border-border bg-surface-muted p-3">
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={H("register.searchOrganization")}
-          className="hearing-form-input"
-          aria-label={H("register.searchOrganization")}
-        />
-        <div className="mt-3 grid max-h-56 min-w-0 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 *:min-w-0">
-          {filtered.length > 0 ? (
-            filtered.map((org) => (
-              <label
-                key={org.name}
-                className={cn(
-                  "flex min-w-0 cursor-pointer items-start gap-2 rounded-md border px-3 py-2.5 transition-colors",
-                  selected.includes(org.name)
-                    ? "border-saffron bg-saffron/5"
-                    : "border-border bg-white hover:border-navy-700/30",
-                )}
-              >
-                <input
-                  type="checkbox"
-                  checked={selected.includes(org.name)}
-                  onChange={(e) => {
-                    onChange(
-                      e.target.checked
-                        ? [...selected, org.name]
-                        : selected.filter((n) => n !== org.name),
-                    );
-                  }}
-                  className="mt-0.5 shrink-0 accent-saffron"
-                />
-                <span className="min-w-0 wrap-break-word text-sm">{org.name}</span>
-              </label>
-            ))
-          ) : (
-            <p className="col-span-full py-4 text-center text-sm text-slate-500">
-              {H("register.noOrgMatch")}
-            </p>
-          )}
-        </div>
-        {selected.length > 0 ? (
-          <p className="mt-2 text-xs text-slate-500">{H("register.selectedCount", { count: selected.length })}</p>
-        ) : null}
-      </div>
-      <input type="hidden" name="organization" value={selected.join(" | ")} />
-    </fieldset>
   );
 }
 
