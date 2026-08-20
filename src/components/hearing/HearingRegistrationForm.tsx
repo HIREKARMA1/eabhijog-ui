@@ -18,48 +18,36 @@ import {
   orgRequiredMessage,
   termsNotAcceptedMessage,
 } from "@/lib/hearing/registrationErrors";
+import { formatHearingWhen } from "@/lib/hearing/formatWhen";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
 import type { HearingPublicSummary, HearingRegisterResult, PublicRegistrationTaxonomy } from "@/types/api";
 
 const SERVICE_CATEGORIES = [
-  "Commerce & Transport",
-  "Steel & Mines",
-  "Ganjam District",
-  "Gopalpur Constituency",
-];
+  { value: "Commerce & Transport", key: "categories.commerce" },
+  { value: "Steel & Mines", key: "categories.steel" },
+  { value: "Ganjam District", key: "categories.ganjam" },
+  { value: "Gopalpur Constituency", key: "categories.gopalpur" },
+] as const;
 
-const LANGUAGES = [
-  { value: "or", label: "Odia" },
-  { value: "en", label: "English" },
-  { value: "hi", label: "Hindi" },
-];
+const LANGUAGE_VALUES = ["or", "en", "hi"] as const;
 
-const STEPS = [
-  { id: "personal", label: "Your details", short: "Details" },
-  { id: "category", label: "Category - department", short: "Category" },
-  { id: "grievance", label: "Grievance", short: "Grievance" },
-  { id: "attachments", label: "Attachments", short: "Files" },
-  { id: "review", label: "Review - submit", short: "Submit" },
+const STEP_DEFS = [
+  { id: "personal", labelKey: "register.stepPersonal" },
+  { id: "category", labelKey: "register.stepCategory" },
+  { id: "grievance", labelKey: "register.stepGrievance" },
+  { id: "attachments", labelKey: "register.stepFiles" },
+  { id: "review", labelKey: "register.stepReview" },
 ] as const;
 
 type Props = {
   hearing: HearingPublicSummary;
 };
 
-function formatWhen(iso: string) {
-  try {
-    return new Date(iso).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  } catch {
-    return iso;
-  }
-}
-
 export function HearingRegistrationForm({ hearing }: Props) {
-  const { locale: uiLocale } = useI18n();
+  const { locale: uiLocale, t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+  const STEPS = STEP_DEFS.map((step) => ({ id: step.id, label: H(step.labelKey) }));
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const submitErrorRef = useRef<HTMLDivElement>(null);
@@ -113,7 +101,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
         if (cancelled) return;
         if (!res.data?.departments?.length) {
           setTaxonomy(null);
-          setTaxonomyError("No departments are configured for this category yet.");
+          setTaxonomyError(H("register.taxonomyNone"));
           return;
         }
         setTaxonomy(res.data);
@@ -122,7 +110,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
         if (cancelled) return;
         setTaxonomy(null);
         setTaxonomyError(
-          err instanceof ApiError ? err.message : "Could not load department options. Please try again.",
+          err instanceof ApiError ? err.message : H("register.taxonomyLoadError"),
         );
       })
       .finally(() => {
@@ -131,7 +119,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [serviceCategory, taxonomyReloadKey]);
+  }, [serviceCategory, taxonomyReloadKey, t]);
 
   const mediaPreviewUrls = useMemo(
     () => filePreviews.filter((p) => p.kind === "image" || p.kind === "video"),
@@ -194,7 +182,10 @@ export function HearingRegistrationForm({ hearing }: Props) {
     !selectedDept?.skip_sub_steps &&
     (selectedSub.issue_types?.length ?? 0) > 0;
 
-  const deptLabel = taxonomy?.is_district_picker ? "Issue type" : "Department";
+  const deptLabel = taxonomy?.is_district_picker ? H("register.issueType") : H("register.department");
+  const deptPlaceholder = taxonomy?.is_district_picker
+    ? H("register.selectIssueTypeField")
+    : H("register.selectDepartment");
   const isLastStep = activeStep === STEPS.length - 1;
   const isFirstStep = activeStep === 0;
 
@@ -302,25 +293,25 @@ export function HearingRegistrationForm({ hearing }: Props) {
 
     for (const select of panel.querySelectorAll<HTMLSelectElement>("select.sr-only")) {
       if (!select.checkValidity()) {
-        setError("Please select an option from the dropdown.");
+        setError(H("register.errSelectOption"));
         return false;
       }
     }
 
     if (activeStep === 0) {
       if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
-        setError("Enter a valid 10-digit mobile number.");
+        setError(H("register.errPhone"));
         return false;
       }
     }
 
     if (activeStep === 1) {
       if (!serviceCategory) {
-        setError("Please select a service category.");
+        setError(H("register.errCategory"));
         return false;
       }
       if (orgMultiSelect && showOrganization && organizations.length === 0) {
-        setError("Please select at least one organization.");
+        setError(H("register.errOrganization"));
         return false;
       }
     }
@@ -441,13 +432,13 @@ export function HearingRegistrationForm({ hearing }: Props) {
     }
 
     const required: { key: string; label: string; value: string }[] = [
-      { key: "citizen_name", label: "Name", value: readFormValue("citizen_name") },
-      { key: "citizen_pincode", label: "Pincode", value: readFormValue("citizen_pincode") },
-      { key: "service_category", label: "Category", value: serviceCategory },
-      { key: "department", label: "Department", value: department },
-      { key: "title", label: "Title", value: readFormValue("title") },
-      { key: "grievance_text", label: "Grievance details", value: readFormValue("grievance_text") },
-      { key: "area", label: "Area", value: readFormValue("area") },
+      { key: "citizen_name", label: H("register.missingName"), value: readFormValue("citizen_name") },
+      { key: "citizen_pincode", label: H("register.missingPincode"), value: readFormValue("citizen_pincode") },
+      { key: "service_category", label: H("register.missingCategory"), value: serviceCategory },
+      { key: "department", label: H("register.missingDepartment"), value: department },
+      { key: "title", label: H("register.missingTitle"), value: readFormValue("title") },
+      { key: "grievance_text", label: H("register.missingDetails"), value: readFormValue("grievance_text") },
+      { key: "area", label: H("register.missingArea"), value: readFormValue("area") },
     ];
     const missing = required.filter((item) => !item.value);
     if (missing.length > 0) {
@@ -498,7 +489,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
     const accepted: File[] = [];
 
     for (const file of incoming) {
-      const validationError = validateUploadFile(file);
+      const validationError = validateUploadFile(file, H);
       if (validationError) {
         errors.push(validationError);
         continue;
@@ -507,7 +498,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
     }
 
     if (accepted.length === 0) {
-      setFileUploadError(errors[0] ?? "Could not add the selected file(s).");
+      setFileUploadError(errors[0] ?? H("register.fileNone"));
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -516,7 +507,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
       const merged = [...prev];
       for (const file of accepted) {
         if (merged.length >= 3) {
-          errors.push("You can attach at most 3 files.");
+          errors.push(H("register.fileMax"));
           break;
         }
         const duplicate = merged.some((existing) => filesMatch(existing, file));
@@ -567,9 +558,11 @@ export function HearingRegistrationForm({ hearing }: Props) {
       phone: phoneDigits ? `+91 ${phoneDigits}` : "",
       pincode: field("citizen_pincode"),
       email: field("citizen_email"),
-      language:
-        LANGUAGES.find((l) => l.value === (field("preferred_language") || "or"))?.label ?? "",
-      category: serviceCategory,
+      language: H(`languages.${field("preferred_language") || "or"}`),
+      category: (() => {
+        const match = SERVICE_CATEGORIES.find((c) => c.value === serviceCategory);
+        return match ? H(match.key) : serviceCategory;
+      })(),
       department,
       subDepartment,
       organization: orgMultiSelect ? organizations.join(", ") : organization,
@@ -604,46 +597,44 @@ export function HearingRegistrationForm({ hearing }: Props) {
         <div className="mx-auto w-full max-w-[1920px] px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           <nav className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
             <Link href="/" className="font-medium text-navy-700 hover:text-saffron hover:underline">
-              Jana Samadhan
+              {t("common", "brand.name")}
             </Link>
             <Icon name="chevron-right" size={14} className="text-slate-400" />
             <Link href="/hearing" className="font-medium text-navy-700 hover:text-saffron hover:underline">
-              Online Grievance Hearing
+              {H("list.breadcrumb")}
             </Link>
             <Icon name="chevron-right" size={14} className="text-slate-400" />
-            <span className="truncate text-slate-600">Register</span>
+            <span className="truncate text-slate-600">{H("register.breadcrumbRegister")}</span>
           </nav>
 
           <div className="mt-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
             <div className="min-w-0 flex-1">
-              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-saffron">
-                Online Grievance Hearing Registration
+              <p className="block text-xs font-bold uppercase tracking-wide text-saffron sm:tracking-[0.18em]">
+                {H("register.kicker")}
               </p>
-              <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-[2rem] lg:leading-tight">
+              <h1 className="mt-3 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-[2rem] lg:leading-tight">
                 {hearing.title}
               </h1>
-              <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
-                Register your grievance for this hearing. Complete each step - personal details,
-                department selection, grievance description, and optional documents - matching
-                WhatsApp registration.
+              <p className="mt-3 max-w-3xl wrap-break-word text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
+                {H("register.intro")}
               </p>
               {hearing.description ? (
-                <p className="mt-2 max-w-3xl text-sm text-slate-500">{hearing.description}</p>
+                <p className="mt-2 max-w-3xl wrap-break-word text-sm text-slate-500">{hearing.description}</p>
               ) : null}
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2 lg:mt-0 lg:max-w-md lg:flex-col lg:items-end">
-              <MetaPill label="Hearing" value={formatWhen(hearing.hearing_date)} highlight />
-              <MetaPill label="Closes" value={formatWhen(hearing.registration_closes_at)} />
+            <div className="mt-5 flex min-w-0 w-full flex-wrap gap-2 lg:mt-0 lg:max-w-md lg:w-auto lg:flex-col lg:items-end">
+              <MetaPill label={H("register.hearingLabel")} value={formatHearingWhen(hearing.hearing_date, uiLocale)} highlight />
+              <MetaPill label={H("register.closesLabel")} value={formatHearingWhen(hearing.registration_closes_at, uiLocale)} />
               <span
                 className={cn(
-                  "inline-flex items-center rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide",
+                  "inline-flex max-w-full items-center rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide",
                   hearing.registration_open
                     ? "border-emerald-300 bg-emerald-50 text-emerald-800"
                     : "border-slate-200 bg-slate-50 text-slate-600",
                 )}
               >
-                {hearing.registration_open ? "● Registration open" : "Registration closed"}
+                {hearing.registration_open ? H("register.registrationOpen") : H("register.registrationClosed")}
               </span>
             </div>
           </div>
@@ -654,23 +645,23 @@ export function HearingRegistrationForm({ hearing }: Props) {
       <main className="mx-auto w-full max-w-[1920px] flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
         {!hearing.registration_open ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-6 py-8 text-center">
-            <p className="text-lg font-semibold text-amber-900">Registration is not open</p>
+            <p className="text-lg font-semibold text-amber-900">{H("register.closedTitle")}</p>
             <p className="mt-2 text-sm text-amber-800">
-              This hearing is not accepting registrations right now. Please check back later.
+              {H("register.closedBody")}
             </p>
             <Link
               href="/hearing"
               className="mt-6 inline-flex rounded-lg bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-600"
             >
-              View all hearings
+              {H("register.viewAll")}
             </Link>
           </div>
         ) : registrationResult ? (
           <RegistrationSuccessPanel result={registrationResult} hearing={hearing} />
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border bg-white">
+          <div className="rounded-lg border border-border bg-white">
             {/* Step stepper - connected, flat */}
-            <div className="border-b border-border bg-surface-muted px-4 py-5 sm:px-8">
+            <div className="overflow-hidden rounded-t-lg border-b border-border bg-surface-muted px-4 py-5 sm:px-8">
               <ol className="flex items-start overflow-x-auto pb-1">
                 {STEPS.map((step, index) => {
                   const done = index < activeStep;
@@ -724,14 +715,14 @@ export function HearingRegistrationForm({ hearing }: Props) {
               </p>
             </div>
 
-            <form ref={formRef} onSubmit={onSubmit} className="relative flex flex-col">
+            <form ref={formRef} onSubmit={onSubmit} className="relative flex min-w-0 flex-col">
               {submitting ? (
                 <div
                   className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-white/80 backdrop-blur-[1px]"
                   aria-live="polite"
                   aria-busy
                 >
-                  <SectionLoader label="Submitting your registration…" />
+                  <SectionLoader label={H("register.submitting")} />
                 </div>
               ) : null}
               <input
@@ -744,55 +735,55 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 onChange={(e) => onFileChange(e.target.files)}
                 className="pointer-events-none absolute h-0 w-0 opacity-0"
               />
-              <div className="min-h-[400px] border-b border-border px-4 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
+              <div className="min-h-[400px] min-w-0 border-b border-border px-4 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
                 {/* Step 0 - Personal */}
-                <StepPanel step={0} activeStep={activeStep} title="Your details" subtitle="Tell us how to reach you on WhatsApp for hearing updates.">
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    <Field label="Full name" name="citizen_name" required />
+                <StepPanel step={0} activeStep={activeStep} title={H("register.stepPersonal")} subtitle={H("register.stepPersonalSub")}>
+                  <div className="grid min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-3 *:min-w-0">
+                    <Field label={H("register.fullName")} name="citizen_name" required />
                     <PhoneField digits={phoneDigits} onChange={setPhoneDigits} />
                     <input type="hidden" name="citizen_phone" value={phoneDigits} />
-                    <Field label="Pincode" name="citizen_pincode" required placeholder="6 digits" />
-                    <Field label="Email (optional)" name="citizen_email" type="email" />
+                    <Field label={H("register.pincode")} name="citizen_pincode" required placeholder={H("register.pincodePlaceholder")} />
+                    <Field label={H("register.email")} name="citizen_email" type="email" />
                     <HearingSelectField
-                      label="Preferred language"
+                      label={H("register.preferredLanguage")}
                       name="preferred_language"
                       value={preferredLanguage}
                       onChange={setPreferredLanguage}
-                      hint="Notifications will be sent in this language"
-                      options={LANGUAGES.map((lang) => ({ value: lang.value, label: lang.label }))}
+                      hint={H("register.preferredLanguageHint")}
+                      options={LANGUAGE_VALUES.map((lang) => ({ value: lang, label: H(`languages.${lang}`) }))}
                     />
                   </div>
                 </StepPanel>
 
                 {/* Step 1 - Category */}
-                <StepPanel step={1} activeStep={activeStep} title="Category - department" subtitle="Choose the same service category and department as WhatsApp grievance registration.">
-                  <div className="grid gap-5 lg:grid-cols-2">
+                <StepPanel step={1} activeStep={activeStep} title={H("register.stepCategory")} subtitle={H("register.stepCategorySub")}>
+                  <div className="grid min-w-0 gap-5 lg:grid-cols-2 *:min-w-0">
                     <HearingSelectField
-                      label="Service category"
+                      label={H("register.serviceCategory")}
                       name="service_category"
                       required
                       value={serviceCategory}
                       onChange={setServiceCategory}
-                      placeholder="Select category"
-                      hint="Same categories as WhatsApp grievance registration"
-                      options={SERVICE_CATEGORIES.map((c) => ({ value: c, label: c }))}
+                      placeholder={H("register.selectCategory")}
+                      hint={H("register.serviceCategoryHint")}
+                      options={SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: H(c.key) }))}
                     />
 
                     {taxonomyLoading ? (
                       <SectionLoader
-                        label="Loading departments…"
+                        label={H("register.loadingDepartments")}
                         className="lg:col-span-2"
                       />
                     ) : taxonomy ? (
                       <>
                         {taxonomy.is_district_picker ? (
                           <div className="rounded-lg border border-navy-700/15 bg-navy-700/5 px-4 py-3 text-sm text-slate-700 lg:col-span-2">
-                            <span className="font-medium">District:</span>{" "}
+                            <span className="font-medium">{H("register.district")}:</span>{" "}
                             {taxonomy.auto_geographic_district}
                             {taxonomy.auto_constituency ? (
                               <>
                                 {" "}
-                                · <span className="font-medium">Constituency:</span>{" "}
+                                · <span className="font-medium">{H("register.constituency")}:</span>{" "}
                                 {taxonomy.auto_constituency}
                               </>
                             ) : null}
@@ -812,13 +803,13 @@ export function HearingRegistrationForm({ hearing }: Props) {
                             setOrganizationSearch("");
                             setIssueType("");
                           }}
-                          placeholder={`Select ${deptLabel.toLowerCase()}`}
+                          placeholder={deptPlaceholder}
                           options={taxonomy.departments.map((d) => ({ value: d.name, label: d.name }))}
                         />
 
                         {showSubDepartment ? (
                           <HearingSelectField
-                            label="Sub-department"
+                            label={H("register.subDepartment")}
                             name="sub_department"
                             required
                             value={subDepartment}
@@ -829,7 +820,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                               setOrganizationSearch("");
                               setIssueType("");
                             }}
-                            placeholder="Select sub-department"
+                            placeholder={H("register.selectSubDepartment")}
                             options={(selectedDept?.sub_departments ?? []).map((s) => ({
                               value: s.name,
                               label: s.name,
@@ -849,15 +840,15 @@ export function HearingRegistrationForm({ hearing }: Props) {
                           />
                         ) : showOrganization ? (
                           <HearingSelectField
-                            label="Organization"
+                            label={H("register.organization")}
                             name="organization"
                             value={organization}
                             onChange={setOrganization}
                             searchable
-                            searchPlaceholder="Search organization..."
-                            placeholder="Select organization (optional)"
+                            searchPlaceholder={H("register.searchOrganization")}
+                            placeholder={H("register.selectOrganization")}
                             options={[
-                              { value: "", label: "Select organization (optional)" },
+                              { value: "", label: H("register.selectOrganization") },
                               ...(selectedSub?.organizations ?? []).map((org) => ({
                                 value: org.name,
                                 label: org.name,
@@ -870,15 +861,15 @@ export function HearingRegistrationForm({ hearing }: Props) {
 
                         {showIssueType ? (
                           <HearingSelectField
-                            label="Issue type"
+                            label={H("register.issueType")}
                             name="issue_type"
                             required
                             value={issueType}
                             onChange={setIssueType}
-                            placeholder="Select issue type"
-                            options={(selectedSub?.issue_types ?? []).map((t) => ({
-                              value: t,
-                              label: t,
+                            placeholder={H("register.selectIssueType")}
+                            options={(selectedSub?.issue_types ?? []).map((issue) => ({
+                              value: issue,
+                              label: issue,
                             }))}
                           />
                         ) : (
@@ -888,68 +879,68 @@ export function HearingRegistrationForm({ hearing }: Props) {
                     ) : serviceCategory ? (
                       <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 lg:col-span-2">
                         <p className="text-sm text-red-800">
-                          {taxonomyError ?? "Could not load department options. Please try again."}
+                          {taxonomyError ?? H("register.taxonomyLoadError")}
                         </p>
                         <button
                           type="button"
                           onClick={() => setTaxonomyReloadKey((k) => k + 1)}
                           className="mt-2 text-sm font-semibold text-navy-700 underline hover:text-saffron"
                         >
-                          Retry
+                          {H("register.taxonomyRetry")}
                         </button>
                       </div>
                     ) : (
                       <p className="text-sm text-slate-500 lg:col-span-2">
-                        Select a service category to load departments.
+                        {H("register.taxonomyEmpty")}
                       </p>
                     )}
                   </div>
                 </StepPanel>
 
                 {/* Step 2 - Grievance */}
-                <StepPanel step={2} activeStep={activeStep} title="Grievance details" subtitle="Describe your issue clearly so it can be reviewed before the hearing.">
-                  <div className="grid gap-5 lg:grid-cols-2">
+                <StepPanel step={2} activeStep={activeStep} title={H("register.stepGrievanceTitle")} subtitle={H("register.stepGrievanceSub")}>
+                  <div className="grid min-w-0 gap-5 lg:grid-cols-2 *:min-w-0">
                     <div className="lg:col-span-2">
-                      <Field label="Grievance title" name="title" required placeholder="Short summary of your issue" />
+                      <Field label={H("register.grievanceTitle")} name="title" required placeholder={H("register.grievanceTitlePlaceholder")} />
                     </div>
                     <label className="block text-sm lg:col-span-2">
                       <span className="mb-1.5 block font-medium text-slate-700">
-                        Grievance details
+                        {H("register.grievanceDetails")}
                       </span>
                       <textarea
                         name="grievance_text"
                         required
                         minLength={10}
                         rows={6}
-                        placeholder="Describe your grievance in detail - include dates, locations, and what outcome you expect..."
+                        placeholder={H("register.grievanceDetailsPlaceholder")}
                         className="hearing-form-input min-h-[9rem] resize-y"
                       />
                     </label>
                     <Field
-                      label="Area / locality"
+                      label={H("register.area")}
                       name="area"
                       required
-                      placeholder="Village, ward, or landmark"
+                      placeholder={H("register.areaPlaceholder")}
                     />
                   </div>
                 </StepPanel>
 
                 {/* Step 3 - Attachments */}
-                <StepPanel step={3} activeStep={activeStep} title="Supporting documents" subtitle="Optional photos, videos, or PDFs to support your grievance (same limits as WhatsApp).">
+                <StepPanel step={3} activeStep={activeStep} title={H("register.stepFilesTitle")} subtitle={H("register.stepFilesSub")}>
                   <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
                     <div>
                       <div className="rounded-lg border-2 border-dashed border-slate-300 bg-surface-muted px-6 py-10 text-center">
                         <p className="text-sm font-medium text-slate-700">
-                          Upload up to 3 files
+                          {H("register.uploadTitle")}
                           {files.length > 0 ? (
-                            <span className="text-slate-500"> ({files.length}/3 added)</span>
+                            <span className="text-slate-500"> {H("register.uploadAdded", { count: files.length })}</span>
                           ) : null}
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
-                          JPG, PNG, PDF (max 5 MB) - MP4, 3GP (max 16 MB)
+                          {H("register.uploadLimits")}
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
-                          Select multiple at once, or use Choose files again to add more (max 3).
+                          {H("register.uploadHint")}
                         </p>
                         <button
                           type="button"
@@ -962,7 +953,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                               : "bg-navy-700 hover:bg-navy-600",
                           )}
                         >
-                          {files.length >= 3 ? "Maximum 3 files" : "Choose files"}
+                          {files.length >= 3 ? H("register.maxFiles") : H("register.chooseFiles")}
                         </button>
                       </div>
                       {fileUploadError ? (
@@ -988,7 +979,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                                 onClick={() => removeFile(f)}
                                 className="shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
                               >
-                                Remove
+                                {H("register.remove")}
                               </button>
                             </li>
                           ))}
@@ -1010,41 +1001,41 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 </StepPanel>
 
                 {/* Step 4 - Review */}
-                <StepPanel step={4} activeStep={activeStep} title="Review - submit" subtitle="Please verify all details before submitting your hearing registration.">
+                <StepPanel step={4} activeStep={activeStep} title={H("register.stepReview")} subtitle={H("register.stepReviewSub")}>
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <ReviewBlock title="Personal details">
-                      <ReviewRow label="Name" value={reviewSnapshot.name} />
-                      <ReviewRow label="Phone" value={reviewSnapshot.phone} />
-                      <ReviewRow label="Pincode" value={reviewSnapshot.pincode} />
-                      <ReviewRow label="Email" value={reviewSnapshot.email} />
-                      <ReviewRow label="Language" value={reviewSnapshot.language} />
+                    <ReviewBlock title={H("register.reviewPersonal")}>
+                      <ReviewRow label={H("register.reviewName")} value={reviewSnapshot.name} />
+                      <ReviewRow label={H("register.reviewPhone")} value={reviewSnapshot.phone} />
+                      <ReviewRow label={H("register.reviewPincode")} value={reviewSnapshot.pincode} />
+                      <ReviewRow label={H("register.reviewEmail")} value={reviewSnapshot.email} />
+                      <ReviewRow label={H("register.reviewLanguage")} value={reviewSnapshot.language} />
                     </ReviewBlock>
-                    <ReviewBlock title="Category - department">
-                      <ReviewRow label="Category" value={reviewSnapshot.category} />
+                    <ReviewBlock title={H("register.reviewCategoryBlock")}>
+                      <ReviewRow label={H("register.reviewCategory")} value={reviewSnapshot.category} />
                       {reviewSnapshot.district ? (
-                        <ReviewRow label="District" value={reviewSnapshot.district} />
+                        <ReviewRow label={H("register.district")} value={reviewSnapshot.district} />
                       ) : null}
                       {reviewSnapshot.constituency ? (
-                        <ReviewRow label="Constituency" value={reviewSnapshot.constituency} />
+                        <ReviewRow label={H("register.constituency")} value={reviewSnapshot.constituency} />
                       ) : null}
-                      <ReviewRow label="Department" value={reviewSnapshot.department} />
-                      <ReviewRow label="Sub-department" value={reviewSnapshot.subDepartment} />
-                      <ReviewRow label="Organization" value={reviewSnapshot.organization} />
-                      <ReviewRow label="Issue type" value={reviewSnapshot.issueType} />
+                      <ReviewRow label={H("register.reviewDepartment")} value={reviewSnapshot.department} />
+                      <ReviewRow label={H("register.reviewSubDepartment")} value={reviewSnapshot.subDepartment} />
+                      <ReviewRow label={H("register.reviewOrganization")} value={reviewSnapshot.organization} />
+                      <ReviewRow label={H("register.reviewIssueType")} value={reviewSnapshot.issueType} />
                     </ReviewBlock>
-                    <ReviewBlock title="Grievance" className="lg:col-span-2">
-                      <ReviewRow label="Title" value={reviewSnapshot.title} />
-                      <ReviewRow label="Area / locality" value={reviewSnapshot.area} />
+                    <ReviewBlock title={H("register.reviewGrievance")} className="lg:col-span-2">
+                      <ReviewRow label={H("register.reviewTitle")} value={reviewSnapshot.title} />
+                      <ReviewRow label={H("register.reviewArea")} value={reviewSnapshot.area} />
                       <div className="mt-2">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Details
+                          {H("register.reviewDetails")}
                         </p>
                         <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800">
                           {reviewSnapshot.grievanceText || "-"}
                         </p>
                       </div>
                     </ReviewBlock>
-                    <ReviewBlock title="Attachments" className="lg:col-span-2">
+                    <ReviewBlock title={H("register.reviewAttachments")} className="lg:col-span-2">
                       {reviewSnapshot.attachments.length > 0 ? (
                         <ReviewAttachmentsGrid
                           items={reviewSnapshot.attachments}
@@ -1059,7 +1050,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                           }}
                         />
                       ) : (
-                        <p className="text-sm text-slate-500">No files attached.</p>
+                        <p className="text-sm text-slate-500">{H("register.noFiles")}</p>
                       )}
                     </ReviewBlock>
                   </div>
@@ -1072,7 +1063,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                         setAcceptedTerms(e.target.checked);
                         if (e.target.checked) {
                           setSubmitError(null);
-                          if (error?.includes("Terms & Conditions")) {
+                          if (error === termsNotAcceptedMessage(uiLocale)) {
                             setError(null);
                           }
                         }
@@ -1080,8 +1071,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                       className="mt-0.5 h-4 w-4 shrink-0 accent-saffron"
                     />
                     <span className="text-xs leading-relaxed text-slate-700">
-                      I confirm that the information provided is accurate and complete. I have read
-                      and agree to the{" "}
+                      {H("register.termsPrefix")}{" "}
                       <Link
                         href="/hearing/terms"
                         target="_blank"
@@ -1089,11 +1079,9 @@ export function HearingRegistrationForm({ hearing }: Props) {
                         className="font-semibold text-navy-700 underline hover:text-saffron"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Terms &amp; Conditions
+                        {H("register.termsLink")}
                       </Link>{" "}
-                      for Online Grievance Hearing registration. I understand that approved
-                      registrations receive a serial number and WhatsApp notification with the
-                      Google Meet link for the hearing.
+                      {H("register.termsSuffix")}
                     </span>
                   </label>
                 </StepPanel>
@@ -1106,7 +1094,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
               </div>
 
               {/* Footer navigation - flat bar */}
-              <div className="flex flex-col gap-3 bg-surface-muted px-4 py-4 sm:px-8 lg:px-12">
+              <div className="flex flex-col gap-3 rounded-b-lg bg-surface-muted px-4 py-4 sm:px-8 lg:px-12">
                 {submitError && isLastStep ? (
                   <div
                     ref={submitErrorRef}
@@ -1126,12 +1114,16 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 >
                   <span className="inline-flex items-center gap-2">
                     <Icon name="back" size={16} />
-                    Previous
+                    {H("register.previous")}
                   </span>
                 </Button>
 
                 <p className="hidden text-sm font-medium text-slate-500 sm:block">
-                  Step {activeStep + 1} of {STEPS.length} - {STEPS[activeStep].label}
+                  {H("register.stepOf", {
+                    current: activeStep + 1,
+                    total: STEPS.length,
+                    label: STEPS[activeStep].label,
+                  })}
                 </p>
 
                 {isLastStep ? (
@@ -1141,7 +1133,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                     disabled={!acceptedTerms || submitting}
                     className="min-w-[140px]"
                   >
-                    Submit registration
+                    {H("register.submit")}
                   </Button>
                 ) : (
                   <Button
@@ -1151,7 +1143,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                     className="min-w-[120px]"
                   >
                     <span className="inline-flex items-center gap-2">
-                      Next
+                      {H("register.next")}
                       <Icon name="chevron-right" size={16} />
                     </span>
                   </Button>
@@ -1185,14 +1177,17 @@ function detectFileKind(file: File): "image" | "video" | "pdf" | "other" {
   return "other";
 }
 
-function validateUploadFile(file: File): string | null {
+function validateUploadFile(
+  file: File,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string | null {
   const kind = detectFileKind(file);
   if (kind === "other") {
-    return `${file.name} is not supported. Use JPG, PNG, PDF, MP4, or 3GP.`;
+    return t("register.fileUnsupported", { name: file.name });
   }
   const maxBytes = kind === "video" ? 16 * 1024 * 1024 : 5 * 1024 * 1024;
   if (file.size > maxBytes) {
-    return `${file.name} is too large (max ${kind === "video" ? "16" : "5"} MB).`;
+    return t("register.fileTooLarge", { name: file.name, max: kind === "video" ? "16" : "5" });
   }
   return null;
 }
@@ -1220,33 +1215,35 @@ function OrganizationMultiSelectField({
   onSearchChange: (value: string) => void;
   onChange: (values: string[]) => void;
 }) {
+  const { t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
   const query = search.trim().toLowerCase();
   const filtered = query
     ? organizations.filter((org) => org.name.toLowerCase().includes(query))
     : organizations;
 
   return (
-    <fieldset className="text-sm lg:col-span-2">
+    <fieldset className="min-w-0 text-sm lg:col-span-2">
       <legend className="mb-2 block text-sm text-slate-800">
-        <span className="font-semibold">Organization</span>
-        <span className="font-normal text-slate-500"> (select one or more)</span>
+        <span className="font-semibold">{H("register.organization")}</span>
+        <span className="font-normal text-slate-500"> {H("register.organizationMulti")}</span>
       </legend>
-      <div className="rounded-lg border border-border bg-surface-muted p-3">
+      <div className="min-w-0 rounded-lg border border-border bg-surface-muted p-3">
         <input
           type="search"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search organization..."
+          placeholder={H("register.searchOrganization")}
           className="hearing-form-input"
-          aria-label="Search organizations"
+          aria-label={H("register.searchOrganization")}
         />
-        <div className="mt-3 grid max-h-56 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-3 grid max-h-56 min-w-0 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 *:min-w-0">
           {filtered.length > 0 ? (
             filtered.map((org) => (
               <label
                 key={org.name}
                 className={cn(
-                  "flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2.5 transition-colors",
+                  "flex min-w-0 cursor-pointer items-start gap-2 rounded-md border px-3 py-2.5 transition-colors",
                   selected.includes(org.name)
                     ? "border-saffron bg-saffron/5"
                     : "border-border bg-white hover:border-navy-700/30",
@@ -1262,19 +1259,19 @@ function OrganizationMultiSelectField({
                         : selected.filter((n) => n !== org.name),
                     );
                   }}
-                  className="mt-0.5 accent-saffron"
+                  className="mt-0.5 shrink-0 accent-saffron"
                 />
-                <span className="text-sm">{org.name}</span>
+                <span className="min-w-0 wrap-break-word text-sm">{org.name}</span>
               </label>
             ))
           ) : (
             <p className="col-span-full py-4 text-center text-sm text-slate-500">
-              No organizations match your search.
+              {H("register.noOrgMatch")}
             </p>
           )}
         </div>
         {selected.length > 0 ? (
-          <p className="mt-2 text-xs text-slate-500">{selected.length} selected</p>
+          <p className="mt-2 text-xs text-slate-500">{H("register.selectedCount", { count: selected.length })}</p>
         ) : null}
       </div>
       <input type="hidden" name="organization" value={selected.join(" | ")} />
@@ -1294,12 +1291,15 @@ function AttachmentPreviewPanel({
   }[];
   onPreview: (preview: (typeof previews)[number]) => void;
 }) {
+  const { t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+
   if (previews.length === 0) {
     return (
       <div className="flex min-h-[220px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface-muted px-6 py-8 text-center lg:min-h-[280px]">
-        <p className="text-sm font-medium text-slate-600">Photo / video preview</p>
+        <p className="text-sm font-medium text-slate-600">{H("register.previewEmptyTitle")}</p>
         <p className="mt-1 text-xs text-slate-500">
-          Uploaded images and videos will appear here. Click to view full size.
+          {H("register.previewEmptyBody")}
         </p>
       </div>
     );
@@ -1308,7 +1308,7 @@ function AttachmentPreviewPanel({
   return (
     <div className="rounded-lg border border-border bg-white p-4">
       <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
-        Preview ({previews.length})
+        {H("register.previewCount", { count: previews.length })}
       </p>
       <div className="grid max-h-[420px] gap-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-1">
         {previews.map((preview) => (
@@ -1329,7 +1329,7 @@ function AttachmentPreviewPanel({
                     preload="metadata"
                   />
                   <span className="absolute inset-0 flex items-center justify-center bg-black/25 text-xs font-semibold text-white">
-                    Play video
+                    {H("register.playVideo")}
                   </span>
                 </>
               ) : (
@@ -1345,7 +1345,7 @@ function AttachmentPreviewPanel({
           </button>
         ))}
       </div>
-      <p className="mt-3 text-xs text-slate-500">Click a preview to open full size.</p>
+      <p className="mt-3 text-xs text-slate-500">{H("register.previewHint")}</p>
     </div>
   );
 }
@@ -1357,12 +1357,15 @@ function MediaPreviewModal({
   preview: { url: string; name: string; kind: "image" | "video" };
   onClose: () => void;
 }) {
+  const { t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={`Preview ${preview.name}`}
+      aria-label={H("register.previewAria", { name: preview.name })}
       onClick={onClose}
     >
       <div
@@ -1376,7 +1379,7 @@ function MediaPreviewModal({
             onClick={onClose}
             className="rounded-md px-3 py-1.5 text-sm font-semibold text-navy-700 hover:bg-surface-muted"
           >
-            Close
+            {H("register.close")}
           </button>
         </div>
         <div className="flex max-h-[calc(90vh-3.5rem)] items-center justify-center bg-slate-900/95 p-4">
@@ -1407,7 +1410,9 @@ function RegistrationSuccessPanel({
   result: HearingRegisterResult;
   hearing: HearingPublicSummary;
 }) {
-  const hearingWhen = formatWhen(hearing.hearing_date);
+  const { locale, t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+  const hearingWhen = formatHearingWhen(hearing.hearing_date, locale);
 
   return (
     <div className="w-full overflow-hidden rounded-lg border border-emerald-200 bg-white">
@@ -1415,95 +1420,83 @@ function RegistrationSuccessPanel({
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-500 text-xl font-bold text-emerald-700">
           ✓
         </div>
-        <h2 className="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">Thank you for registering</h2>
-        <p className="mx-auto mt-2 max-w-4xl text-sm leading-relaxed text-slate-600 sm:text-base">
-          Your grievance has been submitted for the Online Grievance Hearing. Please save the
-          reference number below for future tracking.
+        <h2 className="mt-4 wrap-break-word text-2xl font-bold text-slate-900 sm:text-3xl">{H("success.title")}</h2>
+        <p className="mx-auto mt-2 max-w-4xl wrap-break-word text-sm leading-relaxed text-slate-600 sm:text-base">
+          {H("success.lead")}
         </p>
 
         <div className="mx-auto mt-8 max-w-4xl rounded-lg border-2 border-saffron/40 bg-saffron/5 px-5 py-6 lg:max-w-none">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-saffron">
-            Your grievance reference ID
+          <p className="wrap-break-word text-xs font-bold uppercase tracking-wide text-saffron sm:tracking-[0.16em]">
+            {H("success.refLabel")}
           </p>
           <p className="mt-2 break-all font-mono text-2xl font-bold tracking-wide text-navy-900 sm:text-3xl lg:text-4xl">
             {result.reference_number}
           </p>
           <p className="mt-2 text-xs text-slate-600 sm:text-sm">
-            Screenshot or note this number. You will need it for any follow-up.
+            {H("success.refHint")}
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 px-4 py-8 sm:px-8 lg:grid-cols-2 lg:gap-8 lg:px-12 lg:py-10">
-        <SuccessInfoBlock title="What is this reference ID?">
-          <p>
-            This is your unique grievance ID in the Jana Samadhan portal. It is created when your
-            registration is saved and stays the same for this grievance through screening, hearing,
-            and department follow-up.
-          </p>
+        <SuccessInfoBlock title={H("success.whatIsTitle")}>
+          <p>{H("success.whatIsBody")}</p>
         </SuccessInfoBlock>
 
-        <SuccessInfoBlock title="How it helps you track your grievance">
+        <SuccessInfoBlock title={H("success.howTitle")}>
           <ul className="list-disc space-y-1.5 pl-5">
-            <li>Quote this ID when you contact the helpline or Minister&apos;s Office.</li>
-            <li>Use it to identify your case in WhatsApp messages from the portal.</li>
-            <li>Keep it safe so you can check status or share details if asked again.</li>
+            <li>{H("success.how1")}</li>
+            <li>{H("success.how2")}</li>
+            <li>{H("success.how3")}</li>
           </ul>
         </SuccessInfoBlock>
 
-        <SuccessInfoBlock title="What happens next" className="lg:col-span-2">
+        <SuccessInfoBlock title={H("success.nextTitle")} className="lg:col-span-2">
           <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">Confirmation on WhatsApp</span>
+              <span className="font-medium text-slate-900">{H("success.next1Title")}</span>
               <span className="mt-1 block text-sm text-slate-600">
-                A confirmation message with your reference ID and hearing date ({hearingWhen}) is
-                sent to your registered WhatsApp number in your preferred language.
+                {H("success.next1Body", { when: hearingWhen })}
               </span>
             </li>
             <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">Review by Minister&apos;s Office</span>
+              <span className="font-medium text-slate-900">{H("success.next2Title")}</span>
               <span className="mt-1 block text-sm text-slate-600">
-                PS / OSD officials screen all registrations for this hearing. Not every grievance
-                may be shortlisted for the live hearing.
+                {H("success.next2Body")}
               </span>
             </li>
             <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">If you are selected</span>
+              <span className="font-medium text-slate-900">{H("success.next3Title")}</span>
               <span className="mt-1 block text-sm text-slate-600">
-                You will receive a WhatsApp message with your serial number, hearing date and time,
-                and the Google Meet link. Please join about 15 minutes before your turn.
+                {H("success.next3Body")}
               </span>
             </li>
             <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">If you are not selected</span>
+              <span className="font-medium text-slate-900">{H("success.next4Title")}</span>
               <span className="mt-1 block text-sm text-slate-600">
-                Your grievance remains registered in the system. You may be informed through WhatsApp
-                if it is not shortlisted for this hearing session.
+                {H("success.next4Body")}
               </span>
             </li>
           </ol>
         </SuccessInfoBlock>
 
-        <SuccessInfoBlock title="How your grievance will be resolved" className="lg:col-span-2">
+        <SuccessInfoBlock title={H("success.resolveTitle")} className="lg:col-span-2">
           <ul className="grid gap-3 sm:grid-cols-3">
             <li className="rounded-lg border border-border bg-surface-muted p-4 text-sm">
-              During the Online Grievance Hearing, the Hon&apos;ble Minister hears approved cases in
-              serial order on Google Meet.
+              {H("success.resolve1")}
             </li>
             <li className="rounded-lg border border-border bg-surface-muted p-4 text-sm">
-              Remarks and directions are recorded and routed to the concerned department for action.
+              {H("success.resolve2")}
             </li>
             <li className="rounded-lg border border-border bg-surface-muted p-4 text-sm">
-              Further updates on progress may be shared with you on WhatsApp as the case moves
-              forward.
+              {H("success.resolve3")}
             </li>
           </ul>
         </SuccessInfoBlock>
       </div>
 
       <p className="mx-4 mb-8 rounded-lg border border-border bg-surface-muted px-4 py-3 text-center text-xs leading-relaxed text-slate-600 sm:mx-8 lg:mx-12">
-        All notifications are sent to the WhatsApp mobile number you provided. No further action is
-        required right now unless you receive a message asking for more information.
+        {H("success.footer")}
       </p>
     </div>
   );
@@ -1519,9 +1512,9 @@ function SuccessInfoBlock({
   className?: string;
 }) {
   return (
-    <section className={cn("text-sm leading-relaxed text-slate-700", className)}>
-      <h3 className="text-sm font-bold text-navy-800">{title}</h3>
-      <div className="mt-2">{children}</div>
+    <section className={cn("min-w-0 text-sm leading-relaxed text-slate-700", className)}>
+      <h3 className="wrap-break-word text-sm font-bold text-navy-800">{title}</h3>
+      <div className="mt-2 min-w-0 wrap-break-word">{children}</div>
     </section>
   );
 }
@@ -1538,14 +1531,14 @@ function MetaPill({
   return (
     <div
       className={cn(
-        "inline-flex min-w-[10rem] flex-col rounded-lg border px-3 py-2 sm:min-w-[12rem]",
+        "inline-flex min-w-0 w-full max-w-full flex-col rounded-lg border px-3 py-2 sm:w-auto sm:min-w-48",
         highlight
           ? "border-saffron/40 bg-saffron/5"
           : "border-border bg-white",
       )}
     >
       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</span>
-      <span className="mt-0.5 text-sm font-semibold text-slate-900">{value}</span>
+      <span className="mt-0.5 wrap-break-word whitespace-normal text-sm font-semibold text-slate-900">{value}</span>
     </div>
   );
 }
@@ -1563,23 +1556,27 @@ function StepPanel({
   subtitle: string;
   children: React.ReactNode;
 }) {
+  const { t } = useI18n();
   const isActive = step === activeStep;
   return (
     <div
       data-step-panel={step}
-      className={cn(!isActive && "hidden")}
+      className={cn("min-w-0", !isActive && "hidden")}
       aria-hidden={!isActive || undefined}
     >
       {isActive ? (
-        <div className="mb-8 border-l-4 border-saffron pl-4">
-          <h2 className="text-xl text-slate-900 sm:text-2xl">
+        <div className="mb-8 min-w-0 border-l-4 border-saffron pl-4">
+          <h2 className="wrap-break-word text-xl text-slate-900 sm:text-2xl">
             <span className="font-bold">{title}</span>
             <span className="font-normal text-slate-500">
               {" "}
-              (step {step + 1} of {STEPS.length})
+              {t("hearing", "register.stepParen", {
+                current: step + 1,
+                total: STEP_DEFS.length,
+              })}
             </span>
           </h2>
-          <p className="mt-1 text-sm text-slate-600">{subtitle}</p>
+          <p className="mt-1 wrap-break-word text-sm text-slate-600">{subtitle}</p>
         </div>
       ) : null}
       {children}
@@ -1607,9 +1604,9 @@ function ReviewBlock({
 function ReviewRow({ label, value }: { label: string; value: string }) {
   const display = value?.trim() || "-";
   return (
-    <div className="flex flex-wrap gap-x-2 text-sm">
+    <div className="flex min-w-0 flex-wrap gap-x-2 text-sm">
       <span className="font-medium text-slate-500">{label}:</span>
-      <span className="text-slate-900">{display}</span>
+      <span className="min-w-0 wrap-break-word text-slate-900">{display}</span>
     </div>
   );
 }
@@ -1627,6 +1624,9 @@ function ReviewAttachmentsGrid({
   }[];
   onPreview: (item: (typeof items)[number]) => void;
 }) {
+  const { t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
@@ -1664,14 +1664,16 @@ function ReviewAttachmentsGrid({
                   preload="metadata"
                 />
                 <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-sm font-semibold text-white">
-                  Play video
+                  {H("register.playVideo")}
                 </span>
               </div>
             </button>
           ) : (
             <div className="flex aspect-[4/3] flex-col items-center justify-center bg-surface-muted px-4 text-center">
               <span className="text-2xl">{item.kind === "pdf" ? "PDF" : "FILE"}</span>
-              <span className="mt-2 text-xs text-slate-600">{item.kind === "pdf" ? "Document" : "Attachment"}</span>
+              <span className="mt-2 text-xs text-slate-600">
+                {item.kind === "pdf" ? H("register.fileKindDocument") : H("register.fileKindAttachment")}
+              </span>
             </div>
           )}
           <div className="border-t border-border px-3 py-2">
@@ -1691,10 +1693,13 @@ function PhoneField({
   digits: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useI18n();
+  const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+
   return (
-    <label className="block">
+    <label className="block min-w-0">
       <span className="mb-1.5 block text-sm font-semibold text-slate-800">
-        WhatsApp mobile number
+        {H("register.phone")}
       </span>
       <div className="flex">
         <span className="hearing-form-input inline-flex w-[4.25rem] shrink-0 items-center justify-center rounded-r-none border-r-0 bg-surface-muted font-semibold text-navy-700">
@@ -1712,7 +1717,7 @@ function PhoneField({
           value={digits}
           onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 10))}
           className="hearing-form-input min-w-0 flex-1 rounded-l-none"
-          aria-label="10-digit mobile number"
+          aria-label={H("register.phoneAria")}
         />
       </div>
     </label>
@@ -1735,7 +1740,7 @@ function Field({
   hint?: string;
 }) {
   return (
-    <label className="block">
+    <label className="block min-w-0">
       <HearingFieldLabel label={label} hint={hint} />
       <input
         name={name}
