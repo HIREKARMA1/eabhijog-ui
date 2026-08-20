@@ -28,15 +28,11 @@ export function resolveHearingContent(
 ): HearingContentFields {
   const override = pickLocaleOverride(hearing.content_i18n, locale);
   const title = override?.title?.trim() || hearing.title;
-  const description = (override?.description ?? "").trim()
-    ? override!.description
-    : hearing.description || "";
-  const what_to_expect = (override?.what_to_expect ?? "").trim()
-    ? override!.what_to_expect
-    : hearing.what_to_expect || "";
-  const important_notes = (override?.important_notes ?? "").trim()
-    ? override!.important_notes
-    : hearing.important_notes || "";
+  const description = override?.description?.trim() || hearing.description || "";
+  const what_to_expect =
+    override?.what_to_expect?.trim() || hearing.what_to_expect || "";
+  const important_notes =
+    override?.important_notes?.trim() || hearing.important_notes || "";
 
   return { title, description, what_to_expect, important_notes };
 }
