@@ -12,7 +12,15 @@ import {
 } from "react";
 
 import { Icon } from "@/components/icons/Icon";
-import { HearingRichTextEditor } from "@/components/hearing/HearingRichTextEditor";
+import {
+  HearingLocaleTabBar,
+  HearingLocalizedContentFields,
+  buildContentI18nPayload,
+  bundleFromHearing,
+  emptyLocaleBundle,
+  type HearingContentLocale,
+  type HearingLocaleBundle,
+} from "@/components/hearing/HearingLocalizedContentFields";
 import { Button } from "@/components/ui/Button";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { SectionLoader } from "@/components/ui/Spinner";
@@ -41,10 +49,7 @@ import {
 import {
   DEFAULT_HEARING_IMPORTANT_NOTES,
   DEFAULT_HEARING_WHAT_TO_EXPECT,
-  hearingImportantNotes,
-  hearingWhatToExpect,
 } from "@/lib/hearing/eventDefaults";
-import { toEditorHtml } from "@/lib/hearing/richText";
 import type {
   HearingDetail,
   HearingRegistrationRow,
@@ -241,49 +246,61 @@ function EventPageDetailsForm({
   hearing,
   busy,
   onSave,
+  onCancel,
   onBannerUpload,
   onBannerClear,
   onError,
 }: {
   hearing: HearingDetail;
   busy: boolean;
-  onSave: (payload: Record<string, string>) => void;
+  onSave: (payload: Record<string, unknown>) => void;
+  onCancel: () => void;
   onBannerUpload: (file: File) => Promise<{ storageKey: string; previewUrl: string }>;
   onBannerClear: () => Promise<void>;
   onError: (message: string) => void;
 }) {
+  const [localeTab, setLocaleTab] = useState<HearingContentLocale>("en");
+  const [localeBundle, setLocaleBundle] = useState<HearingLocaleBundle>(() =>
+    bundleFromHearing(hearing),
+  );
+
   return (
     <form
       className="mt-3 grid gap-2 rounded-xl border border-border bg-surface-muted/40 p-3 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
+        const localized = buildContentI18nPayload(localeBundle);
+        if (!localized.title || localized.title.length < 3) {
+          onError("English title is required (at least 3 characters).");
+          setLocaleTab("en");
+          return;
+        }
         onSave({
+          ...localized,
           banner_image_url: String(form.get("banner_image_url") || ""),
           venue: String(form.get("venue") || ""),
           hosted_by: String(form.get("hosted_by") || ""),
-          description: String(form.get("description") || ""),
-          what_to_expect: String(form.get("what_to_expect") || ""),
-          important_notes: String(form.get("important_notes") || ""),
         });
       }}
     >
       <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:col-span-2">
-        Public event page details
+        Edit hearing details
       </p>
-      <HearingRichTextEditor
-        className="sm:col-span-2"
-        name="description"
-        label="Description"
-        defaultValue={toEditorHtml(hearing.description)}
-        minHeightClassName="min-h-24"
+      <HearingLocaleTabBar value={localeTab} onChange={setLocaleTab} />
+      <HearingLocalizedContentFields
+        locale={localeTab}
+        values={localeBundle[localeTab]}
+        onChange={(next) => setLocaleBundle((prev) => ({ ...prev, [localeTab]: next }))}
+        expectDefault={DEFAULT_HEARING_WHAT_TO_EXPECT}
+        notesDefault={DEFAULT_HEARING_IMPORTANT_NOTES}
       />
       <label className="text-sm">
         <span className="mb-1 block font-medium">Venue</span>
         <input
           name="venue"
           defaultValue={hearing.venue || "Online (Google Meet)"}
-          className="w-full rounded-xl border bg-white px-3 py-2"
+          className="min-h-11 w-full rounded-xl border bg-white px-3 py-2"
         />
       </label>
       <label className="text-sm">
@@ -292,7 +309,7 @@ function EventPageDetailsForm({
           name="hosted_by"
           defaultValue={hearing.hosted_by || ""}
           placeholder="e.g. Office of the Hon'ble Cabinet Minister"
-          className="w-full rounded-xl border bg-white px-3 py-2"
+          className="min-h-11 w-full rounded-xl border bg-white px-3 py-2"
         />
       </label>
       <div className="text-sm sm:col-span-2">
@@ -307,29 +324,34 @@ function EventPageDetailsForm({
           onClear={onBannerClear}
         />
       </div>
-      <HearingRichTextEditor
-        className="sm:col-span-2"
-        name="what_to_expect"
-        label="What to expect"
-        defaultValue={toEditorHtml(hearingWhatToExpect(hearing.what_to_expect))}
-        minHeightClassName="min-h-52"
-        hint="Standard text is prefilled. Edit formatting or content only if this hearing needs different guidance."
-      />
-      <HearingRichTextEditor
-        className="sm:col-span-2"
-        name="important_notes"
-        label="Important notes"
-        defaultValue={toEditorHtml(hearingImportantNotes(hearing.important_notes))}
-        minHeightClassName="min-h-48"
-        hint="Standard notes are prefilled. Change only when required."
-      />
-      <div className="sm:col-span-2">
-        <Button type="submit" size="sm" loading={busy}>
-          Save event page
+      <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row">
+        <Button type="submit" size="sm" loading={busy} className="min-h-11 w-full sm:w-auto">
+          Save hearing
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          className="min-h-11 w-full sm:w-auto"
+          onClick={onCancel}
+        >
+          Cancel
         </Button>
       </div>
     </form>
   );
+}
+
+function detailsCollapsedStorageKey(hearingId: number) {
+  return `hearing-desk-collapsed-${hearingId}`;
+}
+
+function readDetailsCollapsed(hearingId: number): boolean {
+  if (typeof window === "undefined") return true;
+  const raw = sessionStorage.getItem(detailsCollapsedStorageKey(hearingId));
+  if (raw === null) return true;
+  return raw === "1";
 }
 
 function StatsBar({ stats }: { stats: HearingScreeningStats }) {
@@ -373,6 +395,12 @@ export function HearingDesk({ canManage }: Props) {
   const [listLoading, setListLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [createLocaleTab, setCreateLocaleTab] = useState<HearingContentLocale>("en");
+  const [createLocaleBundle, setCreateLocaleBundle] = useState<HearingLocaleBundle>(() =>
+    emptyLocaleBundle(),
+  );
+  const [detailsCollapsed, setDetailsCollapsed] = useState(true);
+  const [editingDetails, setEditingDetails] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
   const [rejectId, setRejectId] = useState<number | null>(null);
@@ -413,13 +441,16 @@ export function HearingDesk({ canManage }: Props) {
 
   useEffect(() => {
     setConfirmDelete(false);
+    setEditingDetails(false);
     if (!selectedId) {
       setHearing(null);
       setRegs([]);
       setStats(null);
       setDetailLoading(false);
+      setDetailsCollapsed(true);
       return;
     }
+    setDetailsCollapsed(readDetailsCollapsed(selectedId));
     setDetailLoading(true);
     loadSelected(selectedId)
       .catch((err) =>
@@ -456,9 +487,15 @@ export function HearingDesk({ canManage }: Props) {
       return;
     }
 
+    const localized = buildContentI18nPayload(createLocaleBundle);
+    if (!localized.title || localized.title.length < 3) {
+      toastError("English title is required (at least 3 characters).");
+      setCreateLocaleTab("en");
+      return;
+    }
+
     const payload = {
-      title: String(form.get("title") || ""),
-      description: String(form.get("description") || ""),
+      ...localized,
       hearing_date: new Date(hearingDate).toISOString(),
       hearing_end_at: hearingEnd ? new Date(hearingEnd).toISOString() : null,
       registration_opens_at: new Date(opensAt).toISOString(),
@@ -467,15 +504,25 @@ export function HearingDesk({ canManage }: Props) {
       banner_image_url: String(form.get("banner_image_url") || ""),
       venue: String(form.get("venue") || "Online (Google Meet)"),
       hosted_by: String(form.get("hosted_by") || ""),
-      what_to_expect: String(form.get("what_to_expect") || ""),
-      important_notes: String(form.get("important_notes") || ""),
       publish: true,
     };
     await runAction(async () => {
       const res = await createHearing(payload);
       setSelectedId(res.data.id);
       setShowCreate(false);
+      setCreateLocaleBundle(emptyLocaleBundle());
+      setCreateLocaleTab("en");
       return { data: { message: "Hearing announced successfully." } };
+    });
+  }
+
+  function toggleDetailsCollapsed() {
+    if (!hearing) return;
+    setDetailsCollapsed((prev) => {
+      const next = !prev;
+      sessionStorage.setItem(detailsCollapsedStorageKey(hearing.id), next ? "1" : "0");
+      if (next) setEditingDetails(false);
+      return next;
     });
   }
 
@@ -507,7 +554,24 @@ export function HearingDesk({ canManage }: Props) {
         className="rounded-xl border border-border bg-white p-3 sm:rounded-2xl sm:p-4"
         action={
           canManage ? (
-            <Button size="sm" className="w-full sm:w-auto" onClick={() => setShowCreate((v) => !v)}>
+            <Button size="sm" className="w-full sm:w-auto" onClick={() => {
+              setShowCreate((v) => {
+                const next = !v;
+                if (next) {
+                  setCreateLocaleTab("en");
+                  setCreateLocaleBundle({
+                    ...emptyLocaleBundle(),
+                    en: {
+                      title: "",
+                      description: "",
+                      what_to_expect: DEFAULT_HEARING_WHAT_TO_EXPECT,
+                      important_notes: DEFAULT_HEARING_IMPORTANT_NOTES,
+                    },
+                  });
+                }
+                return next;
+              });
+            }}>
               {showCreate ? "Cancel" : "Announce hearing"}
             </Button>
           ) : null
@@ -525,23 +589,25 @@ export function HearingDesk({ canManage }: Props) {
           onSubmit={onCreate}
           className="grid gap-3 rounded-xl border border-border bg-white p-3 sm:rounded-2xl sm:p-4 md:grid-cols-2"
         >
-          <label className="text-sm md:col-span-2">
-            <span className="mb-1 block font-medium">Title</span>
-            <input name="title" required className="w-full rounded-xl border px-3 py-2" />
-          </label>
-          <HearingRichTextEditor
+          <div className="md:col-span-2">
+            <HearingLocaleTabBar value={createLocaleTab} onChange={setCreateLocaleTab} />
+          </div>
+          <HearingLocalizedContentFields
             className="md:col-span-2"
-            name="description"
-            label="Description"
-            defaultValue="<p></p>"
-            minHeightClassName="min-h-24"
+            locale={createLocaleTab}
+            values={createLocaleBundle[createLocaleTab]}
+            onChange={(next) =>
+              setCreateLocaleBundle((prev) => ({ ...prev, [createLocaleTab]: next }))
+            }
+            expectDefault={DEFAULT_HEARING_WHAT_TO_EXPECT}
+            notesDefault={DEFAULT_HEARING_IMPORTANT_NOTES}
           />
           <label className="text-sm">
             <span className="mb-1 block font-medium">Venue</span>
             <input
               name="venue"
               defaultValue="Online (Google Meet)"
-              className="w-full rounded-xl border px-3 py-2"
+              className="min-h-11 w-full rounded-xl border px-3 py-2"
             />
           </label>
           <label className="text-sm">
@@ -549,7 +615,7 @@ export function HearingDesk({ canManage }: Props) {
             <input
               name="hosted_by"
               placeholder="e.g. Office of the Hon'ble Cabinet Minister"
-              className="w-full rounded-xl border px-3 py-2"
+              className="min-h-11 w-full rounded-xl border px-3 py-2"
             />
           </label>
           <label className="text-sm md:col-span-2">
@@ -567,22 +633,6 @@ export function HearingDesk({ canManage }: Props) {
               onClear={async () => undefined}
             />
           </label>
-          <HearingRichTextEditor
-            className="md:col-span-2"
-            name="what_to_expect"
-            label="What to expect"
-            defaultValue={toEditorHtml(DEFAULT_HEARING_WHAT_TO_EXPECT)}
-            minHeightClassName="min-h-52"
-            hint="Prefilled for most hearings. Use the toolbar to format text like an email editor."
-          />
-          <HearingRichTextEditor
-            className="md:col-span-2"
-            name="important_notes"
-            label="Important notes"
-            defaultValue={toEditorHtml(DEFAULT_HEARING_IMPORTANT_NOTES)}
-            minHeightClassName="min-h-48"
-            hint="Prefilled standard notes. Change only when required for this hearing."
-          />
           <div className="text-sm">
             <span className="mb-1 block font-medium">Hearing start</span>
             <DateTimePicker name="hearing_date" required placeholder="Select hearing start" />
@@ -609,18 +659,22 @@ export function HearingDesk({ canManage }: Props) {
           </div>
           <label className="text-sm md:col-span-2">
             <span className="mb-1 block font-medium">Google Meet link</span>
-            <input name="google_meet_link" className="w-full rounded-xl border px-3 py-2" />
+            <input name="google_meet_link" className="min-h-11 w-full rounded-xl border px-3 py-2" />
           </label>
           <div className="flex flex-col gap-2 md:col-span-2 sm:flex-row sm:items-center">
-            <Button type="submit" loading={busy} className="w-full sm:w-auto">
+            <Button type="submit" loading={busy} className="min-h-11 w-full sm:w-auto">
               Publish hearing
             </Button>
             <Button
               type="button"
               variant="outline"
-              className="w-full sm:w-auto"
+              className="min-h-11 w-full sm:w-auto"
               disabled={busy}
-              onClick={() => setShowCreate(false)}
+              onClick={() => {
+                setShowCreate(false);
+                setCreateLocaleBundle(emptyLocaleBundle());
+                setCreateLocaleTab("en");
+              }}
             >
               Cancel
             </Button>
@@ -628,9 +682,9 @@ export function HearingDesk({ canManage }: Props) {
         </form>
       ) : null}
 
-      <div className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-4">
-        <aside className="rounded-xl border border-border bg-white p-2.5 sm:rounded-2xl sm:p-3">
-          <p className="px-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:px-2 sm:text-xs">
+      <div className="grid gap-3 lg:grid-cols-[168px_minmax(0,1fr)] lg:gap-4">
+        <aside className="rounded-xl border border-border bg-white p-2 sm:rounded-2xl sm:p-2.5">
+          <p className="px-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:px-2">
             Hearings
           </p>
           {listLoading ? (
@@ -644,14 +698,14 @@ export function HearingDesk({ canManage }: Props) {
                   key={h.id}
                   type="button"
                   onClick={() => setSelectedId(h.id)}
-                  className={`min-w-[11.5rem] shrink-0 rounded-lg px-3 py-2 text-left text-sm transition-colors lg:min-w-0 lg:w-full lg:rounded-xl ${
+                  className={`min-w-[10rem] shrink-0 rounded-lg px-2.5 py-2 text-left text-sm transition-colors lg:min-w-0 lg:w-full lg:rounded-xl ${
                     selectedId === h.id
                       ? "bg-navy-700 text-white"
                       : "bg-surface-muted text-slate-800 hover:bg-slate-100 lg:bg-white"
                   }`}
                 >
-                  <span className="line-clamp-2 block font-medium leading-snug">{h.title}</span>
-                  <span className="mt-0.5 block text-[11px] capitalize opacity-80">
+                  <span className="line-clamp-2 block text-[13px] font-medium leading-snug">{h.title}</span>
+                  <span className="mt-0.5 block text-[10px] capitalize opacity-80">
                     {h.status.replaceAll("_", " ")}
                   </span>
                 </button>
@@ -671,6 +725,39 @@ export function HearingDesk({ canManage }: Props) {
               <Section
                 title={hearing.title}
                 className="rounded-xl border border-border bg-white p-3 sm:rounded-2xl sm:p-4"
+                action={
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    {canManage ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="min-h-11 w-full sm:w-auto"
+                        onClick={() => {
+                          setDetailsCollapsed(false);
+                          sessionStorage.setItem(detailsCollapsedStorageKey(hearing.id), "0");
+                          setEditingDetails(true);
+                        }}
+                      >
+                        Edit hearing
+                      </Button>
+                    ) : null}
+                    <button
+                      type="button"
+                      aria-expanded={!detailsCollapsed}
+                      aria-label={detailsCollapsed ? "Expand hearing details" : "Collapse hearing details"}
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-surface-muted sm:w-auto"
+                      onClick={toggleDetailsCollapsed}
+                    >
+                      {detailsCollapsed ? "Show details" : "Hide details"}
+                      <Icon
+                        name="chevron-right"
+                        size={16}
+                        className={cn("transition-transform", detailsCollapsed ? "rotate-90" : "-rotate-90")}
+                      />
+                    </button>
+                  </div>
+                }
               >
                 <div className="flex flex-col gap-1.5 text-xs text-slate-700 sm:flex-row sm:flex-wrap sm:gap-3 sm:text-sm">
                   <span>Hearing: {formatWhen(hearing.hearing_date)}</span>
@@ -691,57 +778,83 @@ export function HearingDesk({ canManage }: Props) {
                   onCopied={toastSuccess}
                   onCopyFailed={toastError}
                 />
-                {canManage ? (
-                  <EventPageDetailsForm
-                    key={hearing.id}
-                    hearing={hearing}
-                    busy={busy}
-                    onError={toastError}
-                    onBannerUpload={async (file) => {
-                      const res = await uploadHearingBannerForEvent(hearing.id, file);
-                      await loadSelected(hearing.id);
-                      toastSuccess("Banner uploaded and saved.");
-                      return {
-                        storageKey: res.data.banner_image_url || "",
-                        previewUrl: res.data.banner_image_url || "",
-                      };
-                    }}
-                    onBannerClear={async () => {
-                      await runAction(async () => {
-                        await updateHearing(hearing.id, { banner_image_url: "" });
-                        return { data: { message: "Banner removed." } };
-                      });
-                    }}
-                    onSave={(payload) =>
-                      runAction(async () => {
-                        await updateHearing(hearing.id, payload);
-                        return { data: { message: "Event page details saved." } };
-                      })
-                    }
-                  />
+
+                {!detailsCollapsed ? (
+                  <>
+                    {canManage && editingDetails ? (
+                      <EventPageDetailsForm
+                        key={`edit-${hearing.id}`}
+                        hearing={hearing}
+                        busy={busy}
+                        onError={toastError}
+                        onCancel={() => setEditingDetails(false)}
+                        onBannerUpload={async (file) => {
+                          const res = await uploadHearingBannerForEvent(hearing.id, file);
+                          await loadSelected(hearing.id);
+                          toastSuccess("Banner uploaded and saved.");
+                          return {
+                            storageKey: res.data.banner_image_url || "",
+                            previewUrl: res.data.banner_image_url || "",
+                          };
+                        }}
+                        onBannerClear={async () => {
+                          await runAction(async () => {
+                            await updateHearing(hearing.id, { banner_image_url: "" });
+                            return { data: { message: "Banner removed." } };
+                          });
+                        }}
+                        onSave={(payload) =>
+                          runAction(async () => {
+                            await updateHearing(hearing.id, payload);
+                            setEditingDetails(false);
+                            return { data: { message: "Hearing details saved." } };
+                          })
+                        }
+                      />
+                    ) : (
+                      <div className="mt-3 rounded-xl border border-border bg-surface-muted/40 px-3 py-3 text-sm text-slate-700">
+                        <p>
+                          <span className="font-medium text-slate-500">Venue:</span>{" "}
+                          {hearing.venue || "Online (Google Meet)"}
+                        </p>
+                        {hearing.hosted_by ? (
+                          <p className="mt-1">
+                            <span className="font-medium text-slate-500">Hosted by:</span>{" "}
+                            {hearing.hosted_by}
+                          </p>
+                        ) : null}
+                        {canManage ? (
+                          <p className="mt-2 text-xs text-slate-500">
+                            Use Edit hearing to change title, languages, and event page copy.
+                          </p>
+                        ) : null}
+                      </div>
+                    )}
+                    {canManage && !hearing.google_meet_link ? (
+                      <form
+                        className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const link = new FormData(e.currentTarget).get("google_meet_link");
+                          runAction(async () => {
+                            await updateHearing(hearing.id, { google_meet_link: String(link || "") });
+                            return { data: { message: "Meet link saved." } };
+                          });
+                        }}
+                      >
+                        <input
+                          name="google_meet_link"
+                          placeholder="Add Google Meet link"
+                          className="w-full min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm sm:min-w-60"
+                        />
+                        <Button type="submit" size="sm" loading={busy} className="min-h-11 w-full sm:w-auto">
+                          Save link
+                        </Button>
+                      </form>
+                    ) : null}
+                  </>
                 ) : null}
-                {canManage && !hearing.google_meet_link ? (
-                  <form
-                    className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const link = new FormData(e.currentTarget).get("google_meet_link");
-                      runAction(async () => {
-                        await updateHearing(hearing.id, { google_meet_link: String(link || "") });
-                        return { data: { message: "Meet link saved." } };
-                      });
-                    }}
-                  >
-                    <input
-                      name="google_meet_link"
-                      placeholder="Add Google Meet link"
-                      className="w-full min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm sm:min-w-60"
-                    />
-                    <Button type="submit" size="sm" loading={busy} className="w-full sm:w-auto">
-                      Save link
-                    </Button>
-                  </form>
-                ) : null}
+
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
                   {canManage ? (
                     <ActionButton
@@ -1143,7 +1256,10 @@ export function HearingDesk({ canManage }: Props) {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <DetailField label="Name" value={selectedReg.citizen_name} />
                   <DetailField label="WhatsApp number" value={selectedReg.citizen_phone} />
-                  <DetailField label="Pincode" value={selectedReg.citizen_pincode || "-"} />
+                  <DetailField label="Address" value={selectedReg.citizen_address || "-"} />
+                  {selectedReg.citizen_pincode ? (
+                    <DetailField label="Pincode" value={selectedReg.citizen_pincode} />
+                  ) : null}
                   <DetailField label="Email" value={selectedReg.citizen_email || "-"} />
                 </div>
               </DetailSection>

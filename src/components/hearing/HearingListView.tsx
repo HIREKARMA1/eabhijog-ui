@@ -6,9 +6,10 @@ import { Icon } from "@/components/icons/Icon";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
 import { PortalFooter } from "@/components/shell/PortalFooter";
 import { formatHearingWhen } from "@/lib/hearing/formatWhen";
+import { resolveHearingContent } from "@/lib/hearing/resolveContent";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
-import { plainTextFromHearingHtml } from "@/lib/hearing/richText";
+import { isEmptyHearingHtml, plainTextFromHearingHtml } from "@/lib/hearing/richText";
 import type { HearingPublicSummary } from "@/types/api";
 import { SectionLoader, PageLoader } from "@/components/ui/Spinner";
 
@@ -178,6 +179,7 @@ export function HearingListView({ hearings }: HearingListViewProps) {
 function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
   const { t, locale } = useI18n();
   const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
+  const content = resolveHearingContent(hearing, locale);
   const closesSoon =
     hearing.registration_open && msUntil(hearing.registration_closes_at) <= 48 * 60 * 60 * 1000;
   const closesPrefix = H("list.closesLabel");
@@ -195,12 +197,11 @@ function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
             ) : null}
           </div>
 
-          <h3 className="mt-1.5 wrap-break-word text-lg font-bold leading-snug text-slate-900">{hearing.title}</h3>
+          <h3 className="mt-1.5 wrap-break-word text-lg font-bold leading-snug text-slate-900">{content.title}</h3>
 
-          {hearing.description ? (
-            <p className="mt-1 wrap-break-word text-sm leading-relaxed text-slate-600">{hearing.description}</p>
-            <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-slate-600">
-              {plainTextFromHearingHtml(hearing.description)}
+          {!isEmptyHearingHtml(content.description) ? (
+            <p className="mt-1 line-clamp-3 wrap-break-word text-sm leading-relaxed text-slate-600">
+              {plainTextFromHearingHtml(content.description)}
             </p>
           ) : null}
 
@@ -234,19 +235,19 @@ function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
               href={`/hearing/${hearing.id}`}
               className="inline-flex items-center justify-center rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy-800 transition-colors hover:bg-surface-muted sm:min-w-28"
             >
-              View
+              {H("list.view")}
             </Link>
             {hearing.registration_open ? (
               <Link
                 href={`/hearing/${hearing.id}/register`}
                 className="inline-flex items-center justify-center rounded-lg bg-saffron px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron/90 sm:min-w-44"
               >
-                Register grievance
+                {H("list.registerCta")}
                 <Icon name="chevron-right" size={16} className="ml-1.5" />
               </Link>
             ) : (
               <p className="flex items-center justify-center text-sm text-slate-500 sm:min-w-44 sm:justify-end">
-                Registration closed
+                {H("list.registrationClosed")}
               </p>
             )}
           </div>

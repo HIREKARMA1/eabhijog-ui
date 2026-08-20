@@ -7,7 +7,7 @@ export default function OsdHearingsPage() {
       <SetBreadcrumb>
         <strong>Online Grievance Hearing</strong>
       </SetBreadcrumb>
-      <HearingDesk canManage={false} />
+      <HearingDesk canManage />
     </>
   );
 }
