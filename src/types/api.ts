@@ -432,6 +432,11 @@ export type HearingPublicSummary = {
   registration_closes_at: string;
   status: string;
   registration_open: boolean;
+  banner_image_url?: string;
+  venue?: string;
+  hosted_by?: string;
+  what_to_expect?: string;
+  important_notes?: string;
 };
 
 export type HearingScreeningStats = {
@@ -458,6 +463,11 @@ export type HearingDetail = {
   shortlisted_at: string | null;
   notified_at: string | null;
   completed_at: string | null;
+  banner_image_url?: string;
+  venue?: string;
+  hosted_by?: string;
+  what_to_expect?: string;
+  important_notes?: string;
   stats: HearingScreeningStats | null;
 };
 

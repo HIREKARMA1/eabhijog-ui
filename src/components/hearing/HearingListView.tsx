@@ -4,6 +4,7 @@ import { Icon } from "@/components/icons/Icon";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
 import { PortalFooter } from "@/components/shell/PortalFooter";
 import { cn } from "@/lib/utils/cn";
+import { plainTextFromHearingHtml } from "@/lib/hearing/richText";
 import type { HearingPublicSummary } from "@/types/api";
 
 function formatWhen(iso: string) {
@@ -209,7 +210,9 @@ function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
           <h3 className="mt-1.5 text-lg font-bold leading-snug text-slate-900">{hearing.title}</h3>
 
           {hearing.description ? (
-            <p className="mt-1 text-sm leading-relaxed text-slate-600">{hearing.description}</p>
+            <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-slate-600">
+              {plainTextFromHearingHtml(hearing.description)}
+            </p>
           ) : null}
 
           <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-700">
@@ -236,17 +239,29 @@ function HearingCard({ hearing }: { hearing: HearingPublicSummary }) {
           </p>
         </div>
 
-        {hearing.registration_open ? (
-          <Link
-            href={`/hearing/${hearing.id}/register`}
-            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-saffron px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron/90 sm:min-w-44"
-          >
-            Register grievance
-            <Icon name="chevron-right" size={16} className="ml-1.5" />
-          </Link>
-        ) : (
-          <p className="shrink-0 text-sm text-slate-500">Registration closed</p>
-        )}
+        <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Link
+              href={`/hearing/${hearing.id}`}
+              className="inline-flex items-center justify-center rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy-800 transition-colors hover:bg-surface-muted sm:min-w-28"
+            >
+              View
+            </Link>
+            {hearing.registration_open ? (
+              <Link
+                href={`/hearing/${hearing.id}/register`}
+                className="inline-flex items-center justify-center rounded-lg bg-saffron px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron/90 sm:min-w-44"
+              >
+                Register grievance
+                <Icon name="chevron-right" size={16} className="ml-1.5" />
+              </Link>
+            ) : (
+              <p className="flex items-center justify-center text-sm text-slate-500 sm:min-w-44 sm:justify-end">
+                Registration closed
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </li>
   );
