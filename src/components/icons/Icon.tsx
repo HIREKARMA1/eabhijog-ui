@@ -10,7 +10,9 @@ export type IconName =
   | "back"
   | "menu"
   | "close"
-  | "chevron-right";
+  | "chevron-right"
+  | "copy"
+  | "external-link";
 
 type IconProps = SVGProps<SVGSVGElement> & {
   name: IconName;
@@ -84,6 +86,19 @@ const paths: Record<IconName, ReactNode> = {
   "chevron-right": (
     <>
       <path d="M9 6l6 6-6 6" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="9" y="9" width="11" height="11" rx="1.5" />
+      <path d="M5 15V5.5A1.5 1.5 0 0 1 6.5 4H15" />
+    </>
+  ),
+  "external-link": (
+    <>
+      <path d="M14 4h6v6" />
+      <path d="M10 14L20 4" />
+      <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
     </>
   ),
 };
