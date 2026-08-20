@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="640" viewBox="0 0 1600 640" fill="none">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1600" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B3A5C"/>
+      <stop offset="0.45" stop-color="#145A86"/>
+      <stop offset="1" stop-color="#C45C26"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="800" y1="80" x2="800" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4A261" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#F4A261" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#ffffff" fill-opacity="0.12"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="640" fill="url(#sky)"/>
+  <rect width="1600" height="640" fill="url(#glow)"/>
+  <rect width="1600" height="640" fill="url(#dots)"/>
+  <path d="M0 470C220 430 380 520 560 500C780 476 900 390 1120 410C1300 426 1460 500 1600 470V640H0V470Z" fill="#07263D" fill-opacity="0.45"/>
+  <circle cx="1280" cy="150" r="70" fill="#F6D59A" fill-opacity="0.85"/>
+  <circle cx="1280" cy="150" r="92" stroke="#F6D59A" stroke-opacity="0.25" stroke-width="10"/>
+  <path d="M180 390 L240 250 L300 390 Z" fill="#E8D5A3" fill-opacity="0.2"/>
+  <path d="M210 390 L240 300 L270 390 Z" fill="#E8D5A3" fill-opacity="0.28"/>
+  <rect x="120" y="390" width="220" height="12" rx="6" fill="#E8D5A3" fill-opacity="0.18"/>
+</svg>

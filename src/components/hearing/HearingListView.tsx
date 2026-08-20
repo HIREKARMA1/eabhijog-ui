@@ -8,6 +8,7 @@ import { PortalFooter } from "@/components/shell/PortalFooter";
 import { formatHearingWhen } from "@/lib/hearing/formatWhen";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
+import { plainTextFromHearingHtml } from "@/lib/hearing/richText";
 import type { HearingPublicSummary } from "@/types/api";
 import { SectionLoader, PageLoader } from "@/components/ui/Spinner";
 
