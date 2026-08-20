@@ -115,12 +115,14 @@ function MiniSelect({
   ariaLabel,
   onChange,
   wide,
+  dropUp,
 }: {
   value: number;
   options: Array<{ value: number; label: string }>;
   ariaLabel: string;
   onChange: (value: number) => void;
   wide?: boolean;
+  dropUp?: boolean;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -175,7 +177,8 @@ function MiniSelect({
           ref={listRef}
           role="listbox"
           className={cn(
-            "absolute left-0 z-30 mt-1 max-h-40 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg",
+            "absolute left-0 z-50 max-h-52 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg",
+            dropUp ? "bottom-full mb-1" : "top-full mt-1",
             wide ? "min-w-18" : "min-w-14",
           )}
         >
@@ -353,11 +356,11 @@ export function DateTimePicker({
         <div
           role="dialog"
           aria-label="Choose date and time"
-          className="absolute left-0 right-0 z-40 mt-1.5 w-full max-w-[17rem] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl sm:right-auto"
+          className="absolute left-0 right-0 z-40 mt-1.5 w-full max-w-[17rem] overflow-visible rounded-lg border border-slate-200 bg-white shadow-xl sm:right-auto"
           onMouseDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="bg-navy-700 px-2.5 py-1.5 text-white">
+          <div className="rounded-t-lg bg-navy-700 px-2.5 py-1.5 text-white">
             <p className="text-[9px] font-medium uppercase tracking-wide text-white/70">
               Selected
             </p>
@@ -377,7 +380,7 @@ export function DateTimePicker({
             </p>
           </div>
 
-          <div className="px-2 pb-1.5 pt-1.5">
+          <div className="px-2.5 pb-2.5 pt-1.5">
             <div className="mb-1 flex items-center justify-between gap-1">
               <div className="flex min-w-0 items-center gap-1">
                 <MiniSelect
@@ -476,15 +479,16 @@ export function DateTimePicker({
               })}
             </div>
 
-            <div className="mt-1.5 border-t border-slate-100 pt-1.5">
-              <p className="mb-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+            <div className="mt-2 border-t border-slate-100 pb-1 pt-2">
+              <p className="mb-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
                 Time
               </p>
-              <div className="flex items-center gap-1.5">
+              <div className="flex min-h-9 items-center gap-1.5">
                 <MiniSelect
                   ariaLabel="Hour"
                   value={hour12}
                   options={HOUR_OPTIONS}
+                  dropUp
                   onChange={(h) =>
                     setDraft((prev) => ({ ...prev, hour: to24Hour(h, ampm) }))
                   }
@@ -494,13 +498,15 @@ export function DateTimePicker({
                   ariaLabel="Minute"
                   value={draft.minute}
                   options={MINUTE_OPTIONS}
-                  onChange={(m) => setDraft((prev) => ({ ...prev, minute: m }))}
+                  dropUp
                   wide
+                  onChange={(m) => setDraft((prev) => ({ ...prev, minute: m }))}
                 />
                 <MiniSelect
                   ariaLabel="AM or PM"
                   value={ampm}
                   options={AMPM_OPTIONS}
+                  dropUp
                   onChange={(nextAmpm) =>
                     setDraft((prev) => ({
                       ...prev,
@@ -511,7 +517,7 @@ export function DateTimePicker({
               </div>
             </div>
 
-            <div className="mt-1.5 flex items-center justify-between gap-2 border-t border-slate-100 pt-1.5">
+            <div className="mt-2 flex items-center justify-between gap-2 border-t border-slate-100 pt-2">
               <div className="flex gap-1">
                 <button
                   type="button"

@@ -7,7 +7,8 @@ export type ContentNamespace =
   | "landing"
   | "auth"
   | "dashboard"
-  | "ps";
+  | "ps"
+  | "hearing";
 
 export type ContentValue = string | { [key: string]: ContentValue };
 

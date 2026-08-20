@@ -15,6 +15,9 @@ import dashboardOr from "@/content/or/dashboard.json";
 import landingEn from "@/content/en/landing.json";
 import landingHi from "@/content/hi/landing.json";
 import landingOr from "@/content/or/landing.json";
+import hearingEn from "@/content/en/hearing.json";
+import hearingHi from "@/content/hi/hearing.json";
+import hearingOr from "@/content/or/hearing.json";
 
 const bundles: Record<Locale, Record<ContentNamespace, ContentTree>> = {
   en: {
@@ -23,6 +26,7 @@ const bundles: Record<Locale, Record<ContentNamespace, ContentTree>> = {
     auth: authEn,
     dashboard: dashboardEn,
     ps: psEn,
+    hearing: hearingEn,
   },
   hi: {
     common: commonHi,
@@ -30,6 +34,7 @@ const bundles: Record<Locale, Record<ContentNamespace, ContentTree>> = {
     auth: authHi,
     dashboard: dashboardHi,
     ps: psHi,
+    hearing: hearingHi,
   },
   or: {
     common: commonOr,
@@ -37,6 +42,7 @@ const bundles: Record<Locale, Record<ContentNamespace, ContentTree>> = {
     auth: authOr,
     dashboard: dashboardOr,
     ps: psOr,
+    hearing: hearingOr,
   },
 };
 

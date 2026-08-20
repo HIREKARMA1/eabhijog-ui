@@ -105,6 +105,8 @@
   /* Online Grievance Hearing - flat form controls (no shadow boxes) */
   .hearing-form-input {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     border-radius: 0.625rem;
     border: 1.5px solid var(--border);
     background: var(--white);
@@ -136,13 +138,15 @@
 
   .hearing-form-select {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     appearance: none;
     cursor: pointer;
     border-radius: 0.625rem;
     border: 1.5px solid var(--border);
     background-color: var(--white);
     background-image: none;
-    padding: 0.6875rem 2.5rem 0.6875rem 0.875rem;
+    padding: 0.6875rem 0.875rem;
     font-size: 0.875rem;
     line-height: 1.4;
     color: var(--text-primary);
@@ -179,6 +183,7 @@
     border: 1.5px solid var(--border);
     background: var(--white);
     overflow: hidden;
+    max-width: 100%;
   }
 
   .hearing-form-dropdown-option {
