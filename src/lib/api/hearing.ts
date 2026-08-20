@@ -1,4 +1,5 @@
-import { apiRequest } from "@/lib/api/client";
+import { ApiError, apiRequest } from "@/lib/api/client";
+import { getClientApiBase } from "@/config/env";
 import type {
   HearingActionResult,
   HearingDetail,
@@ -64,6 +65,25 @@ export async function updateHearing(hearingId: number, payload: Record<string, u
   });
 }
 
+export async function uploadHearingBanner(file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return apiRequest<{
+    storage_key: string;
+    banner_image_url: string;
+    hearing_id: number | null;
+  }>("/api/hearings/banner-upload", { method: "POST", body: form });
+}
+
+export async function uploadHearingBannerForEvent(hearingId: number, file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return apiRequest<HearingDetail>(`/api/hearings/${hearingId}/banner`, {
+    method: "POST",
+    body: form,
+  });
+}
+
 export async function fetchHearingRegistrations(
   hearingId: number,
   params: Record<string, string> = {},
@@ -74,6 +94,43 @@ export async function fetchHearingRegistrations(
     ? `/api/hearings/${hearingId}/registrations?${qs}`
     : `/api/hearings/${hearingId}/registrations`;
   return apiRequest<HearingRegistrationListData>(path, { server });
+}
+
+export async function exportHearingRegistrationsCsv(
+  hearingId: number,
+  screeningStatus?: string,
+) {
+  const base = getClientApiBase();
+  const qs = new URLSearchParams();
+  if (screeningStatus) qs.set("screening_status", screeningStatus);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(
+    `${base}/api/hearings/${hearingId}/registrations/export${suffix}`,
+    { credentials: "include" },
+  );
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (payload as { error?: { message?: string }; message?: string }).error?.message
+        ?? (payload as { message?: string }).message
+        ?? "Could not export CSV",
+      res.status,
+    );
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const match = /filename="([^"]+)"/i.exec(disposition);
+  const filename =
+    match?.[1] ||
+    `hearing_${hearingId}_registrations${screeningStatus ? `_${screeningStatus}` : ""}.csv`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export async function screenHearingRegistration(

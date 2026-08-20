@@ -1,15 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import {
   FormEvent,
   useCallback,
   useEffect,
+  useRef,
   useState,
   type ComponentProps,
   type ReactNode,
 } from "react";
 
+import { Icon } from "@/components/icons/Icon";
+import { HearingRichTextEditor } from "@/components/hearing/HearingRichTextEditor";
 import { Button } from "@/components/ui/Button";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { SectionLoader } from "@/components/ui/Spinner";
@@ -22,6 +24,7 @@ import {
   completeHearing,
   createHearing,
   deleteHearing,
+  exportHearingRegistrationsCsv,
   fetchHearing,
   fetchHearingRegistrations,
   fetchHearings,
@@ -31,7 +34,16 @@ import {
   screenHearingRegistration,
   startHearing,
   updateHearing,
+  uploadHearingBanner,
+  uploadHearingBannerForEvent,
 } from "@/lib/api/hearing";
+import {
+  DEFAULT_HEARING_IMPORTANT_NOTES,
+  DEFAULT_HEARING_WHAT_TO_EXPECT,
+  hearingImportantNotes,
+  hearingWhatToExpect,
+} from "@/lib/hearing/eventDefaults";
+import { toEditorHtml } from "@/lib/hearing/richText";
 import type {
   HearingDetail,
   HearingRegistrationRow,
@@ -48,6 +60,275 @@ function formatWhen(iso: string | null | undefined) {
   } catch {
     return iso;
   }
+}
+
+function publicHearingPath(hearingId: number) {
+  return `/hearing/${hearingId}`;
+}
+
+function publicHearingAbsoluteUrl(hearingId: number) {
+  if (typeof window === "undefined") return publicHearingPath(hearingId);
+  return `${window.location.origin}${publicHearingPath(hearingId)}`;
+}
+
+function PublicHearingShareLink({
+  hearingId,
+  onCopied,
+  onCopyFailed,
+}: {
+  hearingId: number;
+  onCopied: (message: string) => void;
+  onCopyFailed: (message: string) => void;
+}) {
+  const path = publicHearingPath(hearingId);
+  const [copied, setCopied] = useState(false);
+
+  async function copyLink() {
+    const url = publicHearingAbsoluteUrl(hearingId);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      onCopied("Public hearing link copied.");
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      onCopyFailed("Could not copy link. Select and copy it manually.");
+    }
+  }
+
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-surface-muted/60 px-3 py-2.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+        Public hearing link
+      </p>
+      <div className="mt-1.5 flex items-center gap-2">
+        <p className="min-w-0 flex-1 truncate font-mono text-xs text-slate-700 sm:text-sm" title={path}>
+          {path}
+        </p>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => void copyLink()}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-slate-700 transition-colors hover:bg-slate-50"
+            title={copied ? "Copied" : "Copy link"}
+            aria-label={copied ? "Copied" : "Copy public hearing link"}
+          >
+            <Icon name="copy" size={15} />
+          </button>
+          <a
+            href={path}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-slate-700 transition-colors hover:bg-slate-50"
+            title="Open public page"
+            aria-label="Open public hearing page"
+          >
+            <Icon name="external-link" size={15} />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BannerImageField({
+  name = "banner_image_url",
+  previewUrl = "",
+  storageValue = "",
+  disabled,
+  onUpload,
+  onClear,
+  onError,
+}: {
+  name?: string;
+  previewUrl?: string;
+  storageValue?: string;
+  disabled?: boolean;
+  onUpload: (file: File) => Promise<{ storageKey: string; previewUrl: string }>;
+  onClear?: () => void | Promise<void>;
+  onError: (message: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [storageKey, setStorageKey] = useState(storageValue);
+  const [preview, setPreview] = useState(previewUrl);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setStorageKey(storageValue);
+    setPreview(previewUrl);
+  }, [storageValue, previewUrl]);
+
+  async function handleFile(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      onError("Choose a JPG, PNG, or WebP image.");
+      return;
+    }
+    setUploading(true);
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+    try {
+      const result = await onUpload(file);
+      setStorageKey(result.storageKey);
+      setPreview(result.previewUrl || objectUrl);
+    } catch (err) {
+      setPreview(previewUrl);
+      setStorageKey(storageValue);
+      onError(err instanceof ApiError ? err.message : "Banner upload failed");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <input type="hidden" name={name} value={storageKey} />
+      {preview ? (
+        <div className="overflow-hidden rounded-xl border border-border bg-slate-100">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={preview} alt="Hearing banner preview" className="h-36 w-full object-cover" />
+        </div>
+      ) : (
+        <div className="flex h-28 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-center text-xs text-slate-500">
+          No banner uploaded - public page uses the default banner.
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          loading={uploading}
+          disabled={uploading || disabled}
+          onClick={() => inputRef.current?.click()}
+        >
+          {preview ? "Replace banner" : "Upload banner"}
+        </Button>
+        {preview && onClear ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={uploading || disabled}
+            onClick={() => {
+              void (async () => {
+                setPreview("");
+                setStorageKey("");
+                await onClear();
+              })();
+            }}
+          >
+            Remove
+          </Button>
+        ) : null}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+        className="hidden"
+        onChange={(e) => void handleFile(e.target.files?.[0])}
+      />
+      <p className="text-[11px] text-slate-500">
+        JPG, PNG, or WebP up to 5 MB. Uploaded to S3 folder hearings/banners/.
+      </p>
+    </div>
+  );
+}
+
+function EventPageDetailsForm({
+  hearing,
+  busy,
+  onSave,
+  onBannerUpload,
+  onBannerClear,
+  onError,
+}: {
+  hearing: HearingDetail;
+  busy: boolean;
+  onSave: (payload: Record<string, string>) => void;
+  onBannerUpload: (file: File) => Promise<{ storageKey: string; previewUrl: string }>;
+  onBannerClear: () => Promise<void>;
+  onError: (message: string) => void;
+}) {
+  return (
+    <form
+      className="mt-3 grid gap-2 rounded-xl border border-border bg-surface-muted/40 p-3 sm:grid-cols-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const form = new FormData(e.currentTarget);
+        onSave({
+          banner_image_url: String(form.get("banner_image_url") || ""),
+          venue: String(form.get("venue") || ""),
+          hosted_by: String(form.get("hosted_by") || ""),
+          description: String(form.get("description") || ""),
+          what_to_expect: String(form.get("what_to_expect") || ""),
+          important_notes: String(form.get("important_notes") || ""),
+        });
+      }}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 sm:col-span-2">
+        Public event page details
+      </p>
+      <HearingRichTextEditor
+        className="sm:col-span-2"
+        name="description"
+        label="Description"
+        defaultValue={toEditorHtml(hearing.description)}
+        minHeightClassName="min-h-24"
+      />
+      <label className="text-sm">
+        <span className="mb-1 block font-medium">Venue</span>
+        <input
+          name="venue"
+          defaultValue={hearing.venue || "Online (Google Meet)"}
+          className="w-full rounded-xl border bg-white px-3 py-2"
+        />
+      </label>
+      <label className="text-sm">
+        <span className="mb-1 block font-medium">Hosted by</span>
+        <input
+          name="hosted_by"
+          defaultValue={hearing.hosted_by || ""}
+          placeholder="e.g. Office of the Hon'ble Cabinet Minister"
+          className="w-full rounded-xl border bg-white px-3 py-2"
+        />
+      </label>
+      <div className="text-sm sm:col-span-2">
+        <span className="mb-1 block font-medium">Banner image</span>
+        <BannerImageField
+          key={`banner-${hearing.id}-${hearing.banner_image_url || "none"}`}
+          previewUrl={hearing.banner_image_url || ""}
+          storageValue={hearing.banner_image_url || ""}
+          disabled={busy}
+          onError={onError}
+          onUpload={onBannerUpload}
+          onClear={onBannerClear}
+        />
+      </div>
+      <HearingRichTextEditor
+        className="sm:col-span-2"
+        name="what_to_expect"
+        label="What to expect"
+        defaultValue={toEditorHtml(hearingWhatToExpect(hearing.what_to_expect))}
+        minHeightClassName="min-h-52"
+        hint="Standard text is prefilled. Edit formatting or content only if this hearing needs different guidance."
+      />
+      <HearingRichTextEditor
+        className="sm:col-span-2"
+        name="important_notes"
+        label="Important notes"
+        defaultValue={toEditorHtml(hearingImportantNotes(hearing.important_notes))}
+        minHeightClassName="min-h-48"
+        hint="Standard notes are prefilled. Change only when required."
+      />
+      <div className="sm:col-span-2">
+        <Button type="submit" size="sm" loading={busy}>
+          Save event page
+        </Button>
+      </div>
+    </form>
+  );
 }
 
 function StatsBar({ stats }: { stats: HearingScreeningStats }) {
@@ -85,6 +366,7 @@ export function HearingDesk({ canManage }: Props) {
   const [regs, setRegs] = useState<HearingRegistrationRow[]>([]);
   const [stats, setStats] = useState<HearingScreeningStats | null>(null);
   const [filter, setFilter] = useState("");
+  const [exportingCsv, setExportingCsv] = useState(false);
   const { toasts, success: toastSuccess, error: toastError, dismiss: dismissToast } = useToast();
   const [busy, setBusy] = useState(false);
   const [listLoading, setListLoading] = useState(true);
@@ -181,6 +463,11 @@ export function HearingDesk({ canManage }: Props) {
       registration_opens_at: new Date(opensAt).toISOString(),
       registration_closes_at: new Date(closesAt).toISOString(),
       google_meet_link: String(form.get("google_meet_link") || ""),
+      banner_image_url: String(form.get("banner_image_url") || ""),
+      venue: String(form.get("venue") || "Online (Google Meet)"),
+      hosted_by: String(form.get("hosted_by") || ""),
+      what_to_expect: String(form.get("what_to_expect") || ""),
+      important_notes: String(form.get("important_notes") || ""),
       publish: true,
     };
     await runAction(async () => {
@@ -241,10 +528,60 @@ export function HearingDesk({ canManage }: Props) {
             <span className="mb-1 block font-medium">Title</span>
             <input name="title" required className="w-full rounded-xl border px-3 py-2" />
           </label>
-          <label className="text-sm md:col-span-2">
-            <span className="mb-1 block font-medium">Description</span>
-            <textarea name="description" rows={2} className="w-full rounded-xl border px-3 py-2" />
+          <HearingRichTextEditor
+            className="md:col-span-2"
+            name="description"
+            label="Description"
+            defaultValue="<p></p>"
+            minHeightClassName="min-h-24"
+          />
+          <label className="text-sm">
+            <span className="mb-1 block font-medium">Venue</span>
+            <input
+              name="venue"
+              defaultValue="Online (Google Meet)"
+              className="w-full rounded-xl border px-3 py-2"
+            />
           </label>
+          <label className="text-sm">
+            <span className="mb-1 block font-medium">Hosted by</span>
+            <input
+              name="hosted_by"
+              placeholder="e.g. Office of the Hon'ble Cabinet Minister"
+              className="w-full rounded-xl border px-3 py-2"
+            />
+          </label>
+          <label className="text-sm md:col-span-2">
+            <span className="mb-1 block font-medium">Banner image</span>
+            <BannerImageField
+              onError={toastError}
+              onUpload={async (file) => {
+                const res = await uploadHearingBanner(file);
+                toastSuccess("Banner uploaded.");
+                return {
+                  storageKey: res.data.storage_key,
+                  previewUrl: res.data.banner_image_url,
+                };
+              }}
+              onClear={async () => undefined}
+            />
+          </label>
+          <HearingRichTextEditor
+            className="md:col-span-2"
+            name="what_to_expect"
+            label="What to expect"
+            defaultValue={toEditorHtml(DEFAULT_HEARING_WHAT_TO_EXPECT)}
+            minHeightClassName="min-h-52"
+            hint="Prefilled for most hearings. Use the toolbar to format text like an email editor."
+          />
+          <HearingRichTextEditor
+            className="md:col-span-2"
+            name="important_notes"
+            label="Important notes"
+            defaultValue={toEditorHtml(DEFAULT_HEARING_IMPORTANT_NOTES)}
+            minHeightClassName="min-h-48"
+            hint="Prefilled standard notes. Change only when required for this hearing."
+          />
           <div className="text-sm">
             <span className="mb-1 block font-medium">Hearing start</span>
             <DateTimePicker name="hearing_date" required placeholder="Select hearing start" />
@@ -347,10 +684,41 @@ export function HearingDesk({ canManage }: Props) {
                       Open Meet link
                     </a>
                   ) : null}
-                  <Link href="/hearing" className="font-medium text-link hover:underline">
-                    Public registration page
-                  </Link>
                 </div>
+                <PublicHearingShareLink
+                  hearingId={hearing.id}
+                  onCopied={toastSuccess}
+                  onCopyFailed={toastError}
+                />
+                {canManage ? (
+                  <EventPageDetailsForm
+                    key={hearing.id}
+                    hearing={hearing}
+                    busy={busy}
+                    onError={toastError}
+                    onBannerUpload={async (file) => {
+                      const res = await uploadHearingBannerForEvent(hearing.id, file);
+                      await loadSelected(hearing.id);
+                      toastSuccess("Banner uploaded and saved.");
+                      return {
+                        storageKey: res.data.banner_image_url || "",
+                        previewUrl: res.data.banner_image_url || "",
+                      };
+                    }}
+                    onBannerClear={async () => {
+                      await runAction(async () => {
+                        await updateHearing(hearing.id, { banner_image_url: "" });
+                        return { data: { message: "Banner removed." } };
+                      });
+                    }}
+                    onSave={(payload) =>
+                      runAction(async () => {
+                        await updateHearing(hearing.id, payload);
+                        return { data: { message: "Event page details saved." } };
+                      })
+                    }
+                  />
+                ) : null}
                 {canManage && !hearing.google_meet_link ? (
                   <form
                     className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap"
@@ -447,16 +815,39 @@ export function HearingDesk({ canManage }: Props) {
                 title="Screening queue"
                 className="rounded-xl border border-border bg-white p-3 sm:rounded-2xl sm:p-4"
                 action={
-                  <select
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="w-full rounded-lg border px-2 py-1.5 text-sm sm:w-auto"
-                  >
-                    <option value="">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      loading={exportingCsv}
+                      disabled={!hearing || exportingCsv}
+                      className="w-full sm:w-auto"
+                      onClick={() => {
+                        if (!hearing) return;
+                        setExportingCsv(true);
+                        void exportHearingRegistrationsCsv(hearing.id, filter || undefined)
+                          .then(() => toastSuccess("CSV download started."))
+                          .catch((err) =>
+                            toastError(
+                              err instanceof ApiError ? err.message : "Could not export CSV",
+                            ),
+                          )
+                          .finally(() => setExportingCsv(false));
+                      }}
+                    >
+                      Export CSV
+                    </Button>
+                    <select
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                      className="w-full rounded-lg border px-2 py-1.5 text-sm sm:w-auto"
+                    >
+                      <option value="">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
                 }
               >
                 {/* Mobile card list */}
