@@ -6,7 +6,6 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useRef,
   useState,
   type ComponentProps,
   type ReactNode,
@@ -35,7 +34,7 @@ import {
   createHearing,
   deleteHearing,
   exportHearingRegistrationsCsv,
-  exportHearingRegistrationsCsv,
+
   fetchHearing,
   fetchHearingRegistrations,
   fetchHearings,
@@ -45,8 +44,7 @@ import {
   screenHearingRegistration,
   startHearing,
   updateHearing,
-  uploadHearingBanner,
-  uploadHearingBannerForEvent,
+
   uploadHearingBanner,
   uploadHearingBannerForEvent,
 } from "@/lib/api/hearing";
@@ -59,6 +57,8 @@ import type {
   HearingRegistrationRow,
   HearingScreeningStats,
 } from "@/types/api";
+import { HearingRichTextEditor } from "./HearingRichTextEditor";
+import { toEditorHtml } from "@/lib/hearing/richText";
 
 function formatWhen(iso: string | null | undefined) {
   if (!iso) return "-";
@@ -393,7 +393,7 @@ export function HearingDesk({ canManage }: Props) {
   const [regs, setRegs] = useState<HearingRegistrationRow[]>([]);
   const [stats, setStats] = useState<HearingScreeningStats | null>(null);
   const [filter, setFilter] = useState("");
-  const [exportingCsv, setExportingCsv] = useState(false);
+
   const [exportingCsv, setExportingCsv] = useState(false);
   const { toasts, success: toastSuccess, error: toastError, dismiss: dismissToast } = useToast();
   const [busy, setBusy] = useState(false);
@@ -659,14 +659,14 @@ export function HearingDesk({ canManage }: Props) {
             minHeightClassName="min-h-52"
             hint="Prefilled for most hearings. Use the toolbar to format text like an email editor."
           />
-          <HearingRichTextEditor
+          {/* <HearingRichTextEditor
             className="md:col-span-2"
             name="important_notes"
             label="Important notes"
             defaultValue={toEditorHtml(DEFAULT_HEARING_IMPORTANT_NOTES)}
             minHeightClassName="min-h-48"
             hint="Prefilled standard notes. Change only when required for this hearing."
-          />
+          /> */}
           <div className="text-sm">
             <span className="mb-1 block font-medium">Hearing start</span>
             <DateTimePicker name="hearing_date" required placeholder="Select hearing start" />
@@ -963,39 +963,6 @@ export function HearingDesk({ canManage }: Props) {
                 title="Screening queue"
                 className="rounded-xl border border-border bg-white p-3 sm:rounded-2xl sm:p-4"
                 action={
-                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      loading={exportingCsv}
-                      disabled={!hearing || exportingCsv}
-                      className="w-full sm:w-auto"
-                      onClick={() => {
-                        if (!hearing) return;
-                        setExportingCsv(true);
-                        void exportHearingRegistrationsCsv(hearing.id, filter || undefined)
-                          .then(() => toastSuccess("CSV download started."))
-                          .catch((err) =>
-                            toastError(
-                              err instanceof ApiError ? err.message : "Could not export CSV",
-                            ),
-                          )
-                          .finally(() => setExportingCsv(false));
-                      }}
-                    >
-                      Export CSV
-                    </Button>
-                    <select
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                      className="w-full rounded-lg border px-2 py-1.5 text-sm sm:w-auto"
-                    >
-                      <option value="">All</option>
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </div>
                   <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
                     <Button
                       size="sm"
