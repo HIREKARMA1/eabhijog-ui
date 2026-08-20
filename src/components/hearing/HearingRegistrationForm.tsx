@@ -9,6 +9,7 @@ import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Button } from "@/components/ui/Button";
 import { SectionLoader } from "@/components/ui/Spinner";
 import { HearingFieldLabel, HearingSelectField } from "@/components/hearing/HearingSelectField";
+import { HearingRichTextContent } from "@/components/hearing/HearingRichTextContent";
 import { ApiError } from "@/lib/api/client";
 import { fetchPublicRegistrationTaxonomy, registerForHearing } from "@/lib/api/hearing";
 import {
@@ -20,6 +21,7 @@ import {
 } from "@/lib/hearing/registrationErrors";
 import { formatHearingWhen } from "@/lib/hearing/formatWhen";
 import { useI18n } from "@/lib/i18n/context";
+import { isEmptyHearingHtml, toEditorHtml } from "@/lib/hearing/richText";
 import { cn } from "@/lib/utils/cn";
 import type { HearingPublicSummary, HearingRegisterResult, PublicRegistrationTaxonomy } from "@/types/api";
 
@@ -618,6 +620,13 @@ export function HearingRegistrationForm({ hearing }: Props) {
               <p className="mt-3 max-w-3xl wrap-break-word text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
                 {H("register.intro")}
               </p>
+              {!isEmptyHearingHtml(hearing.description) ? (
+                <div className="mt-2 max-w-3xl text-slate-500">
+                  <HearingRichTextContent
+                    html={toEditorHtml(hearing.description)}
+                    className="text-slate-500"
+                  />
+                </div>
               {hearing.description ? (
                 <p className="mt-2 max-w-3xl wrap-break-word text-sm text-slate-500">{hearing.description}</p>
               ) : null}
