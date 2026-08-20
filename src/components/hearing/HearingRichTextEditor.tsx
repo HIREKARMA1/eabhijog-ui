@@ -12,10 +12,7 @@ type Props = {
   hint?: string;
   minHeightClassName?: string;
   className?: string;
-<<<<<<< HEAD
   onHtmlChange?: (html: string) => void;
-=======
->>>>>>> develop
 };
 
 function ToolbarButton({
@@ -50,10 +47,7 @@ export function HearingRichTextEditor({
   hint,
   minHeightClassName = "min-h-28",
   className,
-<<<<<<< HEAD
   onHtmlChange,
-=======
->>>>>>> develop
 }: Props) {
   const editorRef = useRef<HTMLDivElement>(null);
   const hiddenRef = useRef<HTMLInputElement>(null);
@@ -64,13 +58,9 @@ export function HearingRichTextEditor({
     const hidden = hiddenRef.current;
     if (!el || !hidden) return;
     const html = sanitizeHearingHtml(el.innerHTML);
-<<<<<<< HEAD
     const next = isEmptyHearingHtml(html) ? "" : html;
     hidden.value = next;
     onHtmlChange?.(next);
-=======
-    hidden.value = isEmptyHearingHtml(html) ? "" : html;
->>>>>>> develop
   }
 
   useEffect(() => {
