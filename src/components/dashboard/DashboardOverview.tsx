@@ -1,6 +1,12 @@
 import Link from "next/link";
 
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { LinkButton } from "@/components/ui/LinkButton";
+import { Section } from "@/components/ui/Section";
+import { formatStatusLabel } from "@/lib/grievance/display";
 import { Bi } from "@/lib/i18n/bi";
+import { cn } from "@/lib/utils/cn";
 import type { DashboardSummary, GrievanceRow } from "@/types/api";
 
 type DashboardOverviewProps = {
@@ -10,182 +16,241 @@ type DashboardOverviewProps = {
   isSuperAdmin: boolean;
 };
 
+const kpiTiles = [
+  {
+    key: "overdue",
+    icon: "⚡",
+    valueKey: "overdue_sla",
+    tone: "from-red-600/40 to-red-600/10",
+    label: <Bi en="Overdue SLA" or="SLA ଅତିକାଳ" />,
+    foot: <Bi en="Immediate action needed" or="ତତ୍କ୍ଷଣାତ୍ କାର୍ଯ୍ୟ" />,
+  },
+  {
+    key: "active",
+    icon: "📱",
+    valueKey: "active_today",
+    tone: "from-violet-600/40 to-violet-600/10",
+    label: <Bi en="Active today" or="ଆଜି ସକ୍ରିୟ" />,
+    foot: <Bi en="New WhatsApp submissions" or="ନୂଆ WhatsApp ଅଭିଯୋଗ" />,
+  },
+  {
+    key: "resolved",
+    icon: "✓",
+    valueKey: "resolved_30d",
+    tone: "from-emerald-700/40 to-emerald-700/10",
+    label: <Bi en="Resolved" or="ସମାଧାନ" />,
+  },
+  {
+    key: "whatsapp",
+    icon: "💬",
+    valueKey: "whatsapp_active",
+    tone: "from-blue-600/40 to-blue-600/10",
+    label: <Bi en="WhatsApp inflow" or="WhatsApp ପ୍ରବାହ" />,
+    foot: <Bi en="Last 7 days" or="ଗତ ୭ ଦିନ" />,
+  },
+] as const;
+
+function statusTone(status: string) {
+  if (["closed", "resolved", "action_taken"].includes(status)) return "success" as const;
+  if (status === "pending_review") return "warning" as const;
+  return "info" as const;
+}
+
 export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: DashboardOverviewProps) {
   const openCount = summary.new_count + summary.in_progress_count;
 
   return (
-    <>
-      <div className="portal-hero">
-        <div className="portal-hero-inner">
-          <div className="portal-hero-intro">
-            <div className="portal-hero-icon" aria-hidden="true">
+    <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(125deg,#0b1220_0%,#162236_38%,#1e3a5f_72%,#2d4a6f_100%)] shadow-[0_12px_40px_rgb(15_27_45/0.28)]">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgb(234_88_12/0.38)_0%,transparent_42%),radial-gradient(circle_at_8%_88%,rgb(59_130_246/0.22)_0%,transparent_38%),radial-gradient(circle_at_50%_50%,rgb(124_58_237/0.12)_0%,transparent_55%)]"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#dc2626,#ea580c,#a855f7,#2563eb,#15803d)]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 flex flex-wrap items-start justify-between gap-5 px-5 pt-6 md:px-6">
+          <div className="flex min-w-0 items-start gap-4">
+            <div
+              className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-blue-600 to-violet-600 text-xl text-white shadow-[0_6px_20px_rgb(124_58_237/0.45)]"
+              aria-hidden="true"
+            >
               📊
             </div>
             <div>
-              <div className="portal-hero-label">
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-amber-400">
                 <Bi en="Citizen redressal command centre" or="ନାଗରିକ ପୁରସ୍କାର କମାଣ୍ଡ ସେଣ୍ଟର" />
-              </div>
-              <h1 className="portal-hero-title">
+              </p>
+              <h1 className="mb-1 text-[clamp(1.45rem,3vw,1.75rem)] font-extrabold tracking-tight text-white">
                 <Bi en="Executive Dashboard" or="କାର୍ଯ୍ୟାନ୍ୱୟ ଡ୍ୟାସବୋର୍ଡ" />
               </h1>
-              <p className="portal-hero-sub">
-                <strong>{summary.total_count}</strong>{" "}
+              <p className="max-w-xl text-sm leading-relaxed text-slate-300">
+                <strong className="font-bold text-white">{summary.total_count}</strong>{" "}
                 <Bi en="grievances on record across 30 districts -" or="ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲାରେ ମୋଟ ଅଭିଯୋଗ -" />{" "}
-                <strong>{openCount}</strong> <Bi en="awaiting action." or="କାର୍ଯ୍ୟ ବାକି।" />
+                <strong className="font-bold text-white">{openCount}</strong>{" "}
+                <Bi en="awaiting action." or="କାର୍ଯ୍ୟ ବାକି।" />
               </p>
             </div>
           </div>
-          <div className="portal-hero-actions">
-            <span className="portal-live-pill">
-              <span className="api-status-dot" /> <Bi en="WhatsApp · Live" or="WhatsApp · ଲାଇଭ୍" />
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/35 bg-emerald-700/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden="true" />
+              <Bi en="WhatsApp · Live" or="WhatsApp · ଲାଇଭ୍" />
             </span>
-            <Link href="/dashboard/grievances" className="btn btn-saffron">
+            <LinkButton href="/dashboard/grievances" className="text-xs">
               <Bi en="Open grievances" or="ଅଭିଯୋଗ ଖୋଲନ୍ତୁ" />
-            </Link>
+            </LinkButton>
           </div>
         </div>
 
-        <div className="portal-hero-stats">
-          <div className="portal-stat red">
-            <div className="portal-stat-icon">⚡</div>
-            <div>
-              <div className="portal-stat-label">
-                <Bi en="Overdue SLA" or="SLA ଅତିକାଳ" />
+        <div className="relative z-10 mt-5 grid grid-cols-1 gap-3 px-5 pb-6 sm:grid-cols-2 md:px-6 xl:grid-cols-4">
+          {kpiTiles.map((tile) => (
+            <div
+              key={tile.key}
+              className={cn(
+                "flex items-center gap-3 rounded-[0.9rem] border border-white/12 bg-linear-to-br p-4 backdrop-blur-sm transition hover:-translate-y-0.5",
+                tile.tone,
+              )}
+            >
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-lg"
+                aria-hidden="true"
+              >
+                {tile.icon}
               </div>
-              <div className="portal-stat-value">{kpi.overdue_sla ?? 0}</div>
-              <div className="portal-stat-foot">
-                <Bi en="Immediate action needed" or="ତତ୍କ୍ଷଣାତ୍ କାର୍ଯ୍ୟ" />
-              </div>
-            </div>
-          </div>
-          <div className="portal-stat purple">
-            <div className="portal-stat-icon">📱</div>
-            <div>
-              <div className="portal-stat-label">
-                <Bi en="Active today" or="ଆଜି ସକ୍ରିୟ" />
-              </div>
-              <div className="portal-stat-value">{kpi.active_today ?? 0}</div>
-              <div className="portal-stat-foot">
-                <Bi en="New WhatsApp submissions" or="ନୂଆ WhatsApp ଅଭିଯୋଗ" />
-              </div>
-            </div>
-          </div>
-          <div className="portal-stat green">
-            <div className="portal-stat-icon">✓</div>
-            <div>
-              <div className="portal-stat-label">
-                <Bi en="Resolved" or="ସମାଧାନ" />
-              </div>
-              <div className="portal-stat-value">{kpi.resolved_30d ?? 0}</div>
-              <div className="portal-stat-foot">
-                <strong>{kpi.satisfaction_pct ?? 0}%</strong> <Bi en="satisfaction" or="ସନ୍ତୁଷ୍ଟି" />
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-300/80">{tile.label}</p>
+                <p className="text-2xl font-extrabold leading-tight text-white">{kpi[tile.valueKey] ?? 0}</p>
+                <p className="mt-0.5 text-[11px] text-slate-300/70">
+                  {tile.key === "resolved" ? (
+                    <>
+                      <strong className="font-semibold text-white">{kpi.satisfaction_pct ?? 0}%</strong>{" "}
+                      <Bi en="satisfaction" or="ସନ୍ତୁଷ୍ଟି" />
+                    </>
+                  ) : (
+                    tile.foot
+                  )}
+                </p>
               </div>
             </div>
-          </div>
-          <div className="portal-stat blue">
-            <div className="portal-stat-icon">💬</div>
-            <div>
-              <div className="portal-stat-label">
-                <Bi en="WhatsApp inflow" or="WhatsApp ପ୍ରବାହ" />
-              </div>
-              <div className="portal-stat-value">{kpi.whatsapp_active ?? 0}</div>
-              <div className="portal-stat-foot">
-                <Bi en="Last 7 days" or="ଗତ ୭ ଦିନ" />
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className="portal-actions">
-        <Link href="/dashboard/grievances" className="portal-action-card saffron">
-          <span className="action-icon">📋</span>
-          <span className="portal-action-title">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Link
+          href="/dashboard/grievances"
+          className="flex h-full flex-col gap-2 rounded-xl border border-border bg-surface-card p-4 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-orange-200 to-orange-300 text-lg">
+            📋
+          </span>
+          <span className="text-[0.95rem] font-bold text-slate-900">
             <Bi en="Grievance workspace" or="ଅଭିଯୋଗ କାର୍ଯ୍ୟକ୍ଷେତ୍ର" />
           </span>
-          <span className="portal-action-desc">
+          <span className="text-xs leading-snug text-text-muted">
             <Bi
               en="Review cases, reply via WhatsApp, and advance lifecycle stages."
               or="କେସ ସମୀକ୍ଷା, WhatsApp ଉତ୍ତର ଓ ଜୀବନଚକ୍ର।"
             />
           </span>
-          <span className="portal-action-cta">
+          <span className="mt-auto text-xs font-bold text-navy-700">
             <Bi en="Open workspace →" or="କାର୍ଯ୍ୟକ୍ଷେତ୍ର ଖୋଲନ୍ତୁ →" />
           </span>
         </Link>
-        <Link href="/dashboard/analytics" className="portal-action-card blue">
-          <span className="action-icon">📈</span>
-          <span className="portal-action-title">
+
+        <Link
+          href="/dashboard/analytics"
+          className="flex h-full flex-col gap-2 rounded-xl border border-border bg-surface-card p-4 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-200 to-blue-300 text-lg">
+            📈
+          </span>
+          <span className="text-[0.95rem] font-bold text-slate-900">
             <Bi en="Analytics hub" or="ବିଶ୍ଳେଷଣ ହବ୍" />
           </span>
-          <span className="portal-action-cta">
+          <span className="mt-auto text-xs font-bold text-navy-700">
             <Bi en="View reports →" or="ରିପୋର୍ଟ ଦେଖନ୍ତୁ →" />
           </span>
         </Link>
-        <a href="/backend/dashboard/export" className="portal-action-card green">
-          <span className="action-icon">📥</span>
-          <span className="portal-action-title">
+
+        <a
+          href="/backend/dashboard/export"
+          className="flex h-full flex-col gap-2 rounded-xl border border-border bg-surface-card p-4 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-emerald-200 to-emerald-300 text-lg">
+            📥
+          </span>
+          <span className="text-[0.95rem] font-bold text-slate-900">
             <Bi en="Export CSV" or="CSV ରପ୍ତାନ" />
           </span>
-          <span className="portal-action-cta">
+          <span className="mt-auto text-xs font-bold text-navy-700">
             <Bi en="Download →" or="ଡାଉନଲୋଡ୍ →" />
           </span>
         </a>
-        <Link href="/dashboard/staff" className="portal-action-card violet">
-          <span className="action-icon">👥</span>
-          <span className="portal-action-title">
+
+        <Link
+          href="/dashboard/staff"
+          className="flex h-full flex-col gap-2 rounded-xl border border-border bg-surface-card p-4 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-violet-200 to-violet-300 text-lg">
+            👥
+          </span>
+          <span className="text-[0.95rem] font-bold text-slate-900">
             {isSuperAdmin ? (
               <Bi en="Admin accounts" or="ଆଡମିନ ଖାତା" />
             ) : (
               <Bi en="OSD accounts" or="OSD ଖାତା" />
             )}
           </span>
-          <span className="portal-action-cta">
+          <span className="mt-auto text-xs font-bold text-navy-700">
             <Bi en="Manage →" or="ପରିଚାଳନା →" />
           </span>
         </Link>
       </div>
 
-      <div className="portal-recent">
-        <div className="portal-recent-header">
-          <h2 className="portal-recent-title">
-            <Bi en="Recent submissions" or="ସାମ୍ପ୍ରତିକ ଅଭିଯୋଗ" />
-          </h2>
-          <Link href="/dashboard/grievances" className="btn btn-outline text-xs">
+      <Section
+        title={<Bi en="Recent submissions" or="ସାମ୍ପ୍ରତିକ ଅଭିଯୋଗ" />}
+        action={
+          <LinkButton href="/dashboard/grievances" variant="outline" className="text-xs">
             <Bi en="View all" or="ସମସ୍ତ ଦେଖନ୍ତୁ" />
-          </Link>
-        </div>
-        {grievances.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-10">
-            <Bi en="No grievances on record yet." or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ।" />
-          </p>
-        ) : (
-          grievances.map((g) => {
-            const closed = ["closed", "resolved", "action_taken"].includes(g.status);
-            const pending = g.status === "pending_review";
-            return (
+          </LinkButton>
+        }
+      >
+        <Card className="overflow-hidden p-0 md:p-0">
+          {grievances.length === 0 ? (
+            <p className="py-10 text-center text-sm text-text-muted">
+              <Bi en="No grievances on record yet." or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ।" />
+            </p>
+          ) : (
+            grievances.map((g) => (
               <Link
                 key={g.reference_number}
                 href={`/dashboard/grievances?ref=${g.reference_number}`}
-                className="portal-recent-row"
+                className="flex items-center gap-4 border-b border-slate-100 px-5 py-3.5 no-underline last:border-b-0 hover:bg-slate-50"
               >
-                <span className="portal-recent-ref">#{g.reference_number}</span>
-                <span className="portal-recent-meta">
-                  <span className="portal-recent-name">{g.citizen_name ?? "Citizen"}</span>
-                  <span className="portal-recent-sub">
+                <span className="min-w-36 font-mono text-xs font-bold text-blue-700">
+                  #{g.reference_number}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-slate-900">
+                    {g.citizen_name ?? "Citizen"}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-text-muted">
                     {g.district} · {g.category ?? g.osd_category}
                   </span>
                 </span>
-                <span
-                  className={`portal-recent-badge ${closed ? "resolved" : pending ? "pending" : "processing"}`}
-                >
-                  {g.status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                </span>
+                <Badge tone={statusTone(g.status)} className="shrink-0 whitespace-nowrap">
+                  {formatStatusLabel(g.status).replace(/\b\w/g, (c) => c.toUpperCase())}
+                </Badge>
               </Link>
-            );
-          })
-        )}
-      </div>
-    </>
+            ))
+          )}
+        </Card>
+      </Section>
+    </div>
   );
 }

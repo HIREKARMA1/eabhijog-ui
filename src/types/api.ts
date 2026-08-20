@@ -422,6 +422,13 @@ export type OsdConversationActions = {
   can_mark_resolved: boolean;
 };
 
+export type HearingLocaleContent = {
+  title?: string;
+  description?: string;
+  what_to_expect?: string;
+  important_notes?: string;
+};
+
 export type HearingPublicSummary = {
   id: number;
   title: string;
@@ -437,6 +444,7 @@ export type HearingPublicSummary = {
   hosted_by?: string;
   what_to_expect?: string;
   important_notes?: string;
+  content_i18n?: Record<string, HearingLocaleContent>;
 };
 
 export type HearingScreeningStats = {
@@ -468,6 +476,7 @@ export type HearingDetail = {
   hosted_by?: string;
   what_to_expect?: string;
   important_notes?: string;
+  content_i18n?: Record<string, HearingLocaleContent>;
   stats: HearingScreeningStats | null;
 };
 
@@ -485,6 +494,7 @@ export type HearingRegistrationRow = {
   citizen_phone: string;
   citizen_email: string;
   citizen_pincode: string;
+  citizen_address?: string;
   title: string;
   grievance_text: string;
   area: string;

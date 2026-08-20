@@ -1,5 +1,5 @@
-import { PageLoader } from "@/components/ui/Spinner";
+import { HearingRegisterLoading } from "@/components/hearing/HearingListView";
 
-export default function HearingRegisterLoading() {
-  return <PageLoader label="Loading registration form…" className="min-h-[50vh]" />;
+export default function HearingRegisterLoadingPage() {
+  return <HearingRegisterLoading />;
 }

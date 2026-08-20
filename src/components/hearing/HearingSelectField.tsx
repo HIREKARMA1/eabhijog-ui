@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
 
 export type HearingSelectOption = {
@@ -12,7 +13,7 @@ export type HearingSelectOption = {
 
 export function HearingFieldLabel({ label, hint }: { label: string; hint?: string }) {
   return (
-    <span className="mb-1.5 block text-sm text-slate-800">
+    <span className="mb-1.5 block min-w-0 wrap-break-word text-sm text-slate-800">
       <span className="font-semibold">{label}</span>
       {hint ? <span className="font-normal text-slate-500"> ({hint})</span> : null}
     </span>
@@ -39,13 +40,16 @@ export function HearingSelectField({
   required,
   value,
   defaultValue = "",
-  placeholder = "Select an option",
+  placeholder,
   hint,
   searchable = false,
-  searchPlaceholder = "Search...",
+  searchPlaceholder,
   options,
   onChange,
 }: Props) {
+  const { t } = useI18n();
+  const resolvedPlaceholder = placeholder ?? t("hearing", "register.selectOption");
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t("hearing", "register.searchEllipsis");
   const listId = useId();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -104,10 +108,10 @@ export function HearingSelectField({
   }
 
   return (
-    <div className="block">
+    <div className="block min-w-0 w-full">
       <HearingFieldLabel label={label} hint={hint} />
 
-      <div ref={rootRef} className="relative">
+      <div ref={rootRef} className="relative min-w-0 w-full">
         <select
           name={name}
           required={required}
@@ -119,7 +123,7 @@ export function HearingSelectField({
         >
         {required ? (
           <option value="" disabled>
-            {placeholder}
+            {resolvedPlaceholder}
           </option>
         ) : null}
         {options.map((opt) => (
@@ -136,12 +140,12 @@ export function HearingSelectField({
           aria-controls={listId}
           onClick={() => setOpen((prev) => !prev)}
           className={cn(
-            "hearing-form-select flex w-full items-center justify-between gap-3 text-left",
+            "hearing-form-select flex w-full min-w-0 items-center justify-between gap-3 text-left",
             open && "border-saffron ring-[3px] ring-saffron/12",
             !selectedOption && "text-slate-500",
           )}
         >
-          <span className="truncate">{selectedOption?.label ?? placeholder}</span>
+          <span className="min-w-0 flex-1 truncate">{selectedOption?.label ?? resolvedPlaceholder}</span>
           <Chevron open={open} />
         </button>
 
@@ -149,7 +153,7 @@ export function HearingSelectField({
           <div
             id={listId}
             role="listbox"
-            className="hearing-form-dropdown absolute z-50 mt-1.5 w-full"
+            className="hearing-form-dropdown absolute left-0 right-0 z-50 mt-1.5 max-w-full overflow-x-hidden"
           >
             {searchable ? (
               <div className="border-b border-border p-2">
@@ -159,9 +163,9 @@ export function HearingSelectField({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onMouseDown={(e) => e.stopPropagation()}
-                  placeholder={searchPlaceholder}
+                  placeholder={resolvedSearchPlaceholder}
                   className="hearing-form-input"
-                  aria-label={`Search ${label}`}
+                  aria-label={t("hearing", "register.searchAria", { label })}
                 />
               </div>
             ) : null}
@@ -180,7 +184,7 @@ export function HearingSelectField({
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => !opt.disabled && pick(opt.value)}
                         className={cn(
-                          "hearing-form-dropdown-option flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm",
+                          "hearing-form-dropdown-option flex w-full min-w-0 items-center gap-2 px-3 py-2.5 text-left text-sm",
                           selected && "is-selected",
                           opt.disabled && "cursor-not-allowed opacity-40",
                         )}
@@ -206,14 +210,14 @@ export function HearingSelectField({
                             </svg>
                           ) : null}
                         </span>
-                        <span className="truncate">{opt.label}</span>
+                        <span className="min-w-0 flex-1 truncate">{opt.label}</span>
                       </button>
                     </li>
                   );
                 })
               ) : (
                 <li className="px-3 py-4 text-center text-sm text-slate-500">
-                  No options match your search.
+                  {t("hearing", "register.noOptionMatch")}
                 </li>
               )}
             </ul>
