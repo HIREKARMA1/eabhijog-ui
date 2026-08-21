@@ -474,6 +474,8 @@ export type HearingDetail = {
   completed_at: string | null;
   banner_image_url?: string;
   banner_image_urls?: string[];
+  /** Durable S3 keys for edit forms — prefer over resolved banner_image_urls when saving. */
+  banner_storage_keys?: string[];
   venue?: string;
   hosted_by?: string;
   what_to_expect?: string;

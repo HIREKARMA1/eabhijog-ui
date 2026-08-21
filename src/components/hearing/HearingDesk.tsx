@@ -170,6 +170,8 @@ function parseBannerUrlsFromForm(form: FormData): string[] {
 
 function BannerImageField({
   name = "banner_image_urls",
+  initialKeys,
+  initialPreviewUrls,
   initialUrls = [],
   maxCount = 5,
   disabled,
@@ -177,22 +179,28 @@ function BannerImageField({
   onError,
 }: {
   name?: string;
-  /** Existing banner URLs or storage keys (order preserved). */
+  /** Durable storage keys to persist (never expired presigned URLs). */
+  initialKeys?: string[];
+  /** Browser-ready preview URLs aligned with initialKeys. */
+  initialPreviewUrls?: string[];
+  /** @deprecated Prefer initialKeys + initialPreviewUrls. */
   initialUrls?: string[];
   maxCount?: number;
   disabled?: boolean;
   onUpload: (file: File) => Promise<{ storageKey: string; previewUrl: string }>;
   onError: (message: string) => void;
 }) {
+  const keys = (initialKeys?.length ? initialKeys : initialUrls).filter(Boolean);
+  const previews = (initialPreviewUrls?.length ? initialPreviewUrls : initialUrls).filter(Boolean);
   const [uploading, setUploading] = useState(false);
   const [items, setItems] = useState<{ key: string; preview: string }[]>(() =>
-    initialUrls.filter(Boolean).map((url) => ({ key: url, preview: url })),
+    keys.map((key, i) => ({ key, preview: previews[i] || key })),
   );
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setItems(initialUrls.filter(Boolean).map((url) => ({ key: url, preview: url })));
-  }, [initialUrls.join("|")]); // eslint-disable-line react-hooks/exhaustive-deps -- sync when URL list identity changes
+    setItems(keys.map((key, i) => ({ key, preview: previews[i] || key })));
+  }, [keys.join("|"), previews.join("|")]); // eslint-disable-line react-hooks/exhaustive-deps -- sync when lists change
 
   async function handleFiles(list: FileList | null) {
     if (!list || list.length === 0) return;
@@ -417,13 +425,27 @@ function EventPageDetailsForm({
       <div className="text-sm sm:col-span-2">
         <span className="mb-1 block font-medium">Banner images</span>
         <BannerImageField
-          key={`banner-${hearing.id}-${(hearing.banner_image_urls || []).join("|") || hearing.banner_image_url || "none"}`}
-          initialUrls={
+          key={`banner-${hearing.id}-${(hearing.banner_storage_keys || hearing.banner_image_urls || []).join("|") || hearing.banner_image_url || "none"}`}
+          initialKeys={
+            hearing.banner_storage_keys?.length
+              ? hearing.banner_storage_keys
+              : undefined
+          }
+          initialPreviewUrls={
             hearing.banner_image_urls?.length
               ? hearing.banner_image_urls
               : hearing.banner_image_url
                 ? [hearing.banner_image_url]
                 : []
+          }
+          initialUrls={
+            !hearing.banner_storage_keys?.length
+              ? hearing.banner_image_urls?.length
+                ? hearing.banner_image_urls
+                : hearing.banner_image_url
+                  ? [hearing.banner_image_url]
+                  : []
+              : []
           }
           disabled={busy}
           onError={onError}
