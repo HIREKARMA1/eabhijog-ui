@@ -440,6 +440,7 @@ export type HearingPublicSummary = {
   status: string;
   registration_open: boolean;
   banner_image_url?: string;
+  banner_image_urls?: string[];
   venue?: string;
   hosted_by?: string;
   what_to_expect?: string;
@@ -472,6 +473,7 @@ export type HearingDetail = {
   notified_at: string | null;
   completed_at: string | null;
   banner_image_url?: string;
+  banner_image_urls?: string[];
   venue?: string;
   hosted_by?: string;
   what_to_expect?: string;

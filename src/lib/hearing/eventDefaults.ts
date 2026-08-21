@@ -1,5 +1,15 @@
 /** Default public event-page copy for Online Grievance Hearings (rich HTML). */
 
+export const DEFAULT_HEARING_TITLE_EN = "Welcome to Jana Samadhan";
+export const DEFAULT_HEARING_TITLE_OR = "ଜନସମାଧାନକୁ ସ୍ୱାଗତ";
+export const DEFAULT_HEARING_TITLE_HI = "जना समाधान में आपका स्वागत है";
+
+export function defaultHearingTitle(locale: "en" | "hi" | "or" | string): string {
+  if (locale === "or") return DEFAULT_HEARING_TITLE_OR;
+  if (locale === "hi") return DEFAULT_HEARING_TITLE_HI;
+  return DEFAULT_HEARING_TITLE_EN;
+}
+
 const LEGACY_WHAT_TO_EXPECT = [
   "Register your grievance during the open registration window",
   "The Minister's Office screens submissions and prepares a shortlist",

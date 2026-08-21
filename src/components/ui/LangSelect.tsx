@@ -1,13 +1,14 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n/context";
-import { LOCALES, type Locale } from "@/lib/i18n/types";
+import type { Locale } from "@/lib/i18n/types";
 import { cn } from "@/lib/utils/cn";
 
-const localeLabels: Record<Locale, string> = {
-  en: "EN",
-  hi: "हि",
-  or: "ଓଡ଼",
+const NAVBAR_LOCALES = ["en", "or"] as const satisfies readonly Locale[];
+
+const localeLabels: Record<(typeof NAVBAR_LOCALES)[number], string> = {
+  en: "ENG",
+  or: "ଓଡ଼ିଆ",
 };
 
 export function LangSelect({
@@ -30,7 +31,7 @@ export function LangSelect({
       role="group"
       aria-label="Language"
     >
-      {LOCALES.map((code) => (
+      {NAVBAR_LOCALES.map((code) => (
         <button
           key={code}
           type="button"

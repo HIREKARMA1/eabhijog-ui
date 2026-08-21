@@ -33,8 +33,9 @@ import {
   completeHearing,
   createHearing,
   deleteHearing,
+  downloadHearingRegistrationPdf,
   exportHearingRegistrationsCsv,
-
+  HEARING_DESK_CATEGORIES,
   fetchHearing,
   fetchHearingRegistrations,
   fetchHearings,
@@ -42,14 +43,17 @@ import {
   notifyHearingApproved,
   recordHearingRemarks,
   screenHearingRegistration,
+  sendHearingRegistrationWhatsApp,
   startHearing,
   updateHearing,
-
   uploadHearingBanner,
-  uploadHearingBannerForEvent,
 } from "@/lib/api/hearing";
+import { useI18n } from "@/lib/i18n/context";
 import {
   DEFAULT_HEARING_IMPORTANT_NOTES,
+  DEFAULT_HEARING_TITLE_EN,
+  DEFAULT_HEARING_TITLE_HI,
+  DEFAULT_HEARING_TITLE_OR,
   DEFAULT_HEARING_WHAT_TO_EXPECT,
 } from "@/lib/hearing/eventDefaults";
 import type {
@@ -140,67 +144,112 @@ function PublicHearingShareLink({
   );
 }
 
+function parseBannerUrlsFromForm(form: FormData): string[] {
+  const raw = String(form.get("banner_image_urls") || "").trim();
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+    }
+  } catch {
+    /* ignore */
+  }
+  return raw ? [raw] : [];
+}
+
 function BannerImageField({
-  name = "banner_image_url",
-  previewUrl = "",
-  storageValue = "",
+  name = "banner_image_urls",
+  initialUrls = [],
+  maxCount = 5,
   disabled,
   onUpload,
-  onClear,
   onError,
 }: {
   name?: string;
-  previewUrl?: string;
-  storageValue?: string;
+  /** Existing banner URLs or storage keys (order preserved). */
+  initialUrls?: string[];
+  maxCount?: number;
   disabled?: boolean;
   onUpload: (file: File) => Promise<{ storageKey: string; previewUrl: string }>;
-  onClear?: () => void | Promise<void>;
   onError: (message: string) => void;
 }) {
   const [uploading, setUploading] = useState(false);
-  const [storageKey, setStorageKey] = useState(storageValue);
-  const [preview, setPreview] = useState(previewUrl);
+  const [items, setItems] = useState<{ key: string; preview: string }[]>(() =>
+    initialUrls.filter(Boolean).map((url) => ({ key: url, preview: url })),
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setStorageKey(storageValue);
-    setPreview(previewUrl);
-  }, [storageValue, previewUrl]);
+    setItems(initialUrls.filter(Boolean).map((url) => ({ key: url, preview: url })));
+  }, [initialUrls.join("|")]); // eslint-disable-line react-hooks/exhaustive-deps -- sync when URL list identity changes
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      onError("Choose a JPG, PNG, or WebP image.");
+  async function handleFiles(list: FileList | null) {
+    if (!list || list.length === 0) return;
+    const room = maxCount - items.length;
+    if (room <= 0) {
+      onError(`You can upload at most ${maxCount} banner images.`);
       return;
     }
+    const files = Array.from(list).slice(0, room);
     setUploading(true);
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
     try {
-      const result = await onUpload(file);
-      setStorageKey(result.storageKey);
-      setPreview(result.previewUrl || objectUrl);
-    } catch (err) {
-      setPreview(previewUrl);
-      setStorageKey(storageValue);
-      onError(err instanceof ApiError ? err.message : "Banner upload failed");
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) {
+          onError("Choose JPG, PNG, or WebP images.");
+          continue;
+        }
+        const objectUrl = URL.createObjectURL(file);
+        try {
+          const result = await onUpload(file);
+          const key = result.storageKey || result.previewUrl;
+          const preview = result.previewUrl || objectUrl;
+          setItems((prev) => {
+            if (prev.length >= maxCount || prev.some((i) => i.key === key)) return prev;
+            return [...prev, { key, preview }];
+          });
+        } catch (err) {
+          onError(err instanceof ApiError ? err.message : "Banner upload failed");
+        }
+      }
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
+  function removeAt(index: number) {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  const keysJson = JSON.stringify(items.map((i) => i.key));
+
   return (
     <div className="space-y-2">
-      <input type="hidden" name={name} value={storageKey} />
-      {preview ? (
-        <div className="overflow-hidden rounded-xl border border-border bg-slate-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="Hearing banner preview" className="h-36 w-full object-cover" />
+      <input type="hidden" name={name} value={keysJson} />
+      {items.length > 0 ? (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {items.map((item, index) => (
+            <div
+              key={`${item.key}-${index}`}
+              className="relative overflow-hidden rounded-xl border border-border bg-slate-100"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.preview} alt={`Banner ${index + 1}`} className="h-28 w-full object-cover" />
+              <button
+                type="button"
+                disabled={uploading || disabled}
+                onClick={() => removeAt(index)}
+                className="absolute right-1.5 top-1.5 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-red-700 shadow hover:bg-white"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="flex h-28 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-3 text-center text-xs text-slate-500">
-          No banner uploaded - public page uses the default banner.
+          No banners uploaded - public page uses the default banner.
         </div>
       )}
       <div className="flex flex-wrap gap-2">
@@ -209,38 +258,22 @@ function BannerImageField({
           size="sm"
           variant="outline"
           loading={uploading}
-          disabled={uploading || disabled}
+          disabled={uploading || disabled || items.length >= maxCount}
           onClick={() => inputRef.current?.click()}
         >
-          {preview ? "Replace banner" : "Upload banner"}
+          {items.length ? "Add banner" : "Upload banner"}
         </Button>
-        {preview && onClear ? (
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            disabled={uploading || disabled}
-            onClick={() => {
-              void (async () => {
-                setPreview("");
-                setStorageKey("");
-                await onClear();
-              })();
-            }}
-          >
-            Remove
-          </Button>
-        ) : null}
       </div>
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+        multiple
         className="hidden"
-        onChange={(e) => void handleFile(e.target.files?.[0])}
+        onChange={(e) => void handleFiles(e.target.files)}
       />
       <p className="text-[11px] text-slate-500">
-        JPG, PNG, or WebP up to 5 MB. Uploaded to S3 folder hearings/banners/.
+        Up to {maxCount} images (JPG, PNG, or WebP, max 5 MB each). Shown as a carousel on the public page.
       </p>
     </div>
   );
@@ -252,7 +285,6 @@ function EventPageDetailsForm({
   onSave,
   onCancel,
   onBannerUpload,
-  onBannerClear,
   onError,
 }: {
   hearing: HearingDetail;
@@ -260,7 +292,6 @@ function EventPageDetailsForm({
   onSave: (payload: Record<string, unknown>) => void;
   onCancel: () => void;
   onBannerUpload: (file: File) => Promise<{ storageKey: string; previewUrl: string }>;
-  onBannerClear: () => Promise<void>;
   onError: (message: string) => void;
 }) {
   const [localeTab, setLocaleTab] = useState<HearingContentLocale>("en");
@@ -282,7 +313,7 @@ function EventPageDetailsForm({
         }
         onSave({
           ...localized,
-          banner_image_url: String(form.get("banner_image_url") || ""),
+          banner_image_urls: parseBannerUrlsFromForm(form),
           venue: String(form.get("venue") || ""),
           hosted_by: String(form.get("hosted_by") || ""),
         });
@@ -317,15 +348,19 @@ function EventPageDetailsForm({
         />
       </label>
       <div className="text-sm sm:col-span-2">
-        <span className="mb-1 block font-medium">Banner image</span>
+        <span className="mb-1 block font-medium">Banner images</span>
         <BannerImageField
-          key={`banner-${hearing.id}-${hearing.banner_image_url || "none"}`}
-          previewUrl={hearing.banner_image_url || ""}
-          storageValue={hearing.banner_image_url || ""}
+          key={`banner-${hearing.id}-${(hearing.banner_image_urls || []).join("|") || hearing.banner_image_url || "none"}`}
+          initialUrls={
+            hearing.banner_image_urls?.length
+              ? hearing.banner_image_urls
+              : hearing.banner_image_url
+                ? [hearing.banner_image_url]
+                : []
+          }
           disabled={busy}
           onError={onError}
           onUpload={onBannerUpload}
-          onClear={onBannerClear}
         />
       </div>
       <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row">
@@ -387,12 +422,14 @@ type Props = {
 };
 
 export function HearingDesk({ canManage }: Props) {
+  const { locale, t } = useI18n();
   const [hearings, setHearings] = useState<HearingDetail[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [hearing, setHearing] = useState<HearingDetail | null>(null);
   const [regs, setRegs] = useState<HearingRegistrationRow[]>([]);
   const [stats, setStats] = useState<HearingScreeningStats | null>(null);
   const [filter, setFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   const [exportingCsv, setExportingCsv] = useState(false);
   const { toasts, success: toastSuccess, error: toastError, dismiss: dismissToast } = useToast();
@@ -410,6 +447,9 @@ export function HearingDesk({ canManage }: Props) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const [rejectId, setRejectId] = useState<number | null>(null);
   const [rejectRemarks, setRejectRemarks] = useState("");
+  const [whatsappRegId, setWhatsappRegId] = useState<number | null>(null);
+  const [whatsappDraft, setWhatsappDraft] = useState("");
+  const [whatsappSending, setWhatsappSending] = useState(false);
   const [remarksDraft, setRemarksDraft] = useState("");
   const [mediaPreview, setMediaPreview] = useState<{
     url: string;
@@ -426,14 +466,30 @@ export function HearingDesk({ canManage }: Props) {
   }, [selectedId]);
 
   const loadSelected = useCallback(async (id: number) => {
+    const params: Record<string, string> = {};
+    if (filter) params.screening_status = filter;
+    if (categoryFilter) params.service_category = categoryFilter;
     const [detail, list] = await Promise.all([
       fetchHearing(id),
-      fetchHearingRegistrations(id, filter ? { screening_status: filter } : {}),
+      fetchHearingRegistrations(id, params),
     ]);
     setHearing(detail.data);
     setRegs(list.data.items);
     setStats(list.data.stats);
-  }, [filter]);
+  }, [filter, categoryFilter]);
+
+  const downloadRegistrationPdf = useCallback(
+    (registrationId: number) => {
+      if (!hearing) return;
+      void downloadHearingRegistrationPdf(hearing.id, registrationId, locale)
+        .catch((err) =>
+          toastError(
+            err instanceof ApiError ? err.message : t("hearing", "desk.pdfFailed"),
+          ),
+        );
+    },
+    [hearing, locale, t, toastError],
+  );
 
   useEffect(() => {
     setListLoading(true);
@@ -506,7 +562,7 @@ export function HearingDesk({ canManage }: Props) {
       registration_opens_at: new Date(opensAt).toISOString(),
       registration_closes_at: new Date(closesAt).toISOString(),
       google_meet_link: String(form.get("google_meet_link") || ""),
-      banner_image_url: String(form.get("banner_image_url") || ""),
+      banner_image_urls: parseBannerUrlsFromForm(form),
       venue: String(form.get("venue") || "Online (Google Meet)"),
       hosted_by: String(form.get("hosted_by") || ""),
       publish: true,
@@ -532,6 +588,7 @@ export function HearingDesk({ canManage }: Props) {
   }
 
   const selectedReg = regs.find((r) => r.id === detailId) ?? null;
+  const whatsappTarget = regs.find((r) => r.id === whatsappRegId) ?? null;
   const hearingStatus = hearing?.status ?? "";
   const shortlistFinalized = Boolean(
     hearing?.shortlisted_at ||
@@ -567,10 +624,22 @@ export function HearingDesk({ canManage }: Props) {
                   setCreateLocaleBundle({
                     ...emptyLocaleBundle(),
                     en: {
-                      title: "",
+                      title: DEFAULT_HEARING_TITLE_EN,
                       description: "",
                       what_to_expect: DEFAULT_HEARING_WHAT_TO_EXPECT,
                       important_notes: DEFAULT_HEARING_IMPORTANT_NOTES,
+                    },
+                    or: {
+                      title: DEFAULT_HEARING_TITLE_OR,
+                      description: "",
+                      what_to_expect: "",
+                      important_notes: "",
+                    },
+                    hi: {
+                      title: DEFAULT_HEARING_TITLE_HI,
+                      description: "",
+                      what_to_expect: "",
+                      important_notes: "",
                     },
                   });
                 }
@@ -623,8 +692,8 @@ export function HearingDesk({ canManage }: Props) {
               className="min-h-11 w-full rounded-xl border px-3 py-2"
             />
           </label>
-          <label className="text-sm md:col-span-2">
-            <span className="mb-1 block font-medium">Banner image</span>
+          <div className="text-sm md:col-span-2">
+            <span className="mb-1 block font-medium">Banner images</span>
             <BannerImageField
               onError={toastError}
               onUpload={async (file) => {
@@ -635,22 +704,8 @@ export function HearingDesk({ canManage }: Props) {
                   previewUrl: res.data.banner_image_url,
                 };
               }}
-              onClear={async () => undefined}
             />
-            <span className="mb-1 block font-medium">Banner image</span>
-            <BannerImageField
-              onError={toastError}
-              onUpload={async (file) => {
-                const res = await uploadHearingBanner(file);
-                toastSuccess("Banner uploaded.");
-                return {
-                  storageKey: res.data.storage_key,
-                  previewUrl: res.data.banner_image_url,
-                };
-              }}
-              onClear={async () => undefined}
-            />
-          </label>
+          </div>
           <HearingRichTextEditor
             className="md:col-span-2"
             name="what_to_expect"
@@ -823,19 +878,12 @@ export function HearingDesk({ canManage }: Props) {
                         onError={toastError}
                         onCancel={() => setEditingDetails(false)}
                         onBannerUpload={async (file) => {
-                          const res = await uploadHearingBannerForEvent(hearing.id, file);
-                          await loadSelected(hearing.id);
-                          toastSuccess("Banner uploaded and saved.");
+                          const res = await uploadHearingBanner(file);
+                          toastSuccess("Banner uploaded.");
                           return {
-                            storageKey: res.data.banner_image_url || "",
-                            previewUrl: res.data.banner_image_url || "",
+                            storageKey: res.data.storage_key,
+                            previewUrl: res.data.banner_image_url,
                           };
-                        }}
-                        onBannerClear={async () => {
-                          await runAction(async () => {
-                            await updateHearing(hearing.id, { banner_image_url: "" });
-                            return { data: { message: "Banner removed." } };
-                          });
                         }}
                         onSave={(payload) =>
                           runAction(async () => {
@@ -963,7 +1011,7 @@ export function HearingDesk({ canManage }: Props) {
                 title="Screening queue"
                 className="rounded-xl border border-border bg-white p-3 sm:rounded-2xl sm:p-4"
                 action={
-                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                     <Button
                       size="sm"
                       variant="outline"
@@ -973,7 +1021,10 @@ export function HearingDesk({ canManage }: Props) {
                       onClick={() => {
                         if (!hearing) return;
                         setExportingCsv(true);
-                        void exportHearingRegistrationsCsv(hearing.id, filter || undefined)
+                        void exportHearingRegistrationsCsv(hearing.id, {
+                          screeningStatus: filter || undefined,
+                          serviceCategory: categoryFilter || undefined,
+                        })
                           .then(() => toastSuccess("CSV download started."))
                           .catch((err) =>
                             toastError(
@@ -985,16 +1036,40 @@ export function HearingDesk({ canManage }: Props) {
                     >
                       Export CSV
                     </Button>
-                    <select
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                      className="w-full rounded-lg border px-2 py-1.5 text-sm sm:w-auto"
-                    >
-                      <option value="">All</option>
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
+                    <label className="flex w-full items-center gap-2 sm:w-auto">
+                      <span className="hidden text-xs text-slate-500 sm:inline">
+                        {t("hearing", "desk.filterStatus")}
+                      </span>
+                      <select
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        aria-label={t("hearing", "desk.filterStatus")}
+                        className="w-full rounded-lg border px-2 py-1.5 text-sm sm:w-auto"
+                      >
+                        <option value="">{t("hearing", "desk.all")}</option>
+                        <option value="pending">{t("hearing", "desk.statusPending")}</option>
+                        <option value="approved">{t("hearing", "desk.statusApproved")}</option>
+                        <option value="rejected">{t("hearing", "desk.statusRejected")}</option>
+                      </select>
+                    </label>
+                    <label className="flex w-full items-center gap-2 sm:w-auto">
+                      <span className="hidden text-xs text-slate-500 sm:inline">
+                        {t("hearing", "desk.filterCategory")}
+                      </span>
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        aria-label={t("hearing", "desk.filterCategory")}
+                        className="w-full rounded-lg border px-2 py-1.5 text-sm sm:w-auto"
+                      >
+                        <option value="">{t("hearing", "desk.all")}</option>
+                        {HEARING_DESK_CATEGORIES.map((cat) => (
+                          <option key={cat.value} value={cat.value}>
+                            {t("hearing", cat.key)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                   </div>
                 }
               >
@@ -1026,6 +1101,27 @@ export function HearingDesk({ canManage }: Props) {
                       <div className="mt-2.5 flex flex-wrap gap-1.5">
                         <Button size="sm" variant="ghost" onClick={() => setDetailId(row.id)}>
                           View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={t("hearing", "desk.downloadPdf")}
+                          title={t("hearing", "desk.downloadPdf")}
+                          onClick={() => downloadRegistrationPdf(row.id)}
+                        >
+                          <Icon name="download" size={16} />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={t("hearing", "desk.sendWhatsApp")}
+                          title={t("hearing", "desk.sendWhatsApp")}
+                          onClick={() => {
+                            setWhatsappRegId(row.id);
+                            setWhatsappDraft("");
+                          }}
+                        >
+                          <Icon name="message" size={16} />
                         </Button>
                         {row.screening_status === "pending" ? (
                           <>
@@ -1096,6 +1192,27 @@ export function HearingDesk({ canManage }: Props) {
                             <div className="flex flex-wrap gap-1">
                               <Button size="sm" variant="ghost" onClick={() => setDetailId(row.id)}>
                                 View
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                aria-label={t("hearing", "desk.downloadPdf")}
+                                title={t("hearing", "desk.downloadPdf")}
+                                onClick={() => downloadRegistrationPdf(row.id)}
+                              >
+                                <Icon name="download" size={16} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                aria-label={t("hearing", "desk.sendWhatsApp")}
+                                title={t("hearing", "desk.sendWhatsApp")}
+                                onClick={() => {
+                                  setWhatsappRegId(row.id);
+                                  setWhatsappDraft("");
+                                }}
+                              >
+                                <Icon name="message" size={16} />
                               </Button>
                               {row.screening_status === "pending" ? (
                                 <>
@@ -1246,6 +1363,79 @@ export function HearingDesk({ canManage }: Props) {
                 }
               >
                 Confirm reject
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {whatsappRegId && hearing && whatsappTarget ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="hearing-whatsapp-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !whatsappSending) {
+              setWhatsappRegId(null);
+              setWhatsappDraft("");
+            }
+          }}
+        >
+          <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-4 shadow-xl sm:rounded-2xl sm:p-5">
+            <h3 id="hearing-whatsapp-title" className="text-lg font-semibold">
+              {t("hearing", "desk.whatsappTitle")}
+            </h3>
+            <p className="mt-1 text-sm text-slate-600">{t("hearing", "desk.whatsappHint")}</p>
+            <p className="mt-3 rounded-lg bg-surface-muted px-3 py-2 text-sm text-slate-800">
+              <span className="font-medium">{whatsappTarget.citizen_name}</span>
+              <span className="text-slate-500"> · {whatsappTarget.citizen_phone}</span>
+            </p>
+            <textarea
+              value={whatsappDraft}
+              onChange={(e) => setWhatsappDraft(e.target.value)}
+              rows={4}
+              maxLength={2000}
+              placeholder={t("hearing", "desk.whatsappPlaceholder")}
+              className="mt-3 w-full rounded-xl border px-3 py-2 text-sm"
+            />
+            <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                variant="ghost"
+                className="w-full sm:w-auto"
+                disabled={whatsappSending}
+                onClick={() => {
+                  setWhatsappRegId(null);
+                  setWhatsappDraft("");
+                }}
+              >
+                {t("hearing", "desk.whatsappCancel")}
+              </Button>
+              <Button
+                loading={whatsappSending}
+                disabled={!whatsappDraft.trim() || whatsappSending}
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  const text = whatsappDraft.trim();
+                  if (!text) return;
+                  setWhatsappSending(true);
+                  void sendHearingRegistrationWhatsApp(hearing.id, whatsappRegId, text)
+                    .then(() => {
+                      toastSuccess(t("hearing", "desk.whatsappQueued"));
+                      setWhatsappRegId(null);
+                      setWhatsappDraft("");
+                    })
+                    .catch((err) =>
+                      toastError(
+                        err instanceof ApiError
+                          ? err.message
+                          : t("hearing", "desk.whatsappFailed"),
+                      ),
+                    )
+                    .finally(() => setWhatsappSending(false));
+                }}
+              >
+                {t("hearing", "desk.whatsappSend")}
               </Button>
             </div>
           </div>
