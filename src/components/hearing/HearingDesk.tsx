@@ -300,7 +300,7 @@ function EventPageDetailsForm({
         notesDefault={DEFAULT_HEARING_IMPORTANT_NOTES}
       />
       <label className="text-sm">
-        <span className="mb-1 block font-medium">Venue</span>
+        <span className="mb-1 block font-medium">Mode</span>
         <input
           name="venue"
           defaultValue={hearing.venue || "Online (Google Meet)"}
@@ -608,7 +608,7 @@ export function HearingDesk({ canManage }: Props) {
             notesDefault={DEFAULT_HEARING_IMPORTANT_NOTES}
           />
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Venue</span>
+            <span className="mb-1 block font-medium">Mode</span>
             <input
               name="venue"
               defaultValue="Online (Google Meet)"
@@ -848,7 +848,7 @@ export function HearingDesk({ canManage }: Props) {
                     ) : (
                       <div className="mt-3 rounded-xl border border-border bg-surface-muted/40 px-3 py-3 text-sm text-slate-700">
                         <p>
-                          <span className="font-medium text-slate-500">Venue:</span>{" "}
+                          <span className="font-medium text-slate-500">Mode:</span>{" "}
                           {hearing.venue || "Online (Google Meet)"}
                         </p>
                         {hearing.hosted_by ? (
