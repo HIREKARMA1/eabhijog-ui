@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils/cn";
 const localeLabels: Record<Locale, string> = {
   en: "EN",
   hi: "हि",
-  or: "ଓଡ଼",
+  or: "ଓଡି",
 };
 
 export function LangSelect({
