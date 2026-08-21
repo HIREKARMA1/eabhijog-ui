@@ -19,12 +19,22 @@ import type { HearingPublicSummary } from "@/types/api";
 
 const DEFAULT_BANNER = "/images/hearing-event-banner.svg";
 
+function capitalizeMeridiem(value: string) {
+  return value.replace(/\b(am|pm)\b/gi, (m) => m.toUpperCase());
+}
+
 function formatWhen(iso: string) {
   try {
-    return new Date(iso).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+    return capitalizeMeridiem(
+      new Date(iso).toLocaleString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    );
   } catch {
     return iso;
   }
@@ -45,12 +55,31 @@ function formatDay(iso: string) {
 
 function formatTime(iso: string) {
   try {
-    return new Date(iso).toLocaleTimeString("en-IN", {
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    return capitalizeMeridiem(
+      new Date(iso).toLocaleTimeString("en-IN", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    );
   } catch {
     return iso;
+  }
+}
+
+function formatHearingWindow(startIso: string, endIso?: string | null) {
+  try {
+    const start = new Date(startIso);
+    const datePart = start.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    const startTime = formatTime(startIso);
+    if (!endIso) return `${datePart}, ${startTime}`;
+    return `${datePart}, ${startTime} to ${formatTime(endIso)}`;
+  } catch {
+    return startIso;
   }
 }
 
@@ -130,7 +159,7 @@ export function HearingPublicDetailView({ hearing }: Props) {
                 </span>
                 <span>
                   <span className="text-white/60">{H("detail.time")}:</span> {formatTime(hearing.hearing_date)}
-                  {hearing.hearing_end_at ? ` - ${formatTime(hearing.hearing_end_at)}` : ""}
+                  {hearing.hearing_end_at ? ` to ${formatTime(hearing.hearing_end_at)}` : ""}
                 </span>
                 <span>
                   <span className="text-white/60">{H("detail.venue")}:</span> {venue}
@@ -241,10 +270,12 @@ export function HearingPublicDetailView({ hearing }: Props) {
             <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
               <div className="border-b border-border bg-navy-700 px-4 py-3 text-white">
                 <p className="text-sm font-semibold">{H("detail.scheduleTitle")}</p>
-                <p className="mt-0.5 text-xs text-white/75">{H("detail.scheduleLead")}</p>
               </div>
               <div className="space-y-3 px-4 py-4">
-                <ScheduleRow label={H("detail.hearing")} value={formatWhen(hearing.hearing_date)} />
+                <ScheduleRow
+                  label={H("detail.hearing")}
+                  value={formatHearingWindow(hearing.hearing_date, hearing.hearing_end_at)}
+                />
                 <ScheduleRow
                   label={H("detail.registrationCloses")}
                   value={formatWhen(hearing.registration_closes_at)}
@@ -254,9 +285,6 @@ export function HearingPublicDetailView({ hearing }: Props) {
                       : undefined
                   }
                 />
-                {hearing.hearing_end_at ? (
-                  <ScheduleRow label={H("detail.ends")} value={formatWhen(hearing.hearing_end_at)} />
-                ) : null}
               </div>
               <div className="hidden border-t border-border px-4 py-4 lg:block">
                 <p className="text-sm text-slate-600">

@@ -584,7 +584,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
               />
               <div className="min-h-[400px] min-w-0 border-b border-border px-4 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
                 {/* Step 0 - Personal */}
-                <StepPanel step={0} activeStep={activeStep} title={H("register.stepPersonal")} subtitle={H("register.stepPersonalSub")}>
+                <StepPanel step={0} activeStep={activeStep} title={H("register.stepPersonal")}>
                   <div className="grid min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-3 *:min-w-0">
                     <Field label={H("register.fullName")} name="citizen_name" required />
                     <PhoneField digits={phoneDigits} onChange={setPhoneDigits} />
@@ -929,9 +929,6 @@ function AttachmentPreviewPanel({
     return (
       <div className="flex min-h-[220px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface-muted px-6 py-8 text-center lg:min-h-[280px]">
         <p className="text-sm font-medium text-slate-600">{H("register.previewEmptyTitle")}</p>
-        <p className="mt-1 text-xs text-slate-500">
-          {H("register.previewEmptyBody")}
-        </p>
       </div>
     );
   }
@@ -1036,7 +1033,7 @@ function MediaPreviewModal({
 
 function RegistrationSuccessPanel({
   result,
-  hearing,
+  hearing: _hearing,
   onDownloadError,
 }: {
   result: HearingRegisterResult;
@@ -1045,8 +1042,10 @@ function RegistrationSuccessPanel({
 }) {
   const { locale, t } = useI18n();
   const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
-  const hearingWhen = formatHearingWhen(hearing.hearing_date, locale);
   const [downloading, setDownloading] = useState(false);
+
+  // Kept for re-enable; citizen PDF download is hidden from the success UI.
+  const SHOW_CITIZEN_PDF_DOWNLOAD = false;
 
   const handleDownloadPdf = async () => {
     if (downloading) return;
@@ -1069,7 +1068,7 @@ function RegistrationSuccessPanel({
 
   return (
     <div className="w-full overflow-hidden rounded-lg border border-emerald-200 bg-white">
-      <div className="border-b border-emerald-100 bg-emerald-50/50 px-4 py-10 text-center sm:px-8 lg:px-12 lg:py-12">
+      <div className="px-4 py-10 text-center sm:px-8 lg:px-12 lg:py-12">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-500 text-xl font-bold text-emerald-700">
           ✓
         </div>
@@ -1088,101 +1087,25 @@ function RegistrationSuccessPanel({
           <p className="mt-2 text-xs text-slate-600 sm:text-sm">
             {H("success.refHint")}
           </p>
-          <div className="mt-5 flex flex-col items-center gap-2">
-            <Button
-              type="button"
-              variant="primary"
-              size="md"
-              loading={downloading}
-              onClick={() => void handleDownloadPdf()}
-              className="inline-flex items-center gap-2"
-            >
-              <Icon name="download" size={16} />
-              {H("success.downloadPdf")}
-            </Button>
-            <p className="text-xs text-slate-500">{H("success.downloadHint")}</p>
-          </div>
+          {SHOW_CITIZEN_PDF_DOWNLOAD ? (
+            <div className="mt-5 flex flex-col items-center gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                loading={downloading}
+                onClick={() => void handleDownloadPdf()}
+                className="inline-flex items-center gap-2"
+              >
+                <Icon name="download" size={16} />
+                {H("success.downloadPdf")}
+              </Button>
+              <p className="text-xs text-slate-500">{H("success.downloadHint")}</p>
+            </div>
+          ) : null}
         </div>
       </div>
-
-      <div className="grid gap-6 px-4 py-8 sm:px-8 lg:grid-cols-2 lg:gap-8 lg:px-12 lg:py-10">
-        <SuccessInfoBlock title={H("success.whatIsTitle")}>
-          <p>{H("success.whatIsBody")}</p>
-        </SuccessInfoBlock>
-
-        <SuccessInfoBlock title={H("success.howTitle")}>
-          <ul className="list-disc space-y-1.5 pl-5">
-            <li>{H("success.how1")}</li>
-            <li>{H("success.how2")}</li>
-            <li>{H("success.how3")}</li>
-          </ul>
-        </SuccessInfoBlock>
-
-        <SuccessInfoBlock title={H("success.nextTitle")} className="lg:col-span-2">
-          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">{H("success.next1Title")}</span>
-              <span className="mt-1 block text-sm text-slate-600">
-                {H("success.next1Body", { when: hearingWhen })}
-              </span>
-            </li>
-            <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">{H("success.next2Title")}</span>
-              <span className="mt-1 block text-sm text-slate-600">
-                {H("success.next2Body")}
-              </span>
-            </li>
-            <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">{H("success.next3Title")}</span>
-              <span className="mt-1 block text-sm text-slate-600">
-                {H("success.next3Body")}
-              </span>
-            </li>
-            <li className="rounded-lg border border-border bg-surface-muted p-4">
-              <span className="font-medium text-slate-900">{H("success.next4Title")}</span>
-              <span className="mt-1 block text-sm text-slate-600">
-                {H("success.next4Body")}
-              </span>
-            </li>
-          </ol>
-        </SuccessInfoBlock>
-
-        <SuccessInfoBlock title={H("success.resolveTitle")} className="lg:col-span-2">
-          <ul className="grid gap-3 sm:grid-cols-3">
-            <li className="rounded-lg border border-border bg-surface-muted p-4 text-sm">
-              {H("success.resolve1")}
-            </li>
-            <li className="rounded-lg border border-border bg-surface-muted p-4 text-sm">
-              {H("success.resolve2")}
-            </li>
-            <li className="rounded-lg border border-border bg-surface-muted p-4 text-sm">
-              {H("success.resolve3")}
-            </li>
-          </ul>
-        </SuccessInfoBlock>
-      </div>
-
-      <p className="mx-4 mb-8 rounded-lg border border-border bg-surface-muted px-4 py-3 text-center text-xs leading-relaxed text-slate-600 sm:mx-8 lg:mx-12">
-        {H("success.footer")}
-      </p>
     </div>
-  );
-}
-
-function SuccessInfoBlock({
-  title,
-  children,
-  className,
-}: {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={cn("min-w-0 text-sm leading-relaxed text-slate-700", className)}>
-      <h3 className="wrap-break-word text-sm font-bold text-navy-800">{title}</h3>
-      <div className="mt-2 min-w-0 wrap-break-word">{children}</div>
-    </section>
   );
 }
 
