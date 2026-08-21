@@ -10,7 +10,7 @@ type Props = {
   className?: string;
 };
 
-/** Banner carousel: fixed frame height; static when one image; 3s autoplay + arrows when multiple. */
+/** Banner carousel: full image on mobile; cover-fill on desktop; 3s autoplay + arrows when multiple. */
 export function HearingBannerCarousel({ images, className }: Props) {
   const slides = images.length > 0 ? images : [];
   const multi = slides.length > 1;
@@ -36,7 +36,7 @@ export function HearingBannerCarousel({ images, className }: Props) {
   return (
     <div
       className={cn(
-        "relative h-[12.5rem] w-full overflow-hidden sm:h-full sm:min-h-[20rem] lg:min-h-[24rem]",
+        "relative aspect-video w-full overflow-hidden bg-navy-900 sm:aspect-auto sm:h-full sm:min-h-[20rem] lg:min-h-[24rem]",
         className,
       )}
       onMouseEnter={() => setPaused(true)}
@@ -46,14 +46,14 @@ export function HearingBannerCarousel({ images, className }: Props) {
       <img
         src={current}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain object-center sm:object-cover"
       />
       {multi ? (
         <>
           <button
             type="button"
             aria-label="Previous banner"
-            className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white hover:bg-black/60 sm:left-3"
+            className="absolute bottom-3 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 text-white hover:bg-black/60 sm:left-3 sm:top-1/2 sm:h-8 sm:w-8 sm:-translate-y-1/2 sm:bottom-auto"
             onClick={() => setIndex((current) => (current - 1 + slides.length) % slides.length)}
           >
             <Icon name="chevron-right" size={16} className="rotate-180" />
@@ -61,7 +61,7 @@ export function HearingBannerCarousel({ images, className }: Props) {
           <button
             type="button"
             aria-label="Next banner"
-            className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white hover:bg-black/60 sm:right-3"
+            className="absolute bottom-3 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 text-white hover:bg-black/60 sm:right-3 sm:top-1/2 sm:h-8 sm:w-8 sm:-translate-y-1/2 sm:bottom-auto"
             onClick={() => setIndex((current) => (current + 1) % slides.length)}
           >
             <Icon name="chevron-right" size={16} />
