@@ -90,7 +90,7 @@ export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: Da
                 <strong className="font-bold text-white">{summary.total_count}</strong>{" "}
                 <Bi en="grievances on record across 30 districts -" or="ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲାରେ ମୋଟ ଅଭିଯୋଗ -" />{" "}
                 <strong className="font-bold text-white">{openCount}</strong>{" "}
-                <Bi en="awaiting action." or="କାର୍ଯ୍ୟ ବାକି।" />
+                <Bi en="awaiting action." or="କାର୍ଯ୍ୟ ବାକି ।" />
               </p>
             </div>
           </div>
@@ -154,7 +154,7 @@ export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: Da
           <span className="text-xs leading-snug text-text-muted">
             <Bi
               en="Review cases, reply via WhatsApp, and advance lifecycle stages."
-              or="କେସ ସମୀକ୍ଷା, WhatsApp ଉତ୍ତର ଓ ଜୀବନଚକ୍ର।"
+              or="କେସ ସମୀକ୍ଷା, WhatsApp ଉତ୍ତର ଓ ଜୀବନଚକ୍ର ।"
             />
           </span>
           <span className="mt-auto text-xs font-bold text-navy-700">
@@ -223,7 +223,7 @@ export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: Da
         <Card className="overflow-hidden p-0 md:p-0">
           {grievances.length === 0 ? (
             <p className="py-10 text-center text-sm text-text-muted">
-              <Bi en="No grievances on record yet." or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ।" />
+              <Bi en="No grievances on record yet." or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ ।" />
             </p>
           ) : (
             grievances.map((g) => (
