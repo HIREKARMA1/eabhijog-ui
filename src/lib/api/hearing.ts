@@ -259,6 +259,12 @@ export async function closeHearingRegistration(hearingId: number) {
   });
 }
 
+export async function reopenHearingRegistration(hearingId: number) {
+  return apiRequest<HearingActionResult>(`/api/hearings/${hearingId}/reopen-registration`, {
+    method: "POST",
+  });
+}
+
 export async function deleteHearing(hearingId: number) {
   return apiRequest<HearingActionResult>(`/api/hearings/${hearingId}`, {
     method: "DELETE",
