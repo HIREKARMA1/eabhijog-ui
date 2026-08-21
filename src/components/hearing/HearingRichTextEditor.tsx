@@ -63,12 +63,15 @@ export function HearingRichTextEditor({
     onHtmlChange?.(next);
   }
 
+  // Initialize once on mount only. Remount via `key` when locale/content source changes.
+  // Re-applying defaultValue on every parent state update resets the caret and reverses typing.
   useEffect(() => {
     const el = editorRef.current;
     if (!el) return;
     el.innerHTML = defaultValue || "<p></p>";
     syncHidden();
-  }, [defaultValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only init
+  }, []);
 
   function run(command: string, value?: string) {
     editorRef.current?.focus();
@@ -128,6 +131,7 @@ export function HearingRichTextEditor({
           aria-multiline="true"
           aria-labelledby={labelId}
           contentEditable
+          dir="ltr"
           suppressContentEditableWarning
           className={cn(
             "px-3 py-2 text-sm leading-relaxed text-slate-800 outline-none",
