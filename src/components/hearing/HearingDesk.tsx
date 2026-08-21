@@ -42,6 +42,7 @@ import {
   finalizeHearingShortlist,
   notifyHearingApproved,
   recordHearingRemarks,
+  reopenHearingRegistration,
   screenHearingRegistration,
   sendHearingRegistrationWhatsApp,
   startHearing,
@@ -74,6 +75,15 @@ function formatWhen(iso: string | null | undefined) {
   } catch {
     return iso;
   }
+}
+
+/** Convert an ISO timestamp to local `YYYY-MM-DDTHH:mm` for DateTimePicker. */
+function toDateTimeLocalValue(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function publicHearingPath(hearingId: number) {
@@ -311,11 +321,24 @@ function EventPageDetailsForm({
           setLocaleTab("en");
           return;
         }
+        const hearingDate = String(form.get("hearing_date") || "");
+        const hearingEnd = String(form.get("hearing_end_at") || "");
+        const opensAt = String(form.get("registration_opens_at") || "");
+        const closesAt = String(form.get("registration_closes_at") || "");
+        if (!hearingDate || !opensAt || !closesAt) {
+          onError("Hearing start and registration open/close times are required.");
+          return;
+        }
         onSave({
           ...localized,
           banner_image_urls: parseBannerUrlsFromForm(form),
           venue: String(form.get("venue") || ""),
           hosted_by: String(form.get("hosted_by") || ""),
+          google_meet_link: String(form.get("google_meet_link") || ""),
+          hearing_date: new Date(hearingDate).toISOString(),
+          hearing_end_at: hearingEnd ? new Date(hearingEnd).toISOString() : null,
+          registration_opens_at: new Date(opensAt).toISOString(),
+          registration_closes_at: new Date(closesAt).toISOString(),
         });
       }}
     >
@@ -330,6 +353,50 @@ function EventPageDetailsForm({
         expectDefault={DEFAULT_HEARING_WHAT_TO_EXPECT}
         notesDefault={DEFAULT_HEARING_IMPORTANT_NOTES}
       />
+      <div className="text-sm">
+        <span className="mb-1 block font-medium">Hearing start</span>
+        <DateTimePicker
+          name="hearing_date"
+          required
+          defaultValue={toDateTimeLocalValue(hearing.hearing_date)}
+          placeholder="Select hearing start"
+        />
+      </div>
+      <div className="text-sm">
+        <span className="mb-1 block font-medium">Hearing end</span>
+        <DateTimePicker
+          name="hearing_end_at"
+          defaultValue={toDateTimeLocalValue(hearing.hearing_end_at)}
+          placeholder="Select hearing end (optional)"
+        />
+      </div>
+      <div className="text-sm">
+        <span className="mb-1 block font-medium">Registration opens</span>
+        <DateTimePicker
+          name="registration_opens_at"
+          required
+          defaultValue={toDateTimeLocalValue(hearing.registration_opens_at)}
+          placeholder="Select registration open time"
+        />
+      </div>
+      <div className="text-sm">
+        <span className="mb-1 block font-medium">Registration closes</span>
+        <DateTimePicker
+          name="registration_closes_at"
+          required
+          defaultValue={toDateTimeLocalValue(hearing.registration_closes_at)}
+          placeholder="Select registration close time"
+        />
+      </div>
+      <label className="text-sm sm:col-span-2">
+        <span className="mb-1 block font-medium">Google Meet link</span>
+        <input
+          name="google_meet_link"
+          defaultValue={hearing.google_meet_link || ""}
+          placeholder="https://meet.google.com/..."
+          className="min-h-11 w-full rounded-xl border bg-white px-3 py-2"
+        />
+      </label>
       <label className="text-sm">
         <span className="mb-1 block font-medium">Mode</span>
         <input
@@ -905,35 +972,27 @@ export function HearingDesk({ canManage }: Props) {
                             {hearing.hosted_by}
                           </p>
                         ) : null}
+                        <p className="mt-1">
+                          <span className="font-medium text-slate-500">Registration:</span>{" "}
+                          {formatWhen(hearing.registration_opens_at)} –{" "}
+                          {formatWhen(hearing.registration_closes_at)}
+                        </p>
+                        {hearing.google_meet_link ? (
+                          <p className="mt-1 break-all">
+                            <span className="font-medium text-slate-500">Meet:</span>{" "}
+                            {hearing.google_meet_link}
+                          </p>
+                        ) : (
+                          <p className="mt-1 text-amber-800">Meet link not set yet.</p>
+                        )}
                         {canManage ? (
                           <p className="mt-2 text-xs text-slate-500">
-                            Use Edit hearing to change title, languages, and event page copy.
+                            Use Edit hearing to change dates, Meet link, title, languages, and event
+                            page copy.
                           </p>
                         ) : null}
                       </div>
                     )}
-                    {canManage && !hearing.google_meet_link ? (
-                      <form
-                        className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          const link = new FormData(e.currentTarget).get("google_meet_link");
-                          runAction(async () => {
-                            await updateHearing(hearing.id, { google_meet_link: String(link || "") });
-                            return { data: { message: "Meet link saved." } };
-                          });
-                        }}
-                      >
-                        <input
-                          name="google_meet_link"
-                          placeholder="Add Google Meet link"
-                          className="w-full min-w-0 flex-1 rounded-xl border px-3 py-2 text-sm sm:min-w-60"
-                        />
-                        <Button type="submit" size="sm" loading={busy} className="min-h-11 w-full sm:w-auto">
-                          Save link
-                        </Button>
-                      </form>
-                    ) : null}
                   </>
                 ) : null}
 
@@ -949,6 +1008,19 @@ export function HearingDesk({ canManage }: Props) {
                       onClick={() => runAction(() => closeHearingRegistration(hearing.id))}
                     >
                       Close registration
+                    </ActionButton>
+                  ) : null}
+                  {canManage &&
+                  !shortlistFinalized &&
+                  (hearing.status === "screening" || hearing.status === "registration_closed") ? (
+                    <ActionButton
+                      className="col-span-2 sm:col-auto"
+                      size="sm"
+                      variant="secondary"
+                      loading={busy}
+                      onClick={() => runAction(() => reopenHearingRegistration(hearing.id))}
+                    >
+                      Reopen registration
                     </ActionButton>
                   ) : null}
                   <ActionButton
