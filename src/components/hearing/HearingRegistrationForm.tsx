@@ -609,7 +609,6 @@ export function HearingRegistrationForm({ hearing }: Props) {
                       name="preferred_language"
                       value={preferredLanguage}
                       onChange={setPreferredLanguage}
-                      hint={H("register.preferredLanguageHint")}
                       options={LANGUAGE_VALUES.map((lang) => ({ value: lang, label: H(`languages.${lang}`) }))}
                     />
                   </div>
@@ -629,7 +628,6 @@ export function HearingRegistrationForm({ hearing }: Props) {
                         value={serviceCategory}
                         onChange={setServiceCategory}
                         placeholder={H("register.selectCategory")}
-                        hint={H("register.serviceCategoryHint")}
                         options={SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: H(c.key) }))}
                       />
                     </div>
@@ -650,7 +648,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 </StepPanel>
 
                 {/* Step 2 - Attachments */}
-                <StepPanel step={2} activeStep={activeStep} title={H("register.stepFilesTitle")} subtitle={H("register.stepFilesSub")}>
+                <StepPanel step={2} activeStep={activeStep} title={H("register.stepFilesTitle")}>
                   <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
                     <div>
                       <div className="rounded-lg border-2 border-dashed border-slate-300 bg-surface-muted px-6 py-10 text-center">
@@ -725,7 +723,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 </StepPanel>
 
                 {/* Step 3 - Review */}
-                <StepPanel step={3} activeStep={activeStep} title={H("register.stepReview")} subtitle={H("register.stepReviewSub")}>
+                <StepPanel step={3} activeStep={activeStep}>
                   <div className="grid gap-4 lg:grid-cols-2">
                     <ReviewBlock title={H("register.reviewPersonal")}>
                       <ReviewRow label={H("register.reviewName")} value={reviewSnapshot.name} />
@@ -1221,8 +1219,8 @@ function StepPanel({
 }: {
   step: number;
   activeStep: number;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   children: React.ReactNode;
 }) {
   const isActive = step === activeStep;
@@ -1232,12 +1230,14 @@ function StepPanel({
       className={cn("min-w-0", !isActive && "hidden")}
       aria-hidden={!isActive || undefined}
     >
-      {isActive ? (
+      {isActive && title ? (
         <div className="mb-8 min-w-0 border-l-4 border-saffron pl-4">
           <h2 className="wrap-break-word text-xl font-bold text-slate-900 sm:text-2xl">
             {title}
           </h2>
-          <p className="mt-1 wrap-break-word text-sm text-slate-600">{subtitle}</p>
+          {subtitle ? (
+            <p className="mt-1 wrap-break-word text-sm text-slate-600">{subtitle}</p>
+          ) : null}
         </div>
       ) : null}
       {children}
