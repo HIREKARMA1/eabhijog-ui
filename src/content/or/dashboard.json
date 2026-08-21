@@ -29,7 +29,7 @@
     "whatsappInflow": "WhatsApp ପ୍ରବାହ (7d)"
   },
   "table": {
-    "reference": "ସନ୍ଦର୍ଭ",
+    "reference": "ଟ୍ରାକିଂ",
     "district": "ଜିଲ୍ଲା",
     "category": "ବର୍ଗ",
     "status": "ସ୍ଥିତି",
@@ -44,7 +44,7 @@
     "status": "ସ୍ଥିତି",
     "district": "ଜିଲ୍ଲା",
     "category": "ବର୍ଗ",
-    "search": "ସନ୍ଦର୍ଭ କିମ୍ବା ଶୀର୍ଷକ ଖୋଜନ୍ତୁ",
+    "search": "ଟ୍ରାକିଂ କିମ୍ବା ଶୀର୍ଷକ ଖୋଜନ୍ତୁ",
     "apply": "ଲାଗୁ କରନ୍ତୁ",
     "clear": "ସଫା"
   },

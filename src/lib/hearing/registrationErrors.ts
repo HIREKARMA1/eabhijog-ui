@@ -13,7 +13,7 @@ function alreadyRegisteredMessage(lang: HearingLang, reference: string): string 
     return `आप पहले ही इस सुनवाई के लिए पंजीकरण कर चुके हैं। आपकी संदर्भ ID ${ref} है। कृपया WhatsApp पर अपडेट देखें - दोबारा पंजीकरण करने की जरूरत नहीं है।`;
   }
   if (lang === "or") {
-    return `ଆପଣ ଏହି ଶୁଣାଣି ପାଇଁ ପୂର୍ବରୁ ପଞ୍ଜିକରଣ କରିସାରିଛନ୍ତି । ଆପଣଙ୍କ ସନ୍ଦର୍ଭ ID ${ref} । ଦୟାକରି WhatsApp ରେ ଅପଡେଟ୍ ଦେଖନ୍ତୁ - ପୁନଃ ପଞ୍ଜିକରଣ ଆବଶ୍ୟକ ନୁହେଁ ।`;
+    return `ଆପଣ ଏହି ଶୁଣାଣି ପାଇଁ ପୂର୍ବରୁ ପଞ୍ଜିକରଣ କରିସାରିଛନ୍ତି। ଆପଣଙ୍କ ଟ୍ରାକିଂ ID ${ref}। ଦୟାକରି WhatsApp ରେ ଅପଡେଟ୍ ଦେଖନ୍ତୁ - ପୁନଃ ପଞ୍ଜିକରଣ ଆବଶ୍ୟକ ନୁହେଁ।`;
   }
   return `You have already registered for this hearing. Your reference ID is ${ref}. Please check WhatsApp for updates - you do not need to register again.`;
 }
