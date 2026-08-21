@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n/types";
+import { defaultHearingTitle } from "@/lib/hearing/eventDefaults";
 import type { HearingLocaleContent, HearingPublicSummary } from "@/types/api";
 
 export type HearingContentFields = {
@@ -27,7 +28,10 @@ export function resolveHearingContent(
   locale: Locale,
 ): HearingContentFields {
   const override = pickLocaleOverride(hearing.content_i18n, locale);
-  const title = override?.title?.trim() || hearing.title;
+  const title =
+    override?.title?.trim() ||
+    hearing.title?.trim() ||
+    defaultHearingTitle(locale);
   const description = override?.description?.trim() || hearing.description || "";
   const what_to_expect =
     override?.what_to_expect?.trim() || hearing.what_to_expect || "";

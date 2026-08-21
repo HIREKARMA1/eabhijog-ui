@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Icon } from "@/components/icons/Icon";
+import { HearingBannerCarousel } from "@/components/hearing/HearingBannerCarousel";
 import { HearingRichTextContent } from "@/components/hearing/HearingRichTextContent";
 import { GovtNavbar } from "@/components/shell/GovtNavbar";
 import { PortalFooter } from "@/components/shell/PortalFooter";
@@ -81,7 +82,12 @@ export function HearingPublicDetailView({ hearing }: Props) {
   const content = resolveHearingContent(hearing, locale);
   const closesSoon =
     hearing.registration_open && msUntil(hearing.registration_closes_at) <= 48 * 60 * 60 * 1000;
-  const bannerSrc = hearing.banner_image_url?.trim() || DEFAULT_BANNER;
+  const bannerImages =
+    hearing.banner_image_urls?.filter((url) => url.trim()).length
+      ? hearing.banner_image_urls.filter((url) => url.trim())
+      : hearing.banner_image_url?.trim()
+        ? [hearing.banner_image_url.trim()]
+        : [DEFAULT_BANNER];
   const venue = hearing.venue?.trim() || "Online (Google Meet)";
   const hostedBy = hearing.hosted_by?.trim() || "";
   const descriptionHtml = toEditorHtml(content.description || "");
@@ -96,37 +102,14 @@ export function HearingPublicDetailView({ hearing }: Props) {
       <GovtNavbar homeHref="/" />
 
       <section className="relative overflow-hidden bg-navy-900">
-        {/* Mobile: full banner in flow. sm+: cover hero with text overlay. */}
         <div className="relative sm:min-h-[20rem] lg:min-h-[24rem]">
-          {/* Mobile: slightly taller full-bleed strip. sm+: cover hero. */}
           <div className="overflow-hidden sm:absolute sm:inset-0">
-            {/* Default SVG or admin-provided remote URL */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={bannerSrc}
-              alt=""
-              className="relative left-1/2 block h-auto w-[118%] max-w-none -translate-x-1/2 sm:absolute sm:inset-0 sm:left-0 sm:h-full sm:w-full sm:translate-x-0 sm:object-cover"
-            />
+            <HearingBannerCarousel images={bannerImages} className="w-full" />
           </div>
           <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-t from-navy-900/90 via-navy-900/45 to-navy-900/20 sm:block" />
           <div className="relative mx-auto flex w-full max-w-[1920px] flex-col justify-end bg-navy-900 px-4 pb-8 pt-6 sm:absolute sm:inset-0 sm:min-h-[20rem] sm:bg-transparent sm:px-6 sm:pb-8 sm:pt-10 lg:min-h-[24rem] lg:px-10 lg:pb-10">
-            <nav className="mb-auto flex flex-wrap items-center gap-2 text-sm text-white/80">
-              <Link href="/" className="font-medium text-white hover:text-saffron hover:underline">
-                {t("common", "brand.name")}
-              </Link>
-              <Icon name="chevron-right" size={14} className="text-white/50" />
-              <Link href="/hearing" className="font-medium text-white hover:text-saffron hover:underline">
-                {H("list.breadcrumb")}
-              </Link>
-              <Icon name="chevron-right" size={14} className="text-white/50" />
-              <span className="truncate text-white/70">{content.title}</span>
-            </nav>
-
-            <div className="mt-6 max-w-4xl sm:mt-10">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-saffron">
-                {H("detail.kicker")}
-              </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="max-w-4xl">
+              <div className="flex flex-wrap items-center gap-2">
                 <RegistrationBadge
                   open={hearing.registration_open}
                   status={hearing.status}
@@ -158,21 +141,33 @@ export function HearingPublicDetailView({ hearing }: Props) {
                   </span>
                 ) : null}
               </div>
+              {hearing.registration_open ? (
+                <Link
+                  href={`/hearing/${hearing.id}/register`}
+                  className="mt-5 inline-flex items-center justify-center rounded-lg bg-saffron px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron/90"
+                >
+                  {H("detail.registerCta")}
+                  <Icon name="chevron-right" size={16} className="ml-1.5" />
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>
       </section>
 
-      <main className="mx-auto w-full max-w-[1920px] flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+      <main
+        className={cn(
+          "mx-auto w-full max-w-[1920px] flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8",
+          hearing.registration_open && "pb-24 lg:pb-8",
+        )}
+      >
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start xl:grid-cols-[minmax(0,1fr)_24rem]">
           <div className="space-y-5">
             <section className="overflow-hidden rounded-xl border border-border bg-white">
               <div className="border-b border-border bg-surface-muted px-4 py-4 sm:px-6">
                 <div className="border-l-4 border-saffron pl-4">
                   <h2 className="text-lg font-bold text-slate-900">{H("detail.aboutTitle")}</h2>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {H("detail.aboutLead")}
-                  </p>
+                  <p className="mt-1 text-sm text-slate-600">{H("detail.aboutLead")}</p>
                 </div>
               </div>
               <div className="px-4 py-5 sm:px-6">
@@ -182,9 +177,7 @@ export function HearingPublicDetailView({ hearing }: Props) {
                     className="sm:text-[0.9375rem]"
                   />
                 ) : (
-                  <p className="text-sm text-slate-500">
-                    {H("detail.noDescription")}
-                  </p>
+                  <p className="text-sm text-slate-500">{H("detail.noDescription")}</p>
                 )}
 
                 <dl className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -207,9 +200,7 @@ export function HearingPublicDetailView({ hearing }: Props) {
                 <div className="border-b border-border bg-surface-muted px-4 py-4 sm:px-6">
                   <div className="border-l-4 border-saffron pl-4">
                     <h2 className="text-lg font-bold text-slate-900">{H("detail.expectTitle")}</h2>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {H("detail.expectLead")}
-                    </p>
+                    <p className="mt-1 text-sm text-slate-600">{H("detail.expectLead")}</p>
                   </div>
                 </div>
                 <div className="px-4 py-5 sm:px-6">
@@ -255,10 +246,6 @@ export function HearingPublicDetailView({ hearing }: Props) {
               <div className="space-y-3 px-4 py-4">
                 <ScheduleRow label={H("detail.hearing")} value={formatWhen(hearing.hearing_date)} />
                 <ScheduleRow
-                  label={H("detail.registrationOpens")}
-                  value={formatWhen(hearing.registration_opens_at)}
-                />
-                <ScheduleRow
                   label={H("detail.registrationCloses")}
                   value={formatWhen(hearing.registration_closes_at)}
                   hint={
@@ -271,11 +258,9 @@ export function HearingPublicDetailView({ hearing }: Props) {
                   <ScheduleRow label={H("detail.ends")} value={formatWhen(hearing.hearing_end_at)} />
                 ) : null}
               </div>
-              <div className="border-t border-border px-4 py-4">
+              <div className="hidden border-t border-border px-4 py-4 lg:block">
                 <p className="text-sm text-slate-600">
-                  {hearing.registration_open
-                    ? H("detail.openBody")
-                    : H("detail.closedBody")}
+                  {hearing.registration_open ? H("detail.openBody") : H("detail.closedBody")}
                 </p>
                 <div className="mt-3 flex flex-col gap-2">
                   {hearing.registration_open ? (
@@ -293,6 +278,18 @@ export function HearingPublicDetailView({ hearing }: Props) {
           </aside>
         </div>
       </main>
+
+      {hearing.registration_open ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(15,23,42,0.08)] backdrop-blur lg:hidden">
+          <Link
+            href={`/hearing/${hearing.id}/register`}
+            className="inline-flex w-full items-center justify-center rounded-lg bg-saffron px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-saffron/90"
+          >
+            {H("detail.registerCta")}
+            <Icon name="chevron-right" size={16} className="ml-1.5" />
+          </Link>
+        </div>
+      ) : null}
 
       <PortalFooter />
     </div>
