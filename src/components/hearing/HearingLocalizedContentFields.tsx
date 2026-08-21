@@ -1,6 +1,7 @@
 "use client";
 
 import { HearingRichTextEditor } from "@/components/hearing/HearingRichTextEditor";
+import { defaultHearingTitle } from "@/lib/hearing/eventDefaults";
 import { toEditorHtml } from "@/lib/hearing/richText";
 import { cn } from "@/lib/utils/cn";
 import type { HearingLocaleContent } from "@/types/api";
@@ -50,7 +51,7 @@ export function buildContentI18nPayload(bundle: HearingLocaleBundle) {
   for (const locale of ["hi", "or"] as const) {
     const block = bundle[locale];
     const cleaned: HearingLocaleContent = {
-      title: (block.title || "").trim(),
+      title: (block.title || "").trim() || defaultHearingTitle(locale),
       description: block.description || "",
       what_to_expect: block.what_to_expect || "",
       important_notes: block.important_notes || "",
@@ -65,7 +66,7 @@ export function buildContentI18nPayload(bundle: HearingLocaleBundle) {
     }
   }
   return {
-    title: (bundle.en.title || "").trim(),
+    title: (bundle.en.title || "").trim() || defaultHearingTitle("en"),
     description: bundle.en.description || "",
     what_to_expect: bundle.en.what_to_expect || "",
     important_notes: bundle.en.important_notes || "",
@@ -146,6 +147,9 @@ export function HearingLocalizedContentFields({
     onChange({ ...values, ...partial });
   }
 
+  const titleDefault = defaultHearingTitle(locale);
+  const titleValue = values.title?.trim() ? values.title : titleDefault;
+
   const expectValue =
     values.what_to_expect && values.what_to_expect.trim()
       ? values.what_to_expect
@@ -166,9 +170,14 @@ export function HearingLocalizedContentFields({
           Title {required ? <span className="text-red-600">*</span> : null}
         </span>
         <input
-          value={values.title || ""}
+          value={titleValue}
           required={required}
           onChange={(e) => patch({ title: e.target.value })}
+          onFocus={() => {
+            if (!(values.title || "").trim()) {
+              patch({ title: titleDefault });
+            }
+          }}
           placeholder={optionalHint}
           className="w-full rounded-xl border bg-white px-3 py-2.5 min-h-11"
         />

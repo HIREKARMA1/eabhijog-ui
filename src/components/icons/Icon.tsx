@@ -12,7 +12,9 @@ export type IconName =
   | "close"
   | "chevron-right"
   | "copy"
-  | "external-link";
+  | "external-link"
+  | "download"
+  | "message";
 
 type IconProps = SVGProps<SVGSVGElement> & {
   name: IconName;
@@ -99,6 +101,20 @@ const paths: Record<IconName, ReactNode> = {
       <path d="M14 4h6v6" />
       <path d="M10 14L20 4" />
       <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M12 4v10" />
+      <path d="M8 10l4 4 4-4" />
+      <path d="M5 19h14" />
+    </>
+  ),
+  message: (
+    <>
+      <path d="M4 6h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z" />
+      <path d="M8 11h8" />
+      <path d="M8 14h5" />
     </>
   ),
 };

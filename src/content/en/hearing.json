@@ -227,6 +227,9 @@
     "lead": "Your grievance has been submitted for the Online Grievance Hearing. Please save the reference number below for future tracking.",
     "refLabel": "Your grievance reference ID",
     "refHint": "Screenshot or note this number. You will need it for any follow-up.",
+    "downloadPdf": "Download PDF",
+    "downloadHint": "Save this report for your records.",
+    "pdfFailed": "Could not download PDF. Please try again.",
     "whatIsTitle": "What is this reference ID?",
     "whatIsBody": "This is your unique grievance ID in the Jana Samadhan portal. It is created when your registration is saved and stays the same for this grievance through screening, hearing, and department follow-up.",
     "howTitle": "How it helps you track your grievance",
@@ -267,5 +270,23 @@
     "s7Title": "7. Resolution",
     "s7Body": "Directions given during the hearing are recorded and forwarded to the relevant department for action. Time frames for resolution depend on the nature of the grievance and departmental process. The portal will communicate material updates via WhatsApp where applicable.",
     "closeHint": "You may close this page and return to your registration form to continue."
+  },
+  "desk": {
+    "filterStatus": "Status",
+    "filterCategory": "Service category",
+    "all": "All",
+    "statusPending": "Pending",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "downloadPdf": "Download PDF",
+    "pdfFailed": "Could not download PDF",
+    "sendWhatsApp": "Send WhatsApp",
+    "whatsappTitle": "Message citizen on WhatsApp",
+    "whatsappHint": "This message will be sent to the registered WhatsApp number.",
+    "whatsappPlaceholder": "Type your message…",
+    "whatsappSend": "Send",
+    "whatsappCancel": "Cancel",
+    "whatsappQueued": "WhatsApp message sent.",
+    "whatsappFailed": "Could not send WhatsApp message"
   }
 }

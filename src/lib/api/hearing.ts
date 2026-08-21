@@ -34,7 +34,16 @@ export const SERVICE_CATEGORY_SLUGS: Record<string, string> = {
   "Steel & Mines": "steel-mines",
   "Ganjam District": "ganjam-district",
   "Gopalpur Constituency": "gopalpur-constituency",
+  Others: "others",
 };
+
+export const HEARING_DESK_CATEGORIES = [
+  { value: "Commerce & Transport", key: "categories.commerce" },
+  { value: "Steel & Mines", key: "categories.steel" },
+  { value: "Ganjam District", key: "categories.ganjam" },
+  { value: "Gopalpur Constituency", key: "categories.gopalpur" },
+  { value: "Others", key: "categories.others" },
+] as const;
 
 export async function registerForHearing(
   hearingId: number,
@@ -98,11 +107,15 @@ export async function fetchHearingRegistrations(
 
 export async function exportHearingRegistrationsCsv(
   hearingId: number,
-  screeningStatus?: string,
+  opts?: { screeningStatus?: string; serviceCategory?: string } | string,
 ) {
   const base = getClientApiBase();
   const qs = new URLSearchParams();
+  const screeningStatus =
+    typeof opts === "string" ? opts : opts?.screeningStatus;
+  const serviceCategory = typeof opts === "string" ? undefined : opts?.serviceCategory;
   if (screeningStatus) qs.set("screening_status", screeningStatus);
+  if (serviceCategory) qs.set("service_category", serviceCategory);
   const suffix = qs.toString() ? `?${qs.toString()}` : "";
   const res = await fetch(
     `${base}/api/hearings/${hearingId}/registrations/export${suffix}`,
@@ -123,6 +136,95 @@ export async function exportHearingRegistrationsCsv(
   const filename =
     match?.[1] ||
     `hearing_${hearingId}_registrations${screeningStatus ? `_${screeningStatus}` : ""}.csv`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadHearingRegistrationPdf(
+  hearingId: number,
+  registrationId: number,
+  lang: string = "en",
+) {
+  const base = getClientApiBase();
+  const qs = new URLSearchParams({
+    lang: lang === "hi" || lang === "or" ? lang : "en",
+  });
+  const res = await fetch(
+    `${base}/api/hearings/${hearingId}/registrations/${registrationId}/pdf?${qs}`,
+    { credentials: "include" },
+  );
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (payload as { error?: { message?: string }; message?: string }).error?.message
+        ?? (payload as { message?: string }).message
+        ?? "Could not download PDF",
+      res.status,
+    );
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const match = /filename="([^"]+)"/i.exec(disposition);
+  const filename = match?.[1] || `hearing-${hearingId}-reg-${registrationId}.pdf`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export async function sendHearingRegistrationWhatsApp(
+  hearingId: number,
+  registrationId: number,
+  message: string,
+) {
+  return apiRequest<null>(
+    `/api/hearings/${hearingId}/registrations/${registrationId}/whatsapp`,
+    {
+      method: "POST",
+      body: { message },
+    },
+  );
+}
+
+export async function downloadPublicHearingRegistrationPdf(
+  hearingId: number,
+  registrationId: number,
+  referenceNumber: string,
+  lang: string = "en",
+) {
+  const base = getClientApiBase();
+  const qs = new URLSearchParams({
+    ref: referenceNumber,
+    lang: lang === "hi" || lang === "or" ? lang : "en",
+  });
+  const res = await fetch(
+    `${base}/api/public/hearings/${hearingId}/registrations/${registrationId}/pdf?${qs}`,
+  );
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (payload as { error?: { message?: string }; message?: string }).error?.message
+        ?? (payload as { message?: string }).message
+        ?? "Could not download PDF",
+      res.status,
+    );
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const match = /filename="([^"]+)"/i.exec(disposition);
+  const filename =
+    match?.[1] ||
+    `hearing-${hearingId}-${referenceNumber.replace(/\//g, "-")}.pdf`;
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/Button";
 import { SectionLoader } from "@/components/ui/Spinner";
 import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { HearingFieldLabel, HearingSelectField } from "@/components/hearing/HearingSelectField";
-import { HearingRichTextContent } from "@/components/hearing/HearingRichTextContent";
-import { registerForHearing } from "@/lib/api/hearing";
+import { downloadPublicHearingRegistrationPdf, registerForHearing } from "@/lib/api/hearing";
+import { ApiError } from "@/lib/api/client";
 import {
   formatHearingSubmitError,
   invalidPhoneMessage,
@@ -20,7 +20,6 @@ import {
 import { formatHearingWhen } from "@/lib/hearing/formatWhen";
 import { resolveHearingContent } from "@/lib/hearing/resolveContent";
 import { useI18n } from "@/lib/i18n/context";
-import { isEmptyHearingHtml, toEditorHtml } from "@/lib/hearing/richText";
 import { cn } from "@/lib/utils/cn";
 import type { HearingPublicSummary, HearingRegisterResult } from "@/types/api";
 
@@ -461,41 +460,26 @@ export function HearingRegistrationForm({ hearing }: Props) {
             <span className="truncate text-slate-600">{H("register.breadcrumbRegister")}</span>
           </nav>
 
-          <div className="mt-6 lg:flex lg:items-end lg:justify-between lg:gap-10">
-            <div className="min-w-0 flex-1">
-              <p className="block text-xs font-bold uppercase tracking-wide text-saffron sm:tracking-[0.18em]">
-                {H("register.kicker")}
-              </p>
-              <h1 className="mt-3 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-[2rem] lg:leading-tight">
-                {content.title}
-              </h1>
-              <p className="mt-3 max-w-3xl wrap-break-word text-sm leading-relaxed text-slate-600 sm:text-[0.9375rem]">
-                {H("register.intro")}
-              </p>
-              {!isEmptyHearingHtml(content.description) ? (
-                <div className="mt-2 max-w-3xl text-slate-500">
-                  <HearingRichTextContent
-                    html={toEditorHtml(content.description)}
-                    className="text-slate-500"
-                  />
-                </div>
-              ) : null}
-            </div>
+          <p className="mt-6 block text-xs font-bold uppercase tracking-wide text-saffron sm:tracking-[0.18em]">
+            {H("register.kicker")}
+          </p>
+          <h1 className="mt-3 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-[2rem] lg:leading-tight">
+            {content.title}
+          </h1>
 
-            <div className="mt-5 flex min-w-0 w-full flex-wrap gap-2 lg:mt-0 lg:max-w-md lg:w-auto lg:flex-col lg:items-end">
-              <MetaPill label={H("register.hearingLabel")} value={formatHearingWhen(hearing.hearing_date, uiLocale)} highlight />
-              <MetaPill label={H("register.closesLabel")} value={formatHearingWhen(hearing.registration_closes_at, uiLocale)} />
-              <span
-                className={cn(
-                  "inline-flex max-w-full items-center rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide",
-                  hearing.registration_open
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                    : "border-slate-200 bg-slate-50 text-slate-600",
-                )}
-              >
-                {hearing.registration_open ? H("register.registrationOpen") : H("register.registrationClosed")}
-              </span>
-            </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <MetaPill label={H("register.hearingLabel")} value={formatHearingWhen(hearing.hearing_date, uiLocale)} highlight />
+            <MetaPill label={H("register.closesLabel")} value={formatHearingWhen(hearing.registration_closes_at, uiLocale)} />
+            <span
+              className={cn(
+                "inline-flex max-w-full items-center rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide",
+                hearing.registration_open
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                  : "border-slate-200 bg-slate-50 text-slate-600",
+              )}
+            >
+              {hearing.registration_open ? H("register.registrationOpen") : H("register.registrationClosed")}
+            </span>
           </div>
         </div>
       </section>
@@ -516,7 +500,11 @@ export function HearingRegistrationForm({ hearing }: Props) {
             </Link>
           </div>
         ) : registrationResult ? (
-          <RegistrationSuccessPanel result={registrationResult} hearing={hearing} />
+          <RegistrationSuccessPanel
+            result={registrationResult}
+            hearing={hearing}
+            onDownloadError={toastError}
+          />
         ) : (
           <div className="rounded-lg border border-border bg-white">
             {/* Step stepper - connected, flat */}
@@ -621,7 +609,6 @@ export function HearingRegistrationForm({ hearing }: Props) {
                       name="preferred_language"
                       value={preferredLanguage}
                       onChange={setPreferredLanguage}
-                      hint={H("register.preferredLanguageHint")}
                       options={LANGUAGE_VALUES.map((lang) => ({ value: lang, label: H(`languages.${lang}`) }))}
                     />
                   </div>
@@ -641,7 +628,6 @@ export function HearingRegistrationForm({ hearing }: Props) {
                         value={serviceCategory}
                         onChange={setServiceCategory}
                         placeholder={H("register.selectCategory")}
-                        hint={H("register.serviceCategoryHint")}
                         options={SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: H(c.key) }))}
                       />
                     </div>
@@ -662,7 +648,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 </StepPanel>
 
                 {/* Step 2 - Attachments */}
-                <StepPanel step={2} activeStep={activeStep} title={H("register.stepFilesTitle")} subtitle={H("register.stepFilesSub")}>
+                <StepPanel step={2} activeStep={activeStep} title={H("register.stepFilesTitle")}>
                   <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
                     <div>
                       <div className="rounded-lg border-2 border-dashed border-slate-300 bg-surface-muted px-6 py-10 text-center">
@@ -737,7 +723,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 </StepPanel>
 
                 {/* Step 3 - Review */}
-                <StepPanel step={3} activeStep={activeStep} title={H("register.stepReview")} subtitle={H("register.stepReviewSub")}>
+                <StepPanel step={3} activeStep={activeStep}>
                   <div className="grid gap-4 lg:grid-cols-2">
                     <ReviewBlock title={H("register.reviewPersonal")}>
                       <ReviewRow label={H("register.reviewName")} value={reviewSnapshot.name} />
@@ -1051,13 +1037,35 @@ function MediaPreviewModal({
 function RegistrationSuccessPanel({
   result,
   hearing,
+  onDownloadError,
 }: {
   result: HearingRegisterResult;
   hearing: HearingPublicSummary;
+  onDownloadError: (message: string) => void;
 }) {
   const { locale, t } = useI18n();
   const H = (key: string, params?: Record<string, string | number>) => t("hearing", key, params);
   const hearingWhen = formatHearingWhen(hearing.hearing_date, locale);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      await downloadPublicHearingRegistrationPdf(
+        result.hearing_id,
+        result.registration_id,
+        result.reference_number,
+        locale,
+      );
+    } catch (err) {
+      onDownloadError(
+        err instanceof ApiError ? err.message : H("success.pdfFailed"),
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="w-full overflow-hidden rounded-lg border border-emerald-200 bg-white">
@@ -1080,6 +1088,20 @@ function RegistrationSuccessPanel({
           <p className="mt-2 text-xs text-slate-600 sm:text-sm">
             {H("success.refHint")}
           </p>
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              loading={downloading}
+              onClick={() => void handleDownloadPdf()}
+              className="inline-flex items-center gap-2"
+            >
+              <Icon name="download" size={16} />
+              {H("success.downloadPdf")}
+            </Button>
+            <p className="text-xs text-slate-500">{H("success.downloadHint")}</p>
+          </div>
         </div>
       </div>
 
@@ -1176,7 +1198,7 @@ function MetaPill({
   return (
     <div
       className={cn(
-        "inline-flex min-w-0 w-full max-w-full flex-col rounded-lg border px-3 py-2 sm:w-auto sm:min-w-48",
+        "inline-flex min-w-0 max-w-full flex-col rounded-lg border px-3 py-2 sm:min-w-48",
         highlight
           ? "border-saffron/40 bg-saffron/5"
           : "border-border bg-white",
@@ -1197,11 +1219,10 @@ function StepPanel({
 }: {
   step: number;
   activeStep: number;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   children: React.ReactNode;
 }) {
-  const { t } = useI18n();
   const isActive = step === activeStep;
   return (
     <div
@@ -1209,19 +1230,14 @@ function StepPanel({
       className={cn("min-w-0", !isActive && "hidden")}
       aria-hidden={!isActive || undefined}
     >
-      {isActive ? (
+      {isActive && title ? (
         <div className="mb-8 min-w-0 border-l-4 border-saffron pl-4">
-          <h2 className="wrap-break-word text-xl text-slate-900 sm:text-2xl">
-            <span className="font-bold">{title}</span>
-            <span className="font-normal text-slate-500">
-              {" "}
-              {t("hearing", "register.stepParen", {
-                current: step + 1,
-                total: STEP_DEFS.length,
-              })}
-            </span>
+          <h2 className="wrap-break-word text-xl font-bold text-slate-900 sm:text-2xl">
+            {title}
           </h2>
-          <p className="mt-1 wrap-break-word text-sm text-slate-600">{subtitle}</p>
+          {subtitle ? (
+            <p className="mt-1 wrap-break-word text-sm text-slate-600">{subtitle}</p>
+          ) : null}
         </div>
       ) : null}
       {children}
