@@ -39,7 +39,7 @@ export function GrievanceAttachments({
   if (visible.length === 0) {
     return (
       <p className="text-sm text-gray-500">
-        <Bi en="No attachments submitted." or="କୌଣସି ସଂଲଗ୍ନ ଦାଖଲ ହୋଇନାହିଁ।" />
+        <Bi en="No attachments submitted." or="କୌଣସି ସଂଲଗ୍ନ ଦାଖଲ ହୋଇନାହିଁ ।" />
       </p>
     );
   }

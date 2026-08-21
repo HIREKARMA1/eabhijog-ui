@@ -106,11 +106,11 @@
         msgEl.textContent = isActivate
           ? t(
               "This officer will be able to sign in again with their existing username and password.",
-              "ଏହି ଅଧିକାରୀ ପୁନର୍ବାର ନିଜ ଟିମେଲ ଓ ପାସୱାର୍ଡ ସହ ସାଇନ ଇନ କରିପାରିବେ।"
+              "ଏହି ଅଧିକାରୀ ପୁନର୍ବାର ନିଜ ଟିମେଲ ଓ ପାସୱାର୍ଡ ସହ ସାଇନ ଇନ କରିପାରିବେ ।"
             )
           : t(
               "This officer will no longer be able to sign in until the account is reactivated.",
-              "ଖାତା ପୁନର୍ବାର ସକ୍ରିୟ ନ ହେବା ପର୍ଯ୍ୟନ୍ତ ଏହି ଅଧିକାରୀ ସାଇନ ଇନ କରିପାରିବେ ନାହିଁ।"
+              "ଖାତା ପୁନର୍ବାର ସକ୍ରିୟ ନ ହେବା ପର୍ଯ୍ୟନ୍ତ ଏହି ଅଧିକାରୀ ସାଇନ ଇନ କରିପାରିବେ ନାହିଁ ।"
             );
       }
       if (okBtn) {
@@ -175,8 +175,8 @@
     if (passwordReq) passwordReq.classList.toggle("hidden", !isCreate);
     if (passwordHint) {
       passwordHint.textContent = isCreate
-        ? t("Minimum 8 characters.", "ଅତିକମରେ ୮ ଅକ୍ଷର।")
-        : t("Leave blank to keep the current password.", "ବର୍ତ୍ତମାନର ପାସୱାର୍ଡ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ।");
+        ? t("Minimum 8 characters.", "ଅତିକମରେ ୮ ଅକ୍ଷର ।")
+        : t("Leave blank to keep the current password.", "ବର୍ତ୍ତମାନର ପାସୱାର୍ଡ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ ।");
     }
     if (pwdInput) pwdInput.required = isCreate;
   }
@@ -205,8 +205,8 @@
 
     if (modalSubtitle) {
       modalSubtitle.textContent = isEdit
-        ? t("Update officer details. Leave password blank to keep the current one.", "ଅଧିକାରୀ ବିବରଣୀ ଅପଡେଟ୍ କରନ୍ତୁ। ବର୍ତ୍ତମାନର ପାସୱାର୍ଡ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ।")
-        : t("Official email is required for sign-in and password recovery.", "ସାଇନ ଇନ ଓ ପାସୱାର୍ଡ ପୁନରୁଦ୍ଧାର ପାଇଁ ଅଧିକାରତ୍ତ୍ୱ ଇମେଲ ଆବଶ୍ୟକ।");
+        ? t("Update officer details. Leave password blank to keep the current one.", "ଅଧିକାରୀ ବିବରଣୀ ଅପଡେଟ୍ କରନ୍ତୁ । ବର୍ତ୍ତମାନର ପାସୱାର୍ଡ ରଖିବାକୁ ଖାଲି ଛାଡ଼ନ୍ତୁ ।")
+        : t("Official email is required for sign-in and password recovery.", "ସାଇନ ଇନ ଓ ପାସୱାର୍ଡ ପୁନରୁଦ୍ଧାର ପାଇଁ ଅଧିକାରତ୍ତ୍ୱ ଇମେଲ ଆବଶ୍ୟକ ।");
     }
 
     if (saveBtn) {
