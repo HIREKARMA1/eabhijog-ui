@@ -37,7 +37,9 @@
     "priority": "प्राथमिकता",
     "empty": "कोई शिकायत नहीं मिली।",
     "actions": "कार्रवाई",
-    "view": "देखें"
+    "view": "देखें",
+    "sourceChatbot": "चैटबॉट",
+    "sourceOnlineHearing": "ऑनलाइन सुनवाई"
   },
   "filters": {
     "title": "फ़िल्टर",
@@ -46,7 +48,11 @@
     "category": "श्रेणी",
     "search": "संदर्भ या शीर्षक खोजें",
     "apply": "लागू करें",
-    "clear": "साफ़ करें"
+    "clear": "साफ़ करें",
+    "source": "स्रोत",
+    "sourceChatbot": "चैटबॉट (WhatsApp)",
+    "sourceOnlineHearing": "ऑनलाइन सुनवाई",
+    "osdCategory": "OSD डेस्क"
   },
   "grievance": {
     "citizen": "नागरिक",
@@ -66,6 +72,9 @@
     "district": "जिला",
     "constituency": "निर्वाचन क्षेत्र",
     "department": "विभाग",
+    "taxonomyDepartment": "वर्गीकरण विभाग",
+    "taxonomySubDepartment": "सेवा / उप-विभाग",
+    "taxonomyOrganization": "संगठन",
     "assignedOsd": "नियुक्त OSD",
     "status": "स्थिति",
     "received": "प्राप्ति तिथि",
@@ -84,6 +93,19 @@
     "action": "कार्रवाई",
     "remarks": "टिप्पणी",
     "empty": "अभी तक कोई यात्रा घटना दर्ज नहीं है।"
+  },
+  "forwardForm": {
+    "recipient": "प्राप्तकर्ता",
+    "addDepartmentRecipient": "विभाग प्राप्तकर्ता जोड़ें",
+    "addManualRecipient": "मैन्युअल ईमेल जोड़ें",
+    "removeRecipient": "हटाएं",
+    "cc": "CC",
+    "bcc": "BCC",
+    "manualDepartmentHint": "वैकल्पिक - सीधे ईमेल के लिए खाली छोड़ें",
+    "recipientRequired": "कम से कम एक प्राप्तकर्ता ईमेल जोड़ें।",
+    "success": "सभी प्राप्तकर्ताओं को अग्रेषित किया गया।",
+    "autoFillToggle": "विभाग संपर्क स्वतः भरें",
+    "autoFillHint": "उपलब्ध होने पर अधिकारी नाम, ईमेल और WhatsApp विभाग निर्देशिका से भरे जाते हैं।"
   },
   "analytics": {
     "title": "रिपोर्ट और विश्लेषण",

@@ -37,7 +37,9 @@
     "priority": "ଅଗ୍ରାଧିକାର",
     "empty": "କୌଣସି ଅଭିଯୋଗ ମିଳିଲା ନାହିଁ ।",
     "actions": "କାର୍ଯ୍ୟ",
-    "view": "ଦେଖନ୍ତୁ"
+    "view": "ଦେଖନ୍ତୁ",
+    "sourceChatbot": "ଚାଟବଟ୍",
+    "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି"
   },
   "filters": {
     "title": "ଫିଲ୍ଟର",
@@ -46,7 +48,11 @@
     "category": "ବର୍ଗ",
     "search": "ଟ୍ରାକିଂ କିମ୍ବା ଶୀର୍ଷକ ଖୋଜନ୍ତୁ",
     "apply": "ଲାଗୁ କରନ୍ତୁ",
-    "clear": "ସଫା"
+    "clear": "ସଫା",
+    "source": "ଉତ୍ସ",
+    "sourceChatbot": "ଚାଟବଟ୍ (WhatsApp)",
+    "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି",
+    "osdCategory": "OSD ଡେସ୍କ"
   },
   "grievance": {
     "citizen": "ନାଗରିକ",
@@ -66,6 +72,9 @@
     "district": "ଜିଲ୍ଲା",
     "constituency": "ନିର୍ବାଚନ ମଣ୍ଡଳୀ",
     "department": "ବିଭାଗ",
+    "taxonomyDepartment": "ଟ୍ୟାକ୍ସୋନୋମି ବିଭାଗ",
+    "taxonomySubDepartment": "ସେବା / ଉପ-ବିଭାଗ",
+    "taxonomyOrganization": "ସଂସ୍ଥା",
     "assignedOsd": "ନିୟୋଜିତ OSD",
     "status": "ସ୍ଥିତି",
     "received": "ଗ୍ରହଣ ତାରିଖ",
@@ -94,7 +103,9 @@
     "bcc": "BCC",
     "manualDepartmentHint": "ବିକଳ୍ପ - ସିଧା ଇମେଲ୍ ପାଇଁ ଖାଲି ଛାଡନ୍ତୁ",
     "recipientRequired": "ଅତିକମରେ ଗୋଟିଏ ଗ୍ରହୀ ଇମେଲ୍ ଯୋଡନ୍ତୁ ।",
-    "success": "ସମସ୍ତ ଗ୍ରହୀଙ୍କୁ ପ୍ରେରଣ ହୋଇଛି ।"
+    "success": "ସମସ୍ତ ଗ୍ରହୀଙ୍କୁ ପ୍ରେରଣ ହୋଇଛି ।",
+    "autoFillToggle": "ବିଭାଗ ଯୋଗାଯୋଗ ସ୍ୱଚାଳିତ ପୂରଣ",
+    "autoFillHint": "ଉପଲବ୍ଧ ଥାଉଁଲେ ଅଧିକାରୀ ନାମ, ଇମେଲ୍ ଏବଂ WhatsApp ବିଭାଗ ଡିରେକ୍ଟୋରୀରୁ ପୂରଣ ହୁଏ ।"
   },
   "analytics": {
     "title": "ରିପୋର୍ଟ ଓ ବିଶ୍ଳେଷଣ",

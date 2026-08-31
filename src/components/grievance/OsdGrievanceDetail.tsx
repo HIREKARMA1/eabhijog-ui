@@ -22,6 +22,7 @@ type OsdGrievanceDetailProps = {
   allowedStatuses: string[];
   priorities: string[];
   suggestedRecipients: OsdDepartmentContact[];
+  resolvedRecipients: OsdDepartmentContact[];
   journey: JourneyEvent[];
 };
 
@@ -31,6 +32,7 @@ export function OsdGrievanceDetailView({
   allowedStatuses,
   priorities,
   suggestedRecipients,
+  resolvedRecipients,
   journey,
 }: OsdGrievanceDetailProps) {
   const { t } = useI18n();
@@ -72,6 +74,24 @@ export function OsdGrievanceDetailView({
             <dt className="text-text-muted">{t("dashboard", "table.district")}</dt>
             <dd>{grievance.geographic_district ?? grievance.district ?? "-"}</dd>
           </div>
+          <div>
+            <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyDepartment")}</dt>
+            <dd>
+              {grievance.department &&
+              grievance.department.trim().toLowerCase() !==
+                (grievance.osd_category ?? grievance.category ?? "").trim().toLowerCase()
+                ? grievance.department
+                : "-"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-text-muted">{t("dashboard", "grievance.taxonomySubDepartment")}</dt>
+            <dd>{grievance.sub_department?.trim() || "-"}</dd>
+          </div>
+          <div>
+            <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyOrganization")}</dt>
+            <dd>{grievance.organization?.trim() || "-"}</dd>
+          </div>
           <div className="sm:col-span-2">
             <dt className="text-text-muted">Grievance</dt>
             <dd className="mt-1 whitespace-pre-wrap">{grievance.grievance_text ?? grievance.title}</dd>
@@ -110,6 +130,11 @@ export function OsdGrievanceDetailView({
           osdSlug={osdSlug}
           referenceNumber={grievance.reference_number}
           suggestedRecipients={suggestedRecipients}
+          resolvedRecipients={resolvedRecipients}
+          grievanceDepartment={grievance.department}
+          grievanceSubDepartment={grievance.sub_department}
+          grievanceOrganization={grievance.organization}
+          grievanceOsdCategory={grievance.osd_category ?? grievance.category ?? ""}
         />
       </div>
 

@@ -23,6 +23,12 @@ type GrievanceTableProps = {
 export function GrievanceTable({ rows, detailHrefPrefix }: GrievanceTableProps) {
   const { t } = useI18n();
 
+  function sourceLabel(source?: "chatbot" | "online_hearing") {
+    if (source === "online_hearing") return t("dashboard", "table.sourceOnlineHearing");
+    if (source === "chatbot") return t("dashboard", "table.sourceChatbot");
+    return "";
+  }
+
   return (
     <Table>
       <TableHead>
@@ -45,7 +51,14 @@ export function GrievanceTable({ rows, detailHrefPrefix }: GrievanceTableProps) 
           rows.map((row) => (
             <TableRow key={row.reference_number}>
               <TableCell>
-                <span className="font-semibold text-navy-700">{row.reference_number}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-navy-700">{row.reference_number}</span>
+                  {row.filing_source ? (
+                    <Badge tone={row.filing_source === "online_hearing" ? "info" : "default"}>
+                      {sourceLabel(row.filing_source)}
+                    </Badge>
+                  ) : null}
+                </div>
               </TableCell>
               <TableCell>{row.district ?? row.geographic_district ?? "-"}</TableCell>
               <TableCell>{row.category ?? row.osd_category ?? "-"}</TableCell>

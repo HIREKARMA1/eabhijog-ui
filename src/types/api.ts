@@ -99,6 +99,10 @@ export type GrievanceRow = {
   grievance_text?: string | null;
   attachments?: GrievanceAttachment[];
   attachment_url?: string | null;
+  filing_source?: "chatbot" | "online_hearing";
+  department?: string;
+  sub_department?: string;
+  organization?: string;
 };
 
 export type PortalDashboardData = {
@@ -189,6 +193,7 @@ export type OsdDashboardData = {
 export type OsdDepartmentContact = {
   id: number | null;
   department: string;
+  sub_department?: string;
   officer_name: string;
   email: string;
   whatsapp_number: string;
@@ -254,6 +259,7 @@ export type OsdGrievanceDetailData = {
   grievance: GrievanceRow;
   allowed_statuses: string[];
   suggested_recipients: OsdDepartmentContact[];
+  resolved_recipients: OsdDepartmentContact[];
   timeline: TimelineEvent[];
   journey: JourneyEvent[];
   forwards: Array<Record<string, unknown>>;
@@ -377,6 +383,7 @@ export type PsGrievanceRow = {
   resolved_at?: string | null;
   block?: string | null;
   geographic_district?: string;
+  filing_source?: "chatbot" | "online_hearing";
 };
 
 export type PsDashboardData = {

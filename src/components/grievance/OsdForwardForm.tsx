@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
@@ -27,29 +27,201 @@ type OsdForwardFormProps = {
   osdSlug: string;
   referenceNumber: string;
   suggestedRecipients: OsdDepartmentContact[];
+  resolvedRecipients: OsdDepartmentContact[];
+  grievanceDepartment?: string;
+  grievanceSubDepartment?: string;
+  grievanceOrganization?: string;
+  grievanceOsdCategory?: string;
 };
 
-function newDepartmentRow(
+function newRowKey() {
+  return `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function isOsdCategoryPlaceholder(dept: string, osdCategory: string): boolean {
+  const normalizedDept = dept.trim().toLowerCase();
+  const normalizedCategory = osdCategory.trim().toLowerCase();
+  return Boolean(normalizedDept && normalizedCategory && normalizedDept === normalizedCategory);
+}
+
+function effectiveTaxonomyDepartment(dept: string, osdCategory: string): string {
+  return isOsdCategoryPlaceholder(dept, osdCategory) ? "" : dept.trim();
+}
+
+function buildTaxonomyLabel(
+  dept: string,
+  sub: string,
+  org: string,
+  osdCategory: string,
+): string {
+  const parts: string[] = [];
+  const effectiveDept = effectiveTaxonomyDepartment(dept, osdCategory);
+  if (effectiveDept) parts.push(effectiveDept);
+  if (sub.trim()) parts.push(sub.trim());
+  if (org.trim()) parts.push(org.trim());
+  return parts.join(" / ");
+}
+
+function mergeRecipientOptions(
+  resolvedRecipients: OsdDepartmentContact[],
   suggestedRecipients: OsdDepartmentContact[],
-  index = 0,
+): OsdDepartmentContact[] {
+  const seen = new Set<string>();
+  const merged: OsdDepartmentContact[] = [];
+  for (const contact of [...resolvedRecipients, ...suggestedRecipients]) {
+    const key = `${contact.department.trim().toLowerCase()}|${(contact.email ?? "").trim().toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(contact);
+  }
+  return merged;
+}
+
+function findSuggestedIndex(
+  recipientOptions: OsdDepartmentContact[],
+  department: string,
+  subDepartment = "",
+): number {
+  if (recipientOptions.length === 0) return -1;
+
+  const deptLower = department.trim().toLowerCase();
+  const subLower = subDepartment.trim().toLowerCase();
+
+  if (deptLower) {
+    const exact = recipientOptions.findIndex(
+      (contact) => contact.department.trim().toLowerCase() === deptLower,
+    );
+    if (exact >= 0) return exact;
+
+    if (subLower) {
+      const withSub = recipientOptions.findIndex(
+        (contact) =>
+          contact.department.trim().toLowerCase() === deptLower &&
+          (contact.sub_department ?? "").trim().toLowerCase() === subLower,
+      );
+      if (withSub >= 0) return withSub;
+    }
+
+    const partial = recipientOptions.findIndex((contact) => {
+      const label = contact.department.trim().toLowerCase();
+      return label.includes(deptLower) || deptLower.includes(label);
+    });
+    if (partial >= 0) return partial;
+  }
+
+  if (subLower) {
+    const subMatch = recipientOptions.findIndex(
+      (contact) => (contact.sub_department ?? "").trim().toLowerCase() === subLower,
+    );
+    if (subMatch >= 0) return subMatch;
+  }
+
+  return -1;
+}
+
+function rowFromContact(
+  contact: OsdDepartmentContact,
+  recipientOptions: OsdDepartmentContact[],
+  autoFill: boolean,
 ): RecipientRow {
-  const contact = suggestedRecipients[index];
+  const primaryDepartment = contact.department.split(" / ")[0]?.trim() ?? contact.department;
+  const index = findSuggestedIndex(
+    recipientOptions,
+    primaryDepartment,
+    contact.sub_department ?? "",
+  );
+  const matched = index >= 0 ? recipientOptions[index] : null;
+  const contactEmail = (contact.email ?? "").trim().toLowerCase();
+  const hasDropdownMatch =
+    matched !== null &&
+    (matched.department.trim().toLowerCase() === primaryDepartment.toLowerCase() ||
+      matched.department.trim().toLowerCase() === contact.department.trim().toLowerCase() ||
+      (contactEmail.length > 0 && matched.email.trim().toLowerCase() === contactEmail));
+
   return {
-    key: `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    mode: "department",
+    key: newRowKey(),
+    mode: hasDropdownMatch ? "department" : "manual",
+    departmentIndex: hasDropdownMatch ? index : -1,
+    department: contact.department,
+    officer_name: autoFill ? (contact.officer_name ?? "") : "",
+    email: autoFill ? (contact.email ?? "") : "",
+    whatsapp_number: autoFill ? (contact.whatsapp_number ?? "") : "",
+  };
+}
+
+function buildInitialRows(
+  autoFillEnabled: boolean,
+  recipientOptions: OsdDepartmentContact[],
+  resolvedRecipients: OsdDepartmentContact[],
+  grievanceDepartment: string,
+  grievanceSubDepartment: string,
+  grievanceOrganization: string,
+  grievanceOsdCategory: string,
+): RecipientRow[] {
+  if (autoFillEnabled && resolvedRecipients.length > 0) {
+    return resolvedRecipients.map((contact) =>
+      rowFromContact(contact, recipientOptions, true),
+    );
+  }
+
+  const effectiveDept = effectiveTaxonomyDepartment(grievanceDepartment, grievanceOsdCategory);
+  const index = findSuggestedIndex(recipientOptions, effectiveDept, grievanceSubDepartment);
+
+  if (index >= 0) {
+    const contact = recipientOptions[index];
+    return [
+      {
+        key: newRowKey(),
+        mode: "department",
+        departmentIndex: index,
+        department: contact.department,
+        officer_name: autoFillEnabled ? (contact.officer_name ?? "") : "",
+        email: autoFillEnabled ? (contact.email ?? "") : "",
+        whatsapp_number: autoFillEnabled ? (contact.whatsapp_number ?? "") : "",
+      },
+    ];
+  }
+
+  return [
+    {
+      key: newRowKey(),
+      mode: "manual",
+      departmentIndex: -1,
+      department: buildTaxonomyLabel(
+        grievanceDepartment,
+        grievanceSubDepartment,
+        grievanceOrganization,
+        grievanceOsdCategory,
+      ),
+      officer_name: "",
+      email: "",
+      whatsapp_number: "",
+    },
+  ];
+}
+
+function newDepartmentRow(
+  recipientOptions: OsdDepartmentContact[],
+  index = 0,
+  autoFill = true,
+): RecipientRow {
+  const contact = recipientOptions[index];
+  return {
+    key: newRowKey(),
+    mode: index >= 0 ? "department" : "manual",
     departmentIndex: index,
     department: contact?.department ?? "",
-    officer_name: contact?.officer_name ?? "",
-    email: contact?.email ?? "",
-    whatsapp_number: contact?.whatsapp_number ?? "",
+    officer_name: autoFill ? (contact?.officer_name ?? "") : "",
+    email: autoFill ? (contact?.email ?? "") : "",
+    whatsapp_number: autoFill ? (contact?.whatsapp_number ?? "") : "",
   };
 }
 
 function newManualRow(): RecipientRow {
   return {
-    key: `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    key: newRowKey(),
     mode: "manual",
-    departmentIndex: 0,
+    departmentIndex: -1,
     department: "",
     officer_name: "",
     email: "",
@@ -61,6 +233,11 @@ export function OsdForwardForm({
   osdSlug,
   referenceNumber,
   suggestedRecipients,
+  resolvedRecipients,
+  grievanceDepartment = "",
+  grievanceSubDepartment = "",
+  grievanceOrganization = "",
+  grievanceOsdCategory = "",
 }: OsdForwardFormProps) {
   const { t } = useI18n();
   const router = useRouter();
@@ -69,36 +246,91 @@ export function OsdForwardForm({
   const [bcc, setBcc] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [autoFillEnabled, setAutoFillEnabled] = useState(true);
 
-  const initialRow = useMemo(
-    () =>
-      suggestedRecipients.length > 0
-        ? newDepartmentRow(suggestedRecipients, 0)
-        : newManualRow(),
-    [suggestedRecipients],
+  const recipientOptions = useMemo(
+    () => mergeRecipientOptions(resolvedRecipients, suggestedRecipients),
+    [resolvedRecipients, suggestedRecipients],
   );
 
-  const [rows, setRows] = useState<RecipientRow[]>([initialRow]);
+  const initialRows = useMemo(
+    () =>
+      buildInitialRows(
+        true,
+        recipientOptions,
+        resolvedRecipients,
+        grievanceDepartment,
+        grievanceSubDepartment,
+        grievanceOrganization,
+        grievanceOsdCategory,
+      ),
+    [
+      recipientOptions,
+      resolvedRecipients,
+      grievanceDepartment,
+      grievanceSubDepartment,
+      grievanceOrganization,
+      grievanceOsdCategory,
+    ],
+  );
+
+  const [rows, setRows] = useState<RecipientRow[]>(initialRows);
 
   function updateRow(key: string, patch: Partial<RecipientRow>) {
     setRows((current) => current.map((row) => (row.key === key ? { ...row, ...patch } : row)));
   }
 
+  const applyAutoFillToRows = useCallback(
+    () =>
+      buildInitialRows(
+        true,
+        recipientOptions,
+        resolvedRecipients,
+        grievanceDepartment,
+        grievanceSubDepartment,
+        grievanceOrganization,
+        grievanceOsdCategory,
+      ),
+    [
+      grievanceDepartment,
+      grievanceOrganization,
+      grievanceOsdCategory,
+      grievanceSubDepartment,
+      recipientOptions,
+      resolvedRecipients,
+    ],
+  );
+
+  function onAutoFillToggle(enabled: boolean) {
+    setAutoFillEnabled(enabled);
+    if (enabled) {
+      setRows(applyAutoFillToRows());
+    }
+  }
+
   function onDepartmentSelect(key: string, index: number) {
-    const contact = suggestedRecipients[index];
+    const contact = recipientOptions[index];
     if (!contact) return;
     updateRow(key, {
       mode: "department",
       departmentIndex: index,
       department: contact.department,
-      officer_name: contact.officer_name,
-      email: contact.email,
-      whatsapp_number: contact.whatsapp_number,
+      ...(autoFillEnabled
+        ? {
+            officer_name: contact.officer_name,
+            email: contact.email,
+            whatsapp_number: contact.whatsapp_number,
+          }
+        : {}),
     });
   }
 
   function addDepartmentRecipient() {
-    setRows((current) => [...current, newDepartmentRow(suggestedRecipients)]);
+    const defaultIndex = recipientOptions.length > 0 ? 0 : -1;
+    setRows((current) => [
+      ...current,
+      newDepartmentRow(recipientOptions, defaultIndex, autoFillEnabled),
+    ]);
   }
 
   function addManualRecipient() {
@@ -151,6 +383,23 @@ export function OsdForwardForm({
   return (
     <Card title={t("dashboard", "grievance.forward")}>
       <form onSubmit={onSubmit} className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-border bg-slate-50/80 px-4 py-3">
+          <div>
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-800">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-border text-brand focus:ring-brand"
+                checked={autoFillEnabled}
+                onChange={(e) => onAutoFillToggle(e.target.checked)}
+              />
+              {t("dashboard", "forwardForm.autoFillToggle")}
+            </label>
+            <p className="mt-1 text-xs text-text-muted">
+              {t("dashboard", "forwardForm.autoFillHint")}
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-4">
           {rows.map((row, index) => (
             <div key={row.key} className="rounded-lg border border-border p-4">
@@ -166,12 +415,12 @@ export function OsdForwardForm({
               </div>
 
               <div className="grid gap-3 md:grid-cols-4">
-                {row.mode === "department" && suggestedRecipients.length > 0 ? (
+                {row.mode === "department" && row.departmentIndex >= 0 && recipientOptions.length > 0 ? (
                   <Select
                     label={t("dashboard", "departments.department")}
                     value={String(row.departmentIndex)}
                     onChange={(e) => onDepartmentSelect(row.key, Number(e.target.value))}
-                    options={suggestedRecipients.map((contact, deptIndex) => ({
+                    options={recipientOptions.map((contact, deptIndex) => ({
                       value: String(deptIndex),
                       label: contact.department,
                     }))}
@@ -180,7 +429,7 @@ export function OsdForwardForm({
                   <Input
                     label={t("dashboard", "departments.department")}
                     value={row.department}
-                    onChange={(e) => updateRow(row.key, { department: e.target.value, mode: "manual" })}
+                    onChange={(e) => updateRow(row.key, { department: e.target.value, mode: "manual", departmentIndex: -1 })}
                     placeholder={t("dashboard", "forwardForm.manualDepartmentHint")}
                   />
                 )}
@@ -188,21 +437,21 @@ export function OsdForwardForm({
                 <Input
                   label={t("dashboard", "departments.officerName")}
                   value={row.officer_name}
-                  onChange={(e) => updateRow(row.key, { officer_name: e.target.value, mode: "manual" })}
+                  onChange={(e) => updateRow(row.key, { officer_name: e.target.value, mode: "manual", departmentIndex: -1 })}
                 />
 
                 <Input
                   label={t("dashboard", "departments.email")}
                   type="email"
                   value={row.email}
-                  onChange={(e) => updateRow(row.key, { email: e.target.value, mode: "manual" })}
+                  onChange={(e) => updateRow(row.key, { email: e.target.value, mode: "manual", departmentIndex: -1 })}
                   required
                 />
                 <Input
                   label={t("dashboard", "departments.whatsappNumber")}
                   value={row.whatsapp_number}
                   onChange={(e) =>
-                    updateRow(row.key, { whatsapp_number: e.target.value, mode: "manual" })
+                    updateRow(row.key, { whatsapp_number: e.target.value, mode: "manual", departmentIndex: -1 })
                   }
                   placeholder="+91XXXXXXXXXX"
                 />
