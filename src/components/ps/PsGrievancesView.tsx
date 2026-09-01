@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
-import { PsGrievanceFilters } from "@/components/ps/PsGrievanceFilters";
+import { GrievanceFilters } from "@/components/grievance/GrievanceFilters";
 import { PsGrievanceTable } from "@/components/ps/PsGrievanceTable";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Spinner } from "@/components/ui/Spinner";
@@ -67,10 +67,13 @@ export function PsGrievancesView({
           description={description ?? t("ps", "grievances.total", { count: total })}
         />
       ) : null}
-      <PsGrievanceFilters
+      <GrievanceFilters
         basePath={basePath}
-        constants={constants}
-        current={filters}
+        variant="desk"
+        statuses={constants.statuses}
+        districts={constants.districts}
+        categories={constants.grievance_categories}
+        osdCategories={constants.osd_categories}
         hideOsdCategory={hideOsdCategory}
       />
       <div className={cn("relative", isPending && "pointer-events-none opacity-60")}>
