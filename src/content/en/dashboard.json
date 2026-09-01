@@ -37,7 +37,9 @@
     "priority": "Priority",
     "empty": "No grievances found.",
     "actions": "Actions",
-    "view": "View"
+    "view": "View",
+    "sourceChatbot": "Chatbot",
+    "sourceOnlineHearing": "Online Hearing"
   },
   "filters": {
     "title": "Filters",
@@ -46,7 +48,11 @@
     "category": "Category",
     "search": "Search reference or title",
     "apply": "Apply filters",
-    "clear": "Clear"
+    "clear": "Clear",
+    "source": "Source",
+    "sourceChatbot": "Chatbot (WhatsApp)",
+    "sourceOnlineHearing": "Online Hearing",
+    "osdCategory": "OSD desk"
   },
   "grievance": {
     "citizen": "Citizen",
@@ -66,6 +72,9 @@
     "district": "District",
     "constituency": "Constituency",
     "department": "Department",
+    "taxonomyDepartment": "Taxonomy department",
+    "taxonomySubDepartment": "Service / sub-department",
+    "taxonomyOrganization": "Organization",
     "assignedOsd": "Assigned OSD",
     "status": "Status",
     "received": "Date received",
@@ -94,7 +103,9 @@
     "bcc": "BCC",
     "manualDepartmentHint": "Optional - leave blank for direct email",
     "recipientRequired": "Add at least one recipient email.",
-    "success": "Forwarded to all recipients."
+    "success": "Forwarded to all recipients.",
+    "autoFillToggle": "Auto-fill department contact",
+    "autoFillHint": "Fills officer name, email and WhatsApp from the department directory when available."
   },
   "analytics": {
     "title": "Reports & analytics",

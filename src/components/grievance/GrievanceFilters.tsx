@@ -11,15 +11,26 @@ import { useI18n } from "@/lib/i18n/context";
 type GrievanceFiltersProps = {
   statuses: string[];
   districts: string[];
+  categories: string[];
+  osdCategories: string[];
   basePath: string;
 };
 
-export function GrievanceFilters({ statuses, districts, basePath }: GrievanceFiltersProps) {
+export function GrievanceFilters({
+  statuses,
+  districts,
+  categories,
+  osdCategories,
+  basePath,
+}: GrievanceFiltersProps) {
   const { t } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
   const [status, setStatus] = useState(params.get("status") ?? "");
   const [district, setDistrict] = useState(params.get("district") ?? "");
+  const [filingSource, setFilingSource] = useState(params.get("filing_source") ?? "");
+  const [category, setCategory] = useState(params.get("category") ?? "");
+  const [osdCategory, setOsdCategory] = useState(params.get("osd_category") ?? "");
   const [search, setSearch] = useState(params.get("search") ?? "");
 
   function onSubmit(e: FormEvent) {
@@ -27,6 +38,9 @@ export function GrievanceFilters({ statuses, districts, basePath }: GrievanceFil
     const qs = new URLSearchParams();
     if (status) qs.set("status", status);
     if (district) qs.set("district", district);
+    if (filingSource) qs.set("filing_source", filingSource);
+    if (category) qs.set("category", category);
+    if (osdCategory) qs.set("osd_category", osdCategory);
     if (search) qs.set("search", search);
     const suffix = qs.toString() ? `?${qs.toString()}` : "";
     router.push(`${basePath}${suffix}`);
@@ -35,12 +49,18 @@ export function GrievanceFilters({ statuses, districts, basePath }: GrievanceFil
   function onClear() {
     setStatus("");
     setDistrict("");
+    setFilingSource("");
+    setCategory("");
+    setOsdCategory("");
     setSearch("");
     router.push(basePath);
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-3 rounded-xl border border-border bg-white p-4 md:grid-cols-4">
+    <form
+      onSubmit={onSubmit}
+      className="grid gap-3 rounded-xl border border-border bg-white p-4 md:grid-cols-3 lg:grid-cols-4"
+    >
       <Select
         name="status"
         label={t("dashboard", "filters.status")}
@@ -58,13 +78,38 @@ export function GrievanceFilters({ statuses, districts, basePath }: GrievanceFil
         onChange={(e) => setDistrict(e.target.value)}
         options={[{ value: "", label: "-" }, ...districts.map((d) => ({ value: d, label: d }))]}
       />
+      <Select
+        name="filing_source"
+        label={t("dashboard", "filters.source")}
+        value={filingSource}
+        onChange={(e) => setFilingSource(e.target.value)}
+        options={[
+          { value: "", label: "-" },
+          { value: "chatbot", label: t("dashboard", "filters.sourceChatbot") },
+          { value: "online_hearing", label: t("dashboard", "filters.sourceOnlineHearing") },
+        ]}
+      />
+      <Select
+        name="category"
+        label={t("dashboard", "filters.category")}
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        options={[{ value: "", label: "-" }, ...categories.map((c) => ({ value: c, label: c }))]}
+      />
+      <Select
+        name="osd_category"
+        label={t("dashboard", "filters.osdCategory")}
+        value={osdCategory}
+        onChange={(e) => setOsdCategory(e.target.value)}
+        options={[{ value: "", label: "-" }, ...osdCategories.map((c) => ({ value: c, label: c }))]}
+      />
       <Input
         name="search"
         label={t("dashboard", "filters.search")}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-2 md:col-span-2 lg:col-span-1">
         <Button type="submit" className="flex-1">
           {t("dashboard", "filters.apply")}
         </Button>

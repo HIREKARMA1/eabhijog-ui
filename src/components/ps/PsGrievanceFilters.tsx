@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { DateRangeCalendar } from "@/components/ps/DateRangeCalendar";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
 import type { MetadataConstants } from "@/types/api";
@@ -17,7 +17,7 @@ type Props = {
   hideOsdCategory?: boolean;
 };
 
-type FilterStep = "date" | "grievance";
+type FilterStep = "date" | "grievance" | "type";
 type DateMode = "all" | "today" | "yesterday" | "last_7_days" | "last_30_days" | "calendar";
 
 function toLocalISODate(d: Date) {
@@ -167,7 +167,7 @@ function FilterModal({
   );
 }
 
-export function PsGrievanceFilters({ basePath, constants: _constants, current }: Props) {
+export function PsGrievanceFilters({ basePath, constants, current, hideOsdCategory = false }: Props) {
   const router = useRouter();
   const { t } = useI18n();
   const [isPending, startTransition] = useTransition();
@@ -181,6 +181,9 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
   const [calendarFrom, setCalendarFrom] = useState(current.date_from ?? "");
   const [calendarTo, setCalendarTo] = useState(current.date_to ?? "");
   const [status, setStatus] = useState(current.status ?? "");
+  const [filingSource, setFilingSource] = useState(current.filing_source ?? "");
+  const [category, setCategory] = useState(current.category ?? "");
+  const [osdCategory, setOsdCategory] = useState(current.osd_category ?? "");
 
   useEffect(() => {
     setSearchDraft(current.search ?? "");
@@ -188,6 +191,9 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     setDateFrom(current.date_from ?? "");
     setDateTo(current.date_to ?? "");
     setStatus(current.status ?? "");
+    setFilingSource(current.filing_source ?? "");
+    setCategory(current.category ?? "");
+    setOsdCategory(current.osd_category ?? "");
   }, [current]);
 
   useEffect(() => {
@@ -216,11 +222,46 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     });
   }
 
+  function applyInlineFilter(key: "category" | "osd_category", value: string) {
+    const next = { ...current };
+    if (value) next[key] = value;
+    else delete next[key];
+    delete next.page;
+    if (key === "category") setCategory(value);
+    else setOsdCategory(value);
+    navigate(next);
+  }
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: "", label: t("ps", "filters.allCategories") },
+      ...constants.grievance_categories.map((c) => ({ value: c, label: c })),
+    ],
+    [constants.grievance_categories, t],
+  );
+
+  const osdCategoryOptions = useMemo(
+    () => [
+      { value: "", label: t("ps", "filters.allOsdCategories") },
+      ...constants.osd_categories.map((c) => ({ value: c, label: c })),
+    ],
+    [constants.osd_categories, t],
+  );
+
   const statusOptions = useMemo(
     () => [
       { value: "", label: t("ps", "filters.totalDateWise") },
       { value: "disposed", label: t("ps", "filters.disposedDateWise") },
       { value: "pending", label: t("ps", "filters.pendingDateWise") },
+    ],
+    [t],
+  );
+
+  const sourceOptions = useMemo(
+    () => [
+      { value: "", label: t("ps", "filters.sourceAll") },
+      { value: "chatbot", label: t("ps", "filters.sourceChatbot") },
+      { value: "online_hearing", label: t("ps", "filters.sourceOnlineHearing") },
     ],
     [t],
   );
@@ -252,15 +293,39 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     statusOptions.find((opt) => opt.value === (current.status ?? ""))?.label ??
     t("ps", "filters.totalDateWise");
 
+  const activeSourceLabel =
+    sourceOptions.find((opt) => opt.value === (current.filing_source ?? ""))?.label ??
+    t("ps", "filters.sourceAll");
+
   const filterChipLabel = useMemo(() => {
+    const parts: string[] = [];
     const hasDate = Boolean(current.date_from || current.date_to || current.date_preset);
     const hasStatus = Boolean(current.status);
-    if (!hasDate && !hasStatus) return t("ps", "filters.button");
-    return `${activeDateLabel} · ${activeStatusLabel}`;
-  }, [activeDateLabel, activeStatusLabel, current, t]);
+    const hasSource = Boolean(current.filing_source);
+    const hasCategory = Boolean(current.category);
+    const hasOsd = Boolean(current.osd_category) && !hideOsdCategory;
+
+    if (!hasDate && !hasStatus && !hasSource && !hasCategory && !hasOsd) {
+      return t("ps", "filters.button");
+    }
+
+    if (hasDate) parts.push(activeDateLabel);
+    if (hasStatus) parts.push(activeStatusLabel);
+    if (hasSource) parts.push(activeSourceLabel);
+    if (hasCategory) parts.push(current.category!);
+    if (hasOsd) parts.push(current.osd_category!);
+
+    return parts.join(" · ");
+  }, [activeDateLabel, activeSourceLabel, activeStatusLabel, current, hideOsdCategory, t]);
 
   const hasActiveFilters = Boolean(
-    current.date_from || current.date_to || current.date_preset || current.status,
+    current.date_from ||
+      current.date_to ||
+      current.date_preset ||
+      current.status ||
+      current.filing_source ||
+      current.category ||
+      (!hideOsdCategory && current.osd_category),
   );
 
   const canGoNext =
@@ -273,6 +338,9 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     setDateFrom(current.date_from ?? "");
     setDateTo(current.date_to ?? "");
     setStatus(current.status ?? "");
+    setFilingSource(current.filing_source ?? "");
+    setCategory(current.category ?? "");
+    setOsdCategory(current.osd_category ?? "");
     setCalendarOpen(false);
     setStep(at);
     setOpen(true);
@@ -353,6 +421,9 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     }
 
     if (status) next.status = status;
+    if (filingSource) next.filing_source = filingSource;
+    if (current.category) next.category = current.category;
+    if (!hideOsdCategory && current.osd_category) next.osd_category = current.osd_category;
 
     navigate(next);
     setOpen(false);
@@ -364,6 +435,9 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     setDateFrom("");
     setDateTo("");
     setStatus("");
+    setFilingSource("");
+    setCategory("");
+    setOsdCategory("");
     setSearchDraft("");
     setOpen(false);
     setCalendarOpen(false);
@@ -382,65 +456,108 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
     t("ps", "filters.weekdaySa"),
   ];
 
+  const stepTitle =
+    step === "date"
+      ? t("ps", "filters.dateStepTitle")
+      : step === "grievance"
+        ? t("ps", "filters.grievanceStepTitle")
+        : t("ps", "filters.typeStepTitle");
+
+  const stepHint =
+    step === "date"
+      ? t("ps", "filters.dateStepHint")
+      : step === "grievance"
+        ? t("ps", "filters.grievanceStepHint")
+        : t("ps", "filters.typeStepHint");
+
   return (
     <div className="space-y-3" aria-busy={isPending}>
-      <div className="flex items-center gap-2">
-        <div className="relative min-w-0 flex-1">
-          <svg
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          <Input
+      <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-end">
+        <div className="min-w-0 flex-[1.35] space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">{t("ps", "filters.searchLabel")}</span>
+          <div className="relative">
+            <svg
+              aria-hidden
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              disabled={isPending}
+              type="search"
+              name="search"
+              value={searchDraft}
+              onChange={(e) => setSearchDraft(e.target.value)}
+              placeholder={t("ps", "filters.searchPlaceholder")}
+              aria-label={t("ps", "filters.searchLabel")}
+              className="w-full rounded-lg border border-border bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none transition-[border-color,box-shadow,background-color] duration-150 focus:border-navy-700 focus:ring-2 focus:ring-navy-700/15 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <Select
             disabled={isPending}
-            type="search"
-            name="search"
-            value={searchDraft}
-            onChange={(e) => setSearchDraft(e.target.value)}
-            placeholder={t("ps", "filters.searchPlaceholder")}
-            aria-label={t("ps", "filters.searchLabel")}
-            className="w-full py-2 pl-9"
+            name="category"
+            label={t("ps", "filters.category")}
+            value={category}
+            onChange={(e) => applyInlineFilter("category", e.target.value)}
+            className={category ? "border-navy-700/40 ring-1 ring-navy-700/10" : undefined}
+            options={categoryOptions}
           />
         </div>
 
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() => openFilters("date")}
-          className="inline-flex max-w-[40vw] shrink-0 items-center gap-1.5 rounded-full bg-navy-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm sm:max-w-xs"
-        >
-          <span className="truncate">{filterChipLabel}</span>
-          <span aria-hidden className="text-white/80">
-            ▾
-          </span>
-        </button>
+        {!hideOsdCategory ? (
+          <div className="min-w-0 flex-1">
+            <Select
+              disabled={isPending}
+              name="osd_category"
+              label={t("ps", "filters.assignedOsd")}
+              value={osdCategory}
+              onChange={(e) => applyInlineFilter("osd_category", e.target.value)}
+              className={osdCategory ? "border-navy-700/40 ring-1 ring-navy-700/10" : undefined}
+              options={osdCategoryOptions}
+            />
+          </div>
+        ) : null}
 
-        {hasActiveFilters || current.search ? (
+        <div className="flex shrink-0 items-center gap-2 self-end">
           <button
             type="button"
             disabled={isPending}
-            onClick={resetFilters}
-            className="shrink-0 px-1.5 py-2 text-sm font-medium text-slate-600 underline-offset-2 hover:underline"
+            onClick={() => openFilters("date")}
+            className="inline-flex items-center gap-1.5 rounded-full bg-navy-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm"
           >
-            {t("ps", "filters.reset")}
+            <span className="max-w-[12rem] truncate sm:max-w-none">{filterChipLabel}</span>
+            <span aria-hidden className="shrink-0 text-white/80">
+              ▾
+            </span>
           </button>
-        ) : null}
+
+          {hasActiveFilters || current.search ? (
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={resetFilters}
+              className="shrink-0 px-1.5 py-2 text-sm font-medium text-slate-600 underline-offset-2 hover:underline"
+            >
+              {t("ps", "filters.reset")}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <FilterModal
         open={open && !calendarOpen}
-        title={
-          step === "date" ? t("ps", "filters.dateStepTitle") : t("ps", "filters.grievanceStepTitle")
-        }
-        hint={step === "date" ? t("ps", "filters.dateStepHint") : t("ps", "filters.grievanceStepHint")}
+        title={stepTitle}
+        hint={stepHint}
         onClose={() => setOpen(false)}
         size="sm"
         footer={
@@ -449,11 +566,12 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
               type="button"
               className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-navy-700"
               onClick={() => {
-                if (step === "grievance") setStep("date");
+                if (step === "type") setStep("grievance");
+                else if (step === "grievance") setStep("date");
                 else setOpen(false);
               }}
             >
-              {step === "grievance" ? t("ps", "filters.back") : t("common", "actions.cancel")}
+              {step === "date" ? t("common", "actions.cancel") : t("ps", "filters.back")}
             </button>
             {step === "date" ? (
               <Button
@@ -462,6 +580,10 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
                 disabled={!canGoNext || isPending}
                 onClick={() => setStep("grievance")}
               >
+                {t("ps", "filters.next")}
+              </Button>
+            ) : step === "grievance" ? (
+              <Button type="button" size="sm" disabled={isPending} onClick={() => setStep("type")}>
                 {t("ps", "filters.next")}
               </Button>
             ) : (
@@ -483,7 +605,7 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
               />
             ))}
           </div>
-        ) : (
+        ) : step === "grievance" ? (
           <div className="divide-y divide-slate-100 py-1">
             {statusOptions.map((opt) => (
               <RadioOption
@@ -491,6 +613,17 @@ export function PsGrievanceFilters({ basePath, constants: _constants, current }:
                 checked={status === opt.value}
                 label={opt.label}
                 onSelect={() => setStatus(opt.value)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 py-1">
+            {sourceOptions.map((opt) => (
+              <RadioOption
+                key={opt.value || "all"}
+                checked={filingSource === opt.value}
+                label={opt.label}
+                onSelect={() => setFilingSource(opt.value)}
               />
             ))}
           </div>

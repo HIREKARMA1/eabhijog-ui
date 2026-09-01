@@ -55,7 +55,7 @@
     "highPriority": "ଉଚ୍ଚ ପ୍ରାଥମିକତା",
     "button": "ଫିଲ୍ଟର",
     "searchLabel": "ଦ୍ରୁତ ସନ୍ଧାନ",
-    "searchPlaceholder": "ଆଇଡି, ନାମ, ମୋବାଇଲ କିମ୍ବା ଜିଲ୍ଲା ସନ୍ଧାନ କରନ୍ତୁ",
+    "searchPlaceholder": "ଆଇଡି କିମ୍ବା ନାମ ଖୋଜନ୍ତୁ",
     "more": "ଅଧିକ ଫିଲ୍ଟର",
     "less": "କମ୍ ଫିଲ୍ଟର",
     "reset": "ରିସେଟ୍",
@@ -86,7 +86,17 @@
     "weekdaySa": "S",
     "totalDateWise": "ମୋଟ ଅଭିଯୋଗ (ତାରିଖ ଅନୁଯାୟୀ)",
     "disposedDateWise": "ନିଷ୍ପତ୍ତି ହୋଇଥିବା (ତାରିଖ ଅନୁଯାୟୀ)",
-    "pendingDateWise": "ବକେୟା (ତାରିଖ ଅନୁଯାୟୀ)"
+    "pendingDateWise": "ବକେୟା (ତାରିଖ ଅନୁଯାୟୀ)",
+    "typeStepTitle": "ଦାଖଲ ଉତ୍ସ ବାଛନ୍ତୁ",
+    "typeStepHint": "ଚାଟବଟ୍ କିମ୍ବା ଅନଲାଇନ୍ ଶୁଣାଣି ଅଭିଯୋଗ ଅନୁସାରେ ଫିଲ୍ଟର କରନ୍ତୁ ।",
+    "sourceAll": "ସମସ୍ତ ଉତ୍ସ",
+    "sourceChatbot": "ଚାଟବଟ୍ (WhatsApp)",
+    "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି",
+    "category": "ବର୍ଗ",
+    "assignedOsd": "ନିୟୋଜିତ OSD",
+    "osdCategory": "OSD ଡେସ୍କ",
+    "allCategories": "ସମସ୍ତ ବର୍ଗ",
+    "allOsdCategories": "ସମସ୍ତ OSD ଡେସ୍କ"
   },
   "analytics": {
     "messagesToday": "ଆଜିର ବାର୍ତ୍ତା",
@@ -115,7 +125,9 @@
       "daysPending": "ବିଳମ୍ବିତ ଦିନ",
       "lastUpdated": "ଶେଷ ଅପଡେଟ୍",
       "actions": "କାର୍ଯ୍ୟ",
-      "view": "ଦେଖନ୍ତୁ"
+      "view": "ଦେଖନ୍ତୁ",
+      "sourceChatbot": "ଚାଟବଟ୍",
+      "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି"
     }
   },
   "nav": {

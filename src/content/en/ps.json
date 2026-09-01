@@ -55,7 +55,7 @@
     "highPriority": "High Priority",
     "button": "Filters",
     "searchLabel": "Quick search",
-    "searchPlaceholder": "Search ID, name, mobile, or district",
+    "searchPlaceholder": "Search ID or name",
     "more": "More filters",
     "less": "Less filters",
     "reset": "Reset",
@@ -86,7 +86,17 @@
     "weekdaySa": "S",
     "totalDateWise": "Total grievances (date-wise)",
     "disposedDateWise": "Disposed (date-wise)",
-    "pendingDateWise": "Pending (date-wise)"
+    "pendingDateWise": "Pending (date-wise)",
+    "typeStepTitle": "Choose filing source",
+    "typeStepHint": "Filter by Chatbot or Online Hearing grievances.",
+    "sourceAll": "All sources",
+    "sourceChatbot": "Chatbot (WhatsApp)",
+    "sourceOnlineHearing": "Online Hearing",
+    "category": "Category",
+    "assignedOsd": "Assigned OSD",
+    "osdCategory": "OSD desk",
+    "allCategories": "All categories",
+    "allOsdCategories": "All OSD desks"
   },
   "analytics": {
     "messagesToday": "Messages Today",
@@ -115,7 +125,9 @@
       "daysPending": "Days Pending",
       "lastUpdated": "Last Updated",
       "actions": "Actions",
-      "view": "View"
+      "view": "View",
+      "sourceChatbot": "Chatbot",
+      "sourceOnlineHearing": "Online Hearing"
     }
   },
   "nav": {

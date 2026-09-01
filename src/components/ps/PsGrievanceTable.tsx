@@ -35,6 +35,22 @@ function daysPendingClass(days: string) {
   return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100";
 }
 
+function FilingSourceBadge({
+  source,
+  label,
+}: {
+  source?: "chatbot" | "online_hearing";
+  label: string;
+}) {
+  if (!source) return null;
+  const tone = source === "online_hearing" ? ("info" as const) : ("default" as const);
+  return (
+    <Badge tone={tone} className="whitespace-nowrap">
+      {label}
+    </Badge>
+  );
+}
+
 export function PsGrievanceTable({
   items,
   detailHrefPrefix = "/ps/grievance/",
@@ -43,6 +59,12 @@ export function PsGrievanceTable({
   detailHrefPrefix?: string;
 }) {
   const { t } = useI18n();
+
+  function sourceLabel(source?: "chatbot" | "online_hearing") {
+    if (source === "online_hearing") return t("ps", "grievances.table.sourceOnlineHearing");
+    if (source === "chatbot") return t("ps", "grievances.table.sourceChatbot");
+    return "";
+  }
 
   return (
     <>
@@ -60,9 +82,15 @@ export function PsGrievanceTable({
                 className={`rounded-2xl border border-border bg-white p-4 shadow-sm ${index % 2 === 0 ? "bg-white" : "bg-slate-50/40"}`}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 font-mono text-xs font-semibold text-blue-700 ring-1 ring-blue-100">
-                    {g.reference_number}
-                  </span>
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 font-mono text-xs font-semibold text-blue-700 ring-1 ring-blue-100">
+                      {g.reference_number}
+                    </span>
+                    <FilingSourceBadge
+                      source={g.filing_source}
+                      label={sourceLabel(g.filing_source)}
+                    />
+                  </div>
                   <Link
                     href={`${detailHrefPrefix}${encodeURIComponent(g.reference_number)}`}
                     className="inline-flex shrink-0 items-center rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
@@ -113,7 +141,15 @@ export function PsGrievanceTable({
             {
               key: "id",
               header: t("ps", "grievances.table.grievanceId"),
-              cell: (g) => <span className="font-mono text-xs font-semibold text-slate-800">{g.reference_number}</span>,
+              cell: (g) => (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs font-semibold text-slate-800">{g.reference_number}</span>
+                  <FilingSourceBadge
+                    source={g.filing_source}
+                    label={sourceLabel(g.filing_source)}
+                  />
+                </div>
+              ),
             },
             {
               key: "citizen",
