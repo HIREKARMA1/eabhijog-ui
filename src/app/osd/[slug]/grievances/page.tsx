@@ -62,7 +62,6 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
         filters={filters}
         basePath={`/osd/${slug}/grievances`}
         detailHrefPrefix={`/osd/${slug}/grievance/`}
-        hideOsdCategory
         showHeader={false}
         currentPage={currentPage}
         pageSize={PAGE_SIZE}
