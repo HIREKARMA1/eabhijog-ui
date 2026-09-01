@@ -1,6 +1,6 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
-import { getServerApiBase } from "@/config/env";
+import { buildServerApiBase } from "@/config/env";
 import type { ApiEnvelope } from "@/types/api";
 
 function buildCookieHeader(cookieStore: Awaited<ReturnType<typeof cookies>>): string {
@@ -10,10 +10,17 @@ function buildCookieHeader(cookieStore: Awaited<ReturnType<typeof cookies>>): st
     .join("; ");
 }
 
+async function resolveServerApiBase(): Promise<string> {
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  const proto = headerStore.get("x-forwarded-proto");
+  return buildServerApiBase(host, proto);
+}
+
 export async function serverApiRequest<T>(path: string): Promise<ApiEnvelope<T>> {
   const cookieStore = await cookies();
   const cookieHeader = buildCookieHeader(cookieStore);
-  const url = `${getServerApiBase()}${path}`;
+  const url = `${await resolveServerApiBase()}${path}`;
 
   const headers: Record<string, string> = {
     Accept: "application/json",
