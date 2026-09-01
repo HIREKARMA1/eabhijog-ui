@@ -16,6 +16,9 @@ export default async function GrievancesPage({ searchParams }: PageProps) {
   const filters = {
     status: params.status ?? "",
     district: params.district ?? "",
+    filing_source: params.filing_source ?? "",
+    category: params.category ?? "",
+    osd_category: params.osd_category ?? "",
     search: params.search ?? "",
   };
   const [data, constants] = await Promise.all([
@@ -38,6 +41,8 @@ export default async function GrievancesPage({ searchParams }: PageProps) {
           <GrievanceFilters
             statuses={constants.statuses}
             districts={constants.districts}
+            categories={constants.grievance_categories}
+            osdCategories={constants.osd_categories}
             basePath="/dashboard/grievances"
           />
         </Suspense>

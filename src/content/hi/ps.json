@@ -55,7 +55,7 @@
     "highPriority": "उच्च प्राथमिकता",
     "button": "फ़िल्टर",
     "searchLabel": "त्वरित खोज",
-    "searchPlaceholder": "आईडी, नाम, मोबाइल या जिला खोजें",
+    "searchPlaceholder": "आईडी या नाम खोजें",
     "more": "और फ़िल्टर",
     "less": "कम फ़िल्टर",
     "reset": "रीसेट",
@@ -86,7 +86,17 @@
     "weekdaySa": "S",
     "totalDateWise": "कुल शिकायतें (तारीख के अनुसार)",
     "disposedDateWise": "निस्तारित (तारीख के अनुसार)",
-    "pendingDateWise": "लंबित (तारीख के अनुसार)"
+    "pendingDateWise": "लंबित (तारीख के अनुसार)",
+    "typeStepTitle": "दाखिली स्रोत चुनें",
+    "typeStepHint": "चैटबॉट या ऑनलाइन सुनवाई शिकायतों से फ़िल्टर करें।",
+    "sourceAll": "सभी स्रोत",
+    "sourceChatbot": "चैटबॉट (WhatsApp)",
+    "sourceOnlineHearing": "ऑनलाइन सुनवाई",
+    "category": "श्रेणी",
+    "assignedOsd": "नियुक्त OSD",
+    "osdCategory": "OSD डेस्क",
+    "allCategories": "सभी श्रेणियाँ",
+    "allOsdCategories": "सभी OSD डेस्क"
   },
   "analytics": {
     "messagesToday": "आज के संदेश",
@@ -115,7 +125,9 @@
       "daysPending": "लंबित दिन",
       "lastUpdated": "अंतिम अपडेट",
       "actions": "कार्रवाई",
-      "view": "देखें"
+      "view": "देखें",
+      "sourceChatbot": "चैटबॉट",
+      "sourceOnlineHearing": "ऑनलाइन सुनवाई"
     }
   },
   "nav": {

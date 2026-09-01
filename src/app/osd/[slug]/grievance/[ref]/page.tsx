@@ -37,6 +37,7 @@ export default async function OsdGrievanceDetailPage({ params }: PageProps) {
         allowedStatuses={data.allowed_statuses}
         priorities={constants.priorities}
         suggestedRecipients={data.suggested_recipients}
+        resolvedRecipients={data.resolved_recipients ?? []}
         journey={data.journey ?? []}
       />
     </>
