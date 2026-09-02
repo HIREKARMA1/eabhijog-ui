@@ -67,6 +67,8 @@ type GrievanceFiltersProps = {
   basePath: string;
   variant?: "portal" | "desk";
   hideOsdCategory?: boolean;
+  /** Main grievance list (active) vs disposed grievances page. */
+  listMode?: "active" | "disposed";
 };
 
 export function GrievanceFilters({
@@ -77,13 +79,18 @@ export function GrievanceFilters({
   basePath,
   variant = "portal",
   hideOsdCategory = false,
+  listMode = "active",
 }: GrievanceFiltersProps) {
   const { t } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
   const isDesk = variant === "desk";
+  const defaultDeskStatus = listMode === "disposed" ? "disposed_grievances" : "active";
+  const allLabel = t("ps", "filters.all");
 
-  const [status, setStatus] = useState(params.get("status") ?? "");
+  const [status, setStatus] = useState(
+    () => params.get("status") ?? (isDesk ? defaultDeskStatus : ""),
+  );
   const [district, setDistrict] = useState(params.get("district") ?? "");
   const [filingSource, setFilingSource] = useState(params.get("filing_source") ?? "");
   const [category, setCategory] = useState(params.get("category") ?? "");
@@ -94,7 +101,7 @@ export function GrievanceFilters({
   const [dateTo, setDateTo] = useState(params.get("date_to") ?? "");
 
   useEffect(() => {
-    setStatus(params.get("status") ?? "");
+    setStatus(params.get("status") ?? (isDesk ? defaultDeskStatus : ""));
     setDistrict(params.get("district") ?? "");
     setFilingSource(params.get("filing_source") ?? "");
     setCategory(params.get("category") ?? "");
@@ -103,23 +110,41 @@ export function GrievanceFilters({
     setDateMode(detectDateMode(params));
     setDateFrom(params.get("date_from") ?? "");
     setDateTo(params.get("date_to") ?? "");
-  }, [params]);
+  }, [params, isDesk, defaultDeskStatus]);
 
-  const deskStatusOptions = useMemo(
+  const disposedStatusOptions = useMemo(
     () => [
-      { value: "", label: t("ps", "filters.totalDateWise") },
-      { value: "disposed", label: t("ps", "filters.disposedDateWise") },
-      { value: "pending", label: t("ps", "filters.pendingDateWise") },
+      { value: "disposed_grievances", label: t("ps", "filters.allDisposed") },
+      { value: "resolved", label: t("ps", "mis.cards.resolved") },
+      { value: "closed", label: t("ps", "mis.cards.closed") },
+      { value: "discarded", label: t("dashboard", "grievance.statusRejected") },
     ],
     [t],
   );
 
   const portalStatusOptions = useMemo(
     () => [
-      { value: "", label: "-" },
+      { value: "", label: allLabel },
       ...statuses.map((s) => ({ value: s, label: s.replace(/_/g, " ") })),
     ],
-    [statuses],
+    [statuses, allLabel],
+  );
+
+  const sourceOptions = useMemo(
+    () => [
+      { value: "", label: allLabel },
+      { value: "chatbot", label: t("dashboard", "filters.sourceChatbot") },
+      { value: "online_hearing", label: t("dashboard", "filters.sourceOnlineHearing") },
+    ],
+    [allLabel, t],
+  );
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: "", label: allLabel },
+      ...osdCategories.map((c) => ({ value: c, label: c })),
+    ],
+    [osdCategories, allLabel],
   );
 
   const datePresetOptions = useMemo(
@@ -135,7 +160,7 @@ export function GrievanceFilters({
   );
 
   function appendDateParams(qs: URLSearchParams) {
-    if (!isDesk || dateMode === "all") return;
+    if (dateMode === "all") return;
 
     if (dateMode === "custom") {
       if (dateFrom) qs.set("date_from", dateFrom);
@@ -153,27 +178,43 @@ export function GrievanceFilters({
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const qs = new URLSearchParams();
-    if (status) qs.set("status", status);
-    if (district) qs.set("district", district);
-    if (filingSource) qs.set("filing_source", filingSource);
-    if (category) qs.set("category", category);
-    if (!hideOsdCategory && osdCategory) qs.set("osd_category", osdCategory);
-    if (search.trim()) qs.set("search", search.trim());
-    appendDateParams(qs);
+
+    if (isDesk) {
+      if (status) qs.set("status", status);
+      if (filingSource) qs.set("filing_source", filingSource);
+      if (osdCategory) qs.set("osd_category", osdCategory);
+      appendDateParams(qs);
+    } else {
+      if (status) qs.set("status", status);
+      if (district) qs.set("district", district);
+      if (filingSource) qs.set("filing_source", filingSource);
+      if (category) qs.set("category", category);
+      if (!hideOsdCategory && osdCategory) qs.set("osd_category", osdCategory);
+      if (search.trim()) qs.set("search", search.trim());
+      appendDateParams(qs);
+    }
+
     const suffix = qs.toString() ? `?${qs.toString()}` : "";
     router.push(`${basePath}${suffix}`);
   }
 
   function onClear() {
-    setStatus("");
-    setDistrict("");
     setFilingSource("");
-    setCategory("");
     setOsdCategory("");
-    setSearch("");
     setDateMode("all");
     setDateFrom("");
     setDateTo("");
+
+    if (isDesk) {
+      setStatus(defaultDeskStatus);
+      router.push(`${basePath}?status=${defaultDeskStatus}`);
+      return;
+    }
+
+    setStatus("");
+    setDistrict("");
+    setCategory("");
+    setSearch("");
     router.push(basePath);
   }
 
@@ -191,6 +232,85 @@ export function GrievanceFilters({
     setDateTo(range.to);
   }
 
+  if (isDesk) {
+    return (
+      <form
+        onSubmit={onSubmit}
+        className="space-y-3 rounded-xl border border-border bg-white p-4"
+      >
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <Select
+            name="filing_source"
+            label={t("dashboard", "filters.source")}
+            value={filingSource}
+            onChange={(e) => setFilingSource(e.target.value)}
+            options={sourceOptions}
+          />
+          <Select
+            name="osd_category"
+            label={t("dashboard", "filters.category")}
+            value={osdCategory}
+            onChange={(e) => setOsdCategory(e.target.value)}
+            options={categoryOptions}
+          />
+          <Select
+            name="date_preset"
+            label={t("ps", "filters.sectionDate")}
+            value={dateMode}
+            onChange={(e) => onDateModeChange(e.target.value)}
+            options={datePresetOptions}
+          />
+          {listMode === "disposed" ? (
+            <Select
+              name="status"
+              label={t("dashboard", "filters.status")}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              options={disposedStatusOptions}
+            />
+          ) : (
+            <div className="flex items-end gap-2">
+              <Button type="submit" className="flex-1">
+                {t("dashboard", "filters.apply")}
+              </Button>
+              <Button type="button" variant="outline" onClick={onClear}>
+                {t("dashboard", "filters.clear")}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {dateMode === "custom" ? (
+          <div className="grid gap-3 border-t border-border pt-3 md:grid-cols-2">
+            <Input
+              name="date_from"
+              type="date"
+              label={t("ps", "filters.dateFrom")}
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+            <Input
+              name="date_to"
+              type="date"
+              label={t("ps", "filters.dateTo")}
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </div>
+        ) : null}
+
+        {listMode === "disposed" ? (
+          <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
+            <Button type="submit">{t("dashboard", "filters.apply")}</Button>
+            <Button type="button" variant="outline" onClick={onClear}>
+              {t("dashboard", "filters.clear")}
+            </Button>
+          </div>
+        ) : null}
+      </form>
+    );
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -202,32 +322,28 @@ export function GrievanceFilters({
           label={t("dashboard", "filters.status")}
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          options={isDesk ? deskStatusOptions : portalStatusOptions}
+          options={portalStatusOptions}
         />
         <Select
           name="district"
           label={t("dashboard", "filters.district")}
           value={district}
           onChange={(e) => setDistrict(e.target.value)}
-          options={[{ value: "", label: "-" }, ...districts.map((d) => ({ value: d, label: d }))]}
+          options={[{ value: "", label: allLabel }, ...districts.map((d) => ({ value: d, label: d }))]}
         />
         <Select
           name="filing_source"
           label={t("dashboard", "filters.source")}
           value={filingSource}
           onChange={(e) => setFilingSource(e.target.value)}
-          options={[
-            { value: "", label: "-" },
-            { value: "chatbot", label: t("dashboard", "filters.sourceChatbot") },
-            { value: "online_hearing", label: t("dashboard", "filters.sourceOnlineHearing") },
-          ]}
+          options={sourceOptions}
         />
         <Select
           name="category"
           label={t("dashboard", "filters.category")}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          options={[{ value: "", label: "-" }, ...categories.map((c) => ({ value: c, label: c }))]}
+          options={[{ value: "", label: allLabel }, ...categories.map((c) => ({ value: c, label: c }))]}
         />
         {!hideOsdCategory ? (
           <Select
@@ -235,10 +351,7 @@ export function GrievanceFilters({
             label={t("dashboard", "filters.osdCategory")}
             value={osdCategory}
             onChange={(e) => setOsdCategory(e.target.value)}
-            options={[
-              { value: "", label: "-" },
-              ...osdCategories.map((c) => ({ value: c, label: c })),
-            ]}
+            options={[{ value: "", label: allLabel }, ...osdCategories.map((c) => ({ value: c, label: c }))]}
           />
         ) : null}
         <Input
@@ -257,35 +370,33 @@ export function GrievanceFilters({
         </div>
       </div>
 
-      {isDesk ? (
-        <div className="grid gap-3 border-t border-border pt-3 md:grid-cols-3 lg:grid-cols-4">
-          <Select
-            name="date_preset"
-            label={t("ps", "filters.sectionDate")}
-            value={dateMode}
-            onChange={(e) => onDateModeChange(e.target.value)}
-            options={datePresetOptions}
-          />
-          {dateMode === "custom" ? (
-            <>
-              <Input
-                name="date_from"
-                type="date"
-                label={t("ps", "filters.dateFrom")}
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-              />
-              <Input
-                name="date_to"
-                type="date"
-                label={t("ps", "filters.dateTo")}
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-              />
-            </>
-          ) : null}
-        </div>
-      ) : null}
+      <div className="grid gap-3 border-t border-border pt-3 md:grid-cols-3 lg:grid-cols-4">
+        <Select
+          name="date_preset"
+          label={t("ps", "filters.sectionDate")}
+          value={dateMode}
+          onChange={(e) => onDateModeChange(e.target.value)}
+          options={datePresetOptions}
+        />
+        {dateMode === "custom" ? (
+          <>
+            <Input
+              name="date_from"
+              type="date"
+              label={t("ps", "filters.dateFrom")}
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+            <Input
+              name="date_to"
+              type="date"
+              label={t("ps", "filters.dateTo")}
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </>
+        ) : null}
+      </div>
     </form>
   );
 }
