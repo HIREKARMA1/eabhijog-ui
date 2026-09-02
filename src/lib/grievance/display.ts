@@ -29,6 +29,19 @@ export function formatResolutionHours(hours: number | null | undefined): string 
   return `${hours} hrs`;
 }
 
+export const FORWARD_VIA_FORM_ONLY_STATUS = "forwarded_to_department";
+
 export function formatStatusLabel(status: string): string {
+  if (status === "cancelled") return "Rejected";
   return status.replace(/_/g, " ");
+}
+
+export function filterOsdUpdateStatusOptions(
+  allowedStatuses: string[],
+  currentStatus: string,
+): string[] {
+  return allowedStatuses.filter(
+    (status) =>
+      status !== FORWARD_VIA_FORM_ONLY_STATUS || status === currentStatus,
+  );
 }
