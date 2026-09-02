@@ -51,12 +51,23 @@ function FilingSourceBadge({
   );
 }
 
+function detailHref(
+  detailHrefPrefix: string,
+  referenceNumber: string,
+  listQueryString?: string,
+): string {
+  const base = `${detailHrefPrefix}${encodeURIComponent(referenceNumber)}`;
+  return listQueryString ? `${base}?${listQueryString}` : base;
+}
+
 export function PsGrievanceTable({
   items,
   detailHrefPrefix = "/ps/grievance/",
+  listQueryString,
 }: {
   items: PsGrievanceRow[];
   detailHrefPrefix?: string;
+  listQueryString?: string;
 }) {
   const { t } = useI18n();
 
@@ -92,7 +103,7 @@ export function PsGrievanceTable({
                     />
                   </div>
                   <Link
-                    href={`${detailHrefPrefix}${encodeURIComponent(g.reference_number)}`}
+                    href={detailHref(detailHrefPrefix, g.reference_number, listQueryString)}
                     className="inline-flex shrink-0 items-center rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
                   >
                     {t("ps", "grievances.table.view")}
@@ -203,7 +214,7 @@ export function PsGrievanceTable({
               header: t("ps", "grievances.table.actions"),
               cell: (g) => (
                 <Link
-                  href={`${detailHrefPrefix}${encodeURIComponent(g.reference_number)}`}
+                  href={detailHref(detailHrefPrefix, g.reference_number, listQueryString)}
                   className="text-sm font-medium text-brand hover:underline"
                 >
                   {t("ps", "grievances.table.view")}
