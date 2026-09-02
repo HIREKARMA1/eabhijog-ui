@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
@@ -12,8 +12,6 @@ import { forwardOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import {
   CITIZEN_WHATSAPP_MAX_CHARS,
-  buildForwardCitizenMessage,
-  citizenMessageHasPlaceholders,
   citizenWhatsAppLengthError,
 } from "@/lib/grievance/statusMessageTemplates";
 import { useI18n } from "@/lib/i18n/context";
@@ -239,7 +237,7 @@ function newManualRow(): RecipientRow {
 export function OsdForwardForm({
   osdSlug,
   referenceNumber,
-  citizenName = "",
+  citizenName: _citizenName = "",
   suggestedRecipients,
   resolvedRecipients,
   grievanceDepartment = "",
@@ -251,7 +249,6 @@ export function OsdForwardForm({
   const router = useRouter();
   const [remarks, setRemarks] = useState("");
   const [citizenMessage, setCitizenMessage] = useState("");
-  const [messageTouched, setMessageTouched] = useState(false);
   const [cc, setCc] = useState("");
   const [bcc, setBcc] = useState("");
   const [message, setMessage] = useState("");
@@ -287,23 +284,6 @@ export function OsdForwardForm({
   );
 
   const [rows, setRows] = useState<RecipientRow[]>(initialRows);
-
-  const primaryDepartmentName = useMemo(() => {
-    const first = rows.find((row) => row.department.trim());
-    return first?.department.trim() ?? "";
-  }, [rows]);
-
-  useEffect(() => {
-    if (messageTouched) return;
-    setCitizenMessage(
-      buildForwardCitizenMessage({
-        citizenName,
-        referenceNumber,
-        departmentName: primaryDepartmentName,
-        remarks,
-      }),
-    );
-  }, [citizenName, referenceNumber, primaryDepartmentName, remarks, messageTouched]);
 
   function updateRow(key: string, patch: Partial<RecipientRow>) {
     setRows((current) => current.map((row) => (row.key === key ? { ...row, ...patch } : row)));
@@ -388,8 +368,8 @@ export function OsdForwardForm({
       setError(t("dashboard", "forwardForm.recipientRequired"));
       return;
     }
-    if (citizenMessageHasPlaceholders(citizenMessage)) {
-      setError("Replace all bracket placeholders in the citizen message before sending.");
+    if (!citizenMessage.trim()) {
+      setError("Enter remarks for the citizen WhatsApp message.");
       return;
     }
     const lengthError = citizenWhatsAppLengthError(citizenMessage);
@@ -546,13 +526,11 @@ export function OsdForwardForm({
 
         <div className="space-y-1.5">
           <Textarea
-            label={t("dashboard", "grievance.citizenMessage")}
+            label={t("dashboard", "grievance.remarksForCitizenWhatsApp")}
             value={citizenMessage}
-            onChange={(e) => {
-              setMessageTouched(true);
-              setCitizenMessage(e.target.value);
-            }}
-            rows={8}
+            onChange={(e) => setCitizenMessage(e.target.value)}
+            rows={5}
+            placeholder={t("dashboard", "grievance.citizenMessagePlaceholder")}
           />
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs text-text-muted">
