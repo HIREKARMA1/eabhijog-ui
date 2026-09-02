@@ -20,7 +20,6 @@ import {
   isStatusMessageStatus,
 } from "@/lib/grievance/statusMessageTemplates";
 import {
-  FORWARD_VIA_FORM_ONLY_STATUS,
   filterOsdUpdateStatusOptions,
   formatPriorityLabel,
   formatStatusLabel,
@@ -76,23 +75,6 @@ export function OsdGrievanceDetailView({
   }, [status, grievance.citizen_name, grievance.reference_number, messageTouched]);
 
   function handleStatusChange(nextStatus: string) {
-    if (
-      nextStatus === FORWARD_VIA_FORM_ONLY_STATUS &&
-      grievance.status !== FORWARD_VIA_FORM_ONLY_STATUS
-    ) {
-      setStatus(grievance.status);
-      setFeedbackTone("warning");
-      setFeedback("Use the Forward to Department form below.");
-      const el = document.getElementById("osd-forward-form");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        el.classList.add("ring-2", "ring-brand", "ring-offset-2");
-        window.setTimeout(() => {
-          el.classList.remove("ring-2", "ring-brand", "ring-offset-2");
-        }, 2000);
-      }
-      return;
-    }
     setStatus(nextStatus);
     setMessageTouched(false);
     setFeedback("");
