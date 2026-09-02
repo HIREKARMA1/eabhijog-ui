@@ -1,18 +1,27 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
+import { GrievanceListBackLink } from "@/components/grievance/GrievanceListBackLink";
 import { OsdForwardForm } from "@/components/grievance/OsdForwardForm";
-import Link from "next/link";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { updateOsdStatus } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
+import {
+  buildStatusCitizenMessage,
+  isStatusMessageStatus,
+} from "@/lib/grievance/statusMessageTemplates";
+import {
+  filterOsdUpdateStatusOptions,
+  formatStatusLabel,
+} from "@/lib/grievance/display";
 import { useI18n } from "@/lib/i18n/context";
 import type { GrievanceRow, JourneyEvent, OsdDepartmentContact } from "@/types/api";
 
@@ -39,24 +48,66 @@ export function OsdGrievanceDetailView({
   const router = useRouter();
   const [status, setStatus] = useState(grievance.status);
   const [priority, setPriority] = useState(grievance.priority ?? "normal");
-  const [remarks, setRemarks] = useState("");
-  const [message, setMessage] = useState("");
+  const [citizenMessage, setCitizenMessage] = useState("");
+  const [messageTouched, setMessageTouched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTone, setFeedbackTone] = useState<"success" | "warning">("success");
+
+  const statusOptions = useMemo(
+    () => filterOsdUpdateStatusOptions(allowedStatuses, grievance.status),
+    [allowedStatuses, grievance.status],
+  );
+
+  const showCitizenMessage = isStatusMessageStatus(status);
+
+  useEffect(() => {
+    if (!isStatusMessageStatus(status) || messageTouched) return;
+    setCitizenMessage(
+      buildStatusCitizenMessage(status, {
+        citizenName: grievance.citizen_name ?? "",
+        referenceNumber: grievance.reference_number,
+      }),
+    );
+  }, [status, grievance.citizen_name, grievance.reference_number, messageTouched]);
+
+  function handleStatusChange(nextStatus: string) {
+    setStatus(nextStatus);
+    setMessageTouched(false);
+  }
 
   async function onStatusSubmit(e: FormEvent) {
     e.preventDefault();
-    setMessage("");
+    setFeedback("");
+    setLoading(true);
     try {
-      await updateOsdStatus(osdSlug, grievance.reference_number, { status, priority, remarks });
+      const result = await updateOsdStatus(osdSlug, grievance.reference_number, {
+        status,
+        priority,
+        remarks: "",
+        citizen_message: showCitizenMessage ? citizenMessage.trim() : "",
+      });
       router.refresh();
-      setMessage("Status updated.");
+      const warning = result.data?.whatsapp_warning;
+      if (warning) {
+        setFeedbackTone("warning");
+        setFeedback(warning);
+      } else {
+        setFeedbackTone("success");
+        setFeedback(result.message || "Status updated.");
+      }
     } catch (err) {
-      setMessage(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+      setFeedbackTone("warning");
+      setFeedback(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="grid gap-5 lg:grid-cols-3">
-      <div className="mb-2 lg:col-span-3">
+      <div className="mb-2 flex flex-col gap-2 lg:col-span-3">
+        <GrievanceListBackLink listHref={`/osd/${osdSlug}/grievances`} />
         <Link
           href={`/osd/${osdSlug}/grievance/${grievance.reference_number}/conversation`}
           className="text-sm text-brand hover:underline"
@@ -110,8 +161,11 @@ export function OsdGrievanceDetailView({
           <Select
             label={t("dashboard", "table.status")}
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            options={allowedStatuses.map((s) => ({ value: s, label: s.replace(/_/g, " ") }))}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            options={statusOptions.map((s) => ({
+              value: s,
+              label: formatStatusLabel(s),
+            }))}
           />
           <Select
             label={t("dashboard", "grievance.priority")}
@@ -119,16 +173,42 @@ export function OsdGrievanceDetailView({
             onChange={(e) => setPriority(e.target.value)}
             options={priorities.map((p) => ({ value: p, label: p }))}
           />
-          <Textarea label={t("dashboard", "grievance.remarks")} value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-          <Button type="submit" className="w-full">{t("dashboard", "grievance.updateStatus")}</Button>
+          {showCitizenMessage ? (
+            <div className="space-y-1.5">
+              <Textarea
+                label={t("dashboard", "grievance.citizenMessage")}
+                value={citizenMessage}
+                onChange={(e) => {
+                  setMessageTouched(true);
+                  setCitizenMessage(e.target.value);
+                }}
+                rows={10}
+              />
+              <p className="text-xs text-text-muted">
+                {t("dashboard", "grievance.citizenMessageHint")}
+              </p>
+            </div>
+          ) : null}
+          <Button type="submit" className="w-full" loading={loading} disabled={loading}>
+            {t("dashboard", "grievance.updateStatus")}
+          </Button>
         </form>
-        {message ? <p className="mt-3 text-sm text-success">{message}</p> : null}
+        {feedback ? (
+          <p
+            className={`mt-3 text-sm ${
+              feedbackTone === "success" ? "text-success" : "text-amber-700"
+            }`}
+          >
+            {feedback}
+          </p>
+        ) : null}
       </Card>
 
       <div className="lg:col-span-3">
         <OsdForwardForm
           osdSlug={osdSlug}
           referenceNumber={grievance.reference_number}
+          citizenName={grievance.citizen_name ?? ""}
           suggestedRecipients={suggestedRecipients}
           resolvedRecipients={resolvedRecipients}
           grievanceDepartment={grievance.department}
