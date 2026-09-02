@@ -1,3 +1,6 @@
+/** Meta HSM template variable {{1}} practical limit for staff-reply WhatsApp sends. */
+export const CITIZEN_WHATSAPP_MAX_CHARS = 900;
+
 export const STATUS_MESSAGE_STATUSES = new Set(["resolved", "closed", "cancelled"]);
 
 export type StatusMessageTemplateKey = "resolved" | "closed" | "cancelled";
@@ -13,13 +16,14 @@ const REMARKS_PLACEHOLDER: Record<StatusMessageTemplateKey, string> = {
   cancelled: "[Reason for Rejection]",
 };
 
+/** Keep bodies short — entire message is sent as Serri/Meta template {{1}}. */
 const TEMPLATE_BODIES: Record<StatusMessageTemplateKey, string> = {
-  resolved: `Dear [Name], your grievance [Grievance ID] has been resolved by the Office of the Hon'ble Minister, Commerce, Transport, Steel & Mines.
+  resolved: `Dear [Name], your grievance [Grievance ID] has been resolved.
 
 Remarks: ${REMARKS_PLACEHOLDER.resolved}
 
 — Jana Samadhan`,
-  closed: `Dear [Name], your grievance [Grievance ID] has been closed after necessary action by the concerned authority.
+  closed: `Dear [Name], your grievance [Grievance ID] has been closed.
 
 Remarks: ${REMARKS_PLACEHOLDER.closed}
 
@@ -69,4 +73,14 @@ const CITIZEN_MESSAGE_PLACEHOLDER_PATTERN = /\[[^\]]+\]/;
 
 export function citizenMessageHasPlaceholders(message: string): boolean {
   return CITIZEN_MESSAGE_PLACEHOLDER_PATTERN.test(message.trim());
+}
+
+export function citizenMessageExceedsWhatsAppLimit(message: string): boolean {
+  return message.trim().length > CITIZEN_WHATSAPP_MAX_CHARS;
+}
+
+export function citizenWhatsAppLengthError(message: string): string | null {
+  const len = message.trim().length;
+  if (len <= CITIZEN_WHATSAPP_MAX_CHARS) return null;
+  return `WhatsApp message is too long (${len}/${CITIZEN_WHATSAPP_MAX_CHARS} characters). Shorten it before sending.`;
 }

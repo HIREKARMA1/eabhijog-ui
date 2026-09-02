@@ -15,8 +15,10 @@ import { Textarea } from "@/components/ui/Textarea";
 import { updateOsdStatus } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import {
+  CITIZEN_WHATSAPP_MAX_CHARS,
   buildStatusCitizenMessage,
   citizenMessageHasPlaceholders,
+  citizenWhatsAppLengthError,
   isStatusMessageStatus,
 } from "@/lib/grievance/statusMessageTemplates";
 import {
@@ -88,6 +90,14 @@ export function OsdGrievanceDetailView({
       setFeedback(
         "Replace all bracket placeholders in the citizen message before sending.",
       );
+      return;
+    }
+    const lengthError = showCitizenMessage
+      ? citizenWhatsAppLengthError(citizenMessage)
+      : null;
+    if (lengthError) {
+      setFeedbackTone("warning");
+      setFeedback(lengthError);
       return;
     }
     setLoading(true);
@@ -225,11 +235,22 @@ export function OsdGrievanceDetailView({
                   setMessageTouched(true);
                   setCitizenMessage(e.target.value);
                 }}
-                rows={10}
+                rows={8}
               />
-              <p className="text-xs text-text-muted">
-                {t("dashboard", "grievance.citizenMessageHint")}
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-text-muted">
+                  {t("dashboard", "grievance.citizenMessageHint")}
+                </p>
+                <p
+                  className={`text-xs tabular-nums ${
+                    citizenMessage.trim().length > CITIZEN_WHATSAPP_MAX_CHARS
+                      ? "font-medium text-amber-700"
+                      : "text-text-muted"
+                  }`}
+                >
+                  {citizenMessage.trim().length}/{CITIZEN_WHATSAPP_MAX_CHARS}
+                </p>
+              </div>
             </div>
           ) : null}
           <Button type="submit" className="w-full" loading={loading} disabled={loading}>

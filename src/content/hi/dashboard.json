@@ -73,7 +73,7 @@
     "citizenMessage": "नागरिक संदेश",
     "remarksForCitizenHint": "शिकायतकर्ता को भेजे जाने वाले WhatsApp संदेश में शामिल होगी।",
     "remarksForDepartmentHint": "विभाग अधिकारी को भेजे जाने वाले ईमेल और WhatsApp में शामिल होगी।",
-    "citizenMessageHint": "नीचे पूरा WhatsApp संदेश संपादित करें। ब्रैकेट वाले टेक्स्ट को अपने समाधान, समापन या अस्वीकृति विवरण से बदलें।",
+    "citizenMessageHint": "WhatsApp संदेश छोटा रखें (अधिकतम 900 अक्षर)। ब्रैकेट वाले टेक्स्ट को संक्षिप्त टिप्पणी से बदलें।",
     "priority": "प्राथमिकता",
     "category": "श्रेणी",
     "district": "जिला",
