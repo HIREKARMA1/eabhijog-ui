@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -16,8 +16,6 @@ import { updateOsdStatus } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import {
   CITIZEN_WHATSAPP_MAX_CHARS,
-  buildStatusCitizenMessage,
-  citizenMessageHasPlaceholders,
   citizenWhatsAppLengthError,
   isStatusMessageStatus,
 } from "@/lib/grievance/statusMessageTemplates";
@@ -54,7 +52,6 @@ export function OsdGrievanceDetailView({
   const [status, setStatus] = useState(grievance.status);
   const [priority, setPriority] = useState(grievance.priority ?? "normal");
   const [citizenMessage, setCitizenMessage] = useState("");
-  const [messageTouched, setMessageTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [feedbackTone, setFeedbackTone] = useState<"success" | "warning">("success");
@@ -66,30 +63,17 @@ export function OsdGrievanceDetailView({
 
   const showCitizenMessage = isStatusMessageStatus(status);
 
-  useEffect(() => {
-    if (!isStatusMessageStatus(status) || messageTouched) return;
-    setCitizenMessage(
-      buildStatusCitizenMessage(status, {
-        citizenName: grievance.citizen_name ?? "",
-        referenceNumber: grievance.reference_number,
-      }),
-    );
-  }, [status, grievance.citizen_name, grievance.reference_number, messageTouched]);
-
   function handleStatusChange(nextStatus: string) {
     setStatus(nextStatus);
-    setMessageTouched(false);
     setFeedback("");
   }
 
   async function onStatusSubmit(e: FormEvent) {
     e.preventDefault();
     setFeedback("");
-    if (showCitizenMessage && citizenMessageHasPlaceholders(citizenMessage)) {
+    if (showCitizenMessage && !citizenMessage.trim()) {
       setFeedbackTone("warning");
-      setFeedback(
-        "Replace all bracket placeholders in the citizen message before sending.",
-      );
+      setFeedback("Enter remarks for the citizen WhatsApp message.");
       return;
     }
     const lengthError = showCitizenMessage
@@ -229,13 +213,11 @@ export function OsdGrievanceDetailView({
           {showCitizenMessage ? (
             <div className="space-y-1.5">
               <Textarea
-                label={t("dashboard", "grievance.citizenMessage")}
+                label={t("dashboard", "grievance.remarksForCitizenWhatsApp")}
                 value={citizenMessage}
-                onChange={(e) => {
-                  setMessageTouched(true);
-                  setCitizenMessage(e.target.value);
-                }}
-                rows={8}
+                onChange={(e) => setCitizenMessage(e.target.value)}
+                rows={5}
+                placeholder={t("dashboard", "grievance.citizenMessagePlaceholder")}
               />
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs text-text-muted">
