@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { forwardOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
-import { buildForwardCitizenMessage } from "@/lib/grievance/statusMessageTemplates";
+import { buildForwardCitizenMessage, citizenMessageHasPlaceholders } from "@/lib/grievance/statusMessageTemplates";
 import { useI18n } from "@/lib/i18n/context";
 import type { OsdDepartmentContact } from "@/types/api";
 
@@ -381,6 +381,10 @@ export function OsdForwardForm({
 
     if (recipients.length === 0) {
       setError(t("dashboard", "forwardForm.recipientRequired"));
+      return;
+    }
+    if (citizenMessageHasPlaceholders(citizenMessage)) {
+      setError("Replace all bracket placeholders in the citizen message before sending.");
       return;
     }
 

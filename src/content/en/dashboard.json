@@ -11,6 +11,7 @@
     "operationalCommand": "Operational Command",
     "osd": "OSD",
     "departments": "Departments",
+    "disposedGrievances": "Disposed Grievances",
     "superAdmin": "Super Admin"
   },
   "osd": {
@@ -83,6 +84,7 @@
     "taxonomyOrganization": "Organization",
     "assignedOsd": "Assigned OSD",
     "status": "Status",
+    "statusRejected": "Rejected",
     "received": "Date received",
     "lastMessageAt": "Last message time",
     "lastUpdated": "Last updated",

@@ -13,7 +13,7 @@ const CARD_DEFS: Array<{
   { key: "total_grievances", labelKey: "totalGrievances", href: "/ps/grievances" },
   { key: "new_today", labelKey: "newToday", href: "/ps/grievances?date_preset=today" },
   { key: "pending", labelKey: "pending", href: "/ps/grievances?status=pending" },
-  { key: "disposed", labelKey: "disposed", href: "/ps/grievances?status=disposed" },
+  { key: "disposed", labelKey: "disposed", href: "/ps/disposed-grievances" },
   {
     key: "pending_review",
     labelKey: "pendingReview",
@@ -24,8 +24,8 @@ const CARD_DEFS: Array<{
     labelKey: "forwardedToDepartment",
     href: "/ps/grievances?status=forwarded_to_department",
   },
-  { key: "resolved", labelKey: "resolved", href: "/ps/grievances?status=resolved" },
-  { key: "closed", labelKey: "closed", href: "/ps/grievances?status=closed" },
+  { key: "resolved", labelKey: "resolved", href: "/ps/disposed-grievances?status=resolved" },
+  { key: "closed", labelKey: "closed", href: "/ps/disposed-grievances?status=closed" },
   {
     key: "high_priority",
     labelKey: "highPriority",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ExpandableText } from "@/components/grievance/ExpandableText";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import { Select } from "@/components/ui/Select";
@@ -65,7 +66,9 @@ export function PortalGrievanceDetail({
           </div>
           <div className="sm:col-span-2">
             <dt className="text-text-muted">Description</dt>
-            <dd className="mt-1 whitespace-pre-wrap">{grievance.grievance_text ?? grievance.title ?? "-"}</dd>
+            <dd className="mt-1">
+              <ExpandableText text={grievance.grievance_text ?? grievance.title ?? ""} />
+            </dd>
           </div>
         </dl>
         <div className="mt-5 border-t border-border pt-5">

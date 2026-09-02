@@ -16,12 +16,16 @@ import { updateOsdStatus } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import {
   buildStatusCitizenMessage,
+  citizenMessageHasPlaceholders,
   isStatusMessageStatus,
 } from "@/lib/grievance/statusMessageTemplates";
 import {
+  FORWARD_VIA_FORM_ONLY_STATUS,
   filterOsdUpdateStatusOptions,
+  formatPriorityLabel,
   formatStatusLabel,
 } from "@/lib/grievance/display";
+import { ExpandableText } from "@/components/grievance/ExpandableText";
 import { useI18n } from "@/lib/i18n/context";
 import type { GrievanceRow, JourneyEvent, OsdDepartmentContact } from "@/types/api";
 
@@ -72,13 +76,38 @@ export function OsdGrievanceDetailView({
   }, [status, grievance.citizen_name, grievance.reference_number, messageTouched]);
 
   function handleStatusChange(nextStatus: string) {
+    if (
+      nextStatus === FORWARD_VIA_FORM_ONLY_STATUS &&
+      grievance.status !== FORWARD_VIA_FORM_ONLY_STATUS
+    ) {
+      setStatus(grievance.status);
+      setFeedbackTone("warning");
+      setFeedback("Use the Forward to Department form below.");
+      const el = document.getElementById("osd-forward-form");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        el.classList.add("ring-2", "ring-brand", "ring-offset-2");
+        window.setTimeout(() => {
+          el.classList.remove("ring-2", "ring-brand", "ring-offset-2");
+        }, 2000);
+      }
+      return;
+    }
     setStatus(nextStatus);
     setMessageTouched(false);
+    setFeedback("");
   }
 
   async function onStatusSubmit(e: FormEvent) {
     e.preventDefault();
     setFeedback("");
+    if (showCitizenMessage && citizenMessageHasPlaceholders(citizenMessage)) {
+      setFeedbackTone("warning");
+      setFeedback(
+        "Replace all bracket placeholders in the citizen message before sending.",
+      );
+      return;
+    }
     setLoading(true);
     try {
       const result = await updateOsdStatus(osdSlug, grievance.reference_number, {
@@ -107,7 +136,10 @@ export function OsdGrievanceDetailView({
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       <div className="mb-2 flex flex-col gap-2 lg:col-span-3">
-        <GrievanceListBackLink listHref={`/osd/${osdSlug}/grievances`} />
+        <GrievanceListBackLink
+          listHref={`/osd/${osdSlug}/grievances`}
+          disposedListHref={`/osd/${osdSlug}/disposed-grievances`}
+        />
         <Link
           href={`/osd/${osdSlug}/grievance/${grievance.reference_number}/conversation`}
           className="text-sm text-brand hover:underline"
@@ -143,9 +175,38 @@ export function OsdGrievanceDetailView({
             <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyOrganization")}</dt>
             <dd>{grievance.organization?.trim() || "-"}</dd>
           </div>
-          <div className="sm:col-span-2">
-            <dt className="text-text-muted">Grievance</dt>
-            <dd className="mt-1 whitespace-pre-wrap">{grievance.grievance_text ?? grievance.title}</dd>
+          <div className="sm:col-span-2 space-y-3">
+            {(() => {
+              const body = grievance.grievance_text?.trim() ?? "";
+              const title = grievance.title?.trim() ?? "";
+              const showBoth = Boolean(body && title && body !== title);
+              if (showBoth) {
+                return (
+                  <>
+                    <div>
+                      <dt className="text-text-muted">Title</dt>
+                      <dd className="mt-1">
+                        <ExpandableText text={title} />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-text-muted">Grievance</dt>
+                      <dd className="mt-1">
+                        <ExpandableText text={body} />
+                      </dd>
+                    </div>
+                  </>
+                );
+              }
+              return (
+                <>
+                  <dt className="text-text-muted">Grievance</dt>
+                  <dd className="mt-1">
+                    <ExpandableText text={body || title} />
+                  </dd>
+                </>
+              );
+            })()}
           </div>
         </dl>
         <div className="mt-5 border-t border-border pt-5">
@@ -171,7 +232,7 @@ export function OsdGrievanceDetailView({
             label={t("dashboard", "grievance.priority")}
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            options={priorities.map((p) => ({ value: p, label: p }))}
+            options={priorities.map((p) => ({ value: p, label: formatPriorityLabel(p) }))}
           />
           {showCitizenMessage ? (
             <div className="space-y-1.5">
@@ -204,7 +265,7 @@ export function OsdGrievanceDetailView({
         ) : null}
       </Card>
 
-      <div className="lg:col-span-3">
+      <div id="osd-forward-form" className="scroll-mt-4 rounded-xl transition-shadow lg:col-span-3">
         <OsdForwardForm
           osdSlug={osdSlug}
           referenceNumber={grievance.reference_number}
