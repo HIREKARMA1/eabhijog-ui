@@ -72,6 +72,8 @@ export function filterOsdUpdateStatusOptions(
   currentStatus: string,
 ): string[] {
   const allowed = new Set(allowedStatuses);
+  // Always keep Forwarded to department in the curated Update Status list.
+  allowed.add(FORWARD_VIA_FORM_ONLY_STATUS);
   const whitelist = OSD_UPDATE_STATUS_WHITELIST.filter(
     (status) => allowed.has(status) || status === currentStatus,
   );
