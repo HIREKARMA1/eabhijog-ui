@@ -10,7 +10,12 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { forwardOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
-import { buildForwardCitizenMessage, citizenMessageHasPlaceholders } from "@/lib/grievance/statusMessageTemplates";
+import {
+  CITIZEN_WHATSAPP_MAX_CHARS,
+  buildForwardCitizenMessage,
+  citizenMessageHasPlaceholders,
+  citizenWhatsAppLengthError,
+} from "@/lib/grievance/statusMessageTemplates";
 import { useI18n } from "@/lib/i18n/context";
 import type { OsdDepartmentContact } from "@/types/api";
 
@@ -387,6 +392,11 @@ export function OsdForwardForm({
       setError("Replace all bracket placeholders in the citizen message before sending.");
       return;
     }
+    const lengthError = citizenWhatsAppLengthError(citizenMessage);
+    if (lengthError) {
+      setError(lengthError);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -544,9 +554,20 @@ export function OsdForwardForm({
             }}
             rows={8}
           />
-          <p className="text-xs text-text-muted">
-            {t("dashboard", "grievance.citizenMessageHint")}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-text-muted">
+              {t("dashboard", "grievance.citizenMessageHint")}
+            </p>
+            <p
+              className={`text-xs tabular-nums ${
+                citizenMessage.trim().length > CITIZEN_WHATSAPP_MAX_CHARS
+                  ? "font-medium text-amber-700"
+                  : "text-text-muted"
+              }`}
+            >
+              {citizenMessage.trim().length}/{CITIZEN_WHATSAPP_MAX_CHARS}
+            </p>
+          </div>
         </div>
 
         {error ? <p className="text-sm text-danger">{error}</p> : null}
