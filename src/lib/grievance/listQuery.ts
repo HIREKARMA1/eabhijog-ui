@@ -12,6 +12,32 @@ export const GRIEVANCE_LIST_QUERY_KEYS = [
   "page",
 ] as const;
 
+const DISPOSED_LIST_STATUS_BUCKETS = new Set([
+  "disposed_grievances",
+  "resolved",
+  "closed",
+  "discarded",
+]);
+
+export function isDisposedListStatus(status: string | null | undefined): boolean {
+  return Boolean(status && DISPOSED_LIST_STATUS_BUCKETS.has(status));
+}
+
+export function grievanceListBackHref(
+  activeListHref: string,
+  disposedListHref: string,
+  searchParams: URLSearchParams | Record<string, string | undefined>,
+): string {
+  const entries =
+    searchParams instanceof URLSearchParams
+      ? Array.from(searchParams.entries())
+      : Object.entries(searchParams);
+  const status = entries.find(([key]) => key === "status")?.[1];
+  const baseHref = isDisposedListStatus(status) ? disposedListHref : activeListHref;
+  const returnQuery = grievanceListQueryFromSearchParams(searchParams);
+  return returnQuery ? `${baseHref}?${returnQuery}` : baseHref;
+}
+
 export function buildGrievanceListQueryString(
   filters: Record<string, string>,
   page?: number,

@@ -64,3 +64,9 @@ Remarks: ${remarks}
 
 — Jana Samadhan`;
 }
+
+const CITIZEN_MESSAGE_PLACEHOLDER_PATTERN = /\[[^\]]+\]/;
+
+export function citizenMessageHasPlaceholders(message: string): boolean {
+  return CITIZEN_MESSAGE_PLACEHOLDER_PATTERN.test(message.trim());
+}

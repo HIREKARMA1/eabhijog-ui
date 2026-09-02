@@ -8,7 +8,10 @@ import type { GrievanceConversationData } from "@/types/api";
 export function PsConversationPanel({ data }: { data: GrievanceConversationData }) {
   return (
     <div className="space-y-4">
-      <GrievanceListBackLink listHref="/ps/grievances" />
+      <GrievanceListBackLink
+        listHref="/ps/grievances"
+        disposedListHref="/ps/disposed-grievances"
+      />
       <ConversationView
         data={data}
         onAddNote={(text) => psAddNote(data.reference_number, text).then(() => undefined)}

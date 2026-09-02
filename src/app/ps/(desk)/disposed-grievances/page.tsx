@@ -11,14 +11,16 @@ import type { PsGrievanceRow } from "@/types/api";
 
 type PageProps = { searchParams: Promise<Record<string, string | undefined>> };
 const PAGE_SIZE = 10;
+const DEFAULT_STATUS = "disposed_grievances";
 
-export default async function PsGrievancesPage({ searchParams }: PageProps) {
+export default async function PsDisposedGrievancesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const filters: Record<string, string> = {};
   for (const [k, v] of Object.entries(params)) {
     if (v) filters[k] = v;
   }
-  if (!filters.status) filters.status = "active";
+  if (!filters.status) filters.status = DEFAULT_STATUS;
+
   const currentPage = Math.max(1, Number(filters.page || "1") || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
@@ -38,7 +40,7 @@ export default async function PsGrievancesPage({ searchParams }: PageProps) {
       requestFilters.set("limit", String(PAGE_SIZE));
       requestFilters.set("offset", String(offset));
       const qs = requestFilters.toString();
-      const path = qs ? `/api/ps/grievances?${qs}` : "/api/ps/grievances";
+      const path = `/api/ps/grievances?${qs}`;
       const grievancesResult = await serverApiRequest<{ items: PsGrievanceRow[]; total: number }>(
         path,
       );
@@ -56,16 +58,20 @@ export default async function PsGrievancesPage({ searchParams }: PageProps) {
           Private Secretary Dashboard
         </Link>
         {" > "}
-        <strong className="text-slate-900">Grievances</strong>
+        <strong className="text-slate-900">Disposed Grievances</strong>
       </SetBreadcrumb>
       <PsGrievancesView
         items={items}
         total={total}
         constants={constants}
         filters={filters}
+        basePath="/ps/disposed-grievances"
+        detailHrefPrefix="/ps/grievance/"
         currentPage={currentPage}
         pageSize={PAGE_SIZE}
         showHeader={false}
+        listMode="disposed"
+        title="Disposed Grievances"
       />
     </>
   );

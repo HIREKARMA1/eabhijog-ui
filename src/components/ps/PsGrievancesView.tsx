@@ -26,6 +26,7 @@ type Props = {
   showHeader?: boolean;
   currentPage?: number;
   pageSize?: number;
+  listMode?: "active" | "disposed";
 };
 
 export function PsGrievancesView({
@@ -41,6 +42,7 @@ export function PsGrievancesView({
   showHeader = true,
   currentPage = 1,
   pageSize = 10,
+  listMode = "active",
 }: Props) {
   const { t } = useI18n();
   const router = useRouter();
@@ -72,6 +74,7 @@ export function PsGrievancesView({
       <GrievanceFilters
         basePath={basePath}
         variant="desk"
+        listMode={listMode}
         statuses={constants.statuses}
         districts={constants.districts}
         categories={constants.grievance_categories}
