@@ -73,7 +73,7 @@
     "citizenMessage": "Citizen message",
     "remarksForCitizenHint": "Included in the WhatsApp message sent to the grievance filer.",
     "remarksForDepartmentHint": "Included in the email and WhatsApp sent to the department officer.",
-    "citizenMessageHint": "Edit the full WhatsApp message below. Replace the bracketed text with your resolution, closure, or rejection details.",
+    "citizenMessageHint": "Keep this WhatsApp message short (max 900 characters). Replace bracketed text with brief remarks only.",
     "priority": "Priority",
     "category": "Category",
     "district": "District",
