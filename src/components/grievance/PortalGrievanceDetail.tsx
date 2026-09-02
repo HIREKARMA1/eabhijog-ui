@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ExpandableText } from "@/components/grievance/ExpandableText";
+import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
