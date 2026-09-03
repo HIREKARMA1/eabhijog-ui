@@ -35,11 +35,23 @@ export function isMockDataMode(): boolean {
 
 export function getClientApiBase(): string {
   if (typeof window === "undefined") {
-    return env.apiBaseUrl;
+    return buildServerApiBase();
   }
   return env.apiPrefix;
 }
 
+/** Same-origin /backend proxy base for RSC (matches browser login cookie path). */
+export function buildServerApiBase(host?: string | null, proto?: string | null): string {
+  const prefix = env.apiPrefix.startsWith("/") ? env.apiPrefix : `/${env.apiPrefix}`;
+  if (host) {
+    const scheme = (proto?.split(",")[0] ?? "https").trim() || "https";
+    return `${scheme}://${host}${prefix}`;
+  }
+  const appUrl = env.appUrl.replace(/\/$/, "");
+  return `${appUrl}${prefix}`;
+}
+
+/** @deprecated Use buildServerApiBase with request headers in server components. */
 export function getServerApiBase(): string {
-  return env.apiBaseUrl;
+  return buildServerApiBase();
 }

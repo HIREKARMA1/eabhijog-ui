@@ -3,11 +3,12 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/Button";
-import { PsGrievanceFilters } from "@/components/ps/PsGrievanceFilters";
+import { GrievanceFilters } from "@/components/grievance/GrievanceFilters";
 import { PsGrievanceTable } from "@/components/ps/PsGrievanceTable";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
+import { buildGrievanceListQueryString } from "@/lib/grievance/listQuery";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
 import type { MetadataConstants, PsGrievanceRow } from "@/types/api";
@@ -25,6 +26,7 @@ type Props = {
   showHeader?: boolean;
   currentPage?: number;
   pageSize?: number;
+  listMode?: "active" | "disposed";
 };
 
 export function PsGrievancesView({
@@ -40,6 +42,7 @@ export function PsGrievancesView({
   showHeader = true,
   currentPage = 1,
   pageSize = 10,
+  listMode = "active",
 }: Props) {
   const { t } = useI18n();
   const router = useRouter();
@@ -47,6 +50,7 @@ export function PsGrievancesView({
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
+  const listQueryString = buildGrievanceListQueryString(filters, currentPage);
 
   function goToPage(page: number) {
     const next = new URLSearchParams();
@@ -67,10 +71,14 @@ export function PsGrievancesView({
           description={description ?? t("ps", "grievances.total", { count: total })}
         />
       ) : null}
-      <PsGrievanceFilters
+      <GrievanceFilters
         basePath={basePath}
-        constants={constants}
-        current={filters}
+        variant="desk"
+        listMode={listMode}
+        statuses={constants.statuses}
+        districts={constants.districts}
+        categories={constants.grievance_categories}
+        osdCategories={constants.osd_categories}
         hideOsdCategory={hideOsdCategory}
       />
       <div className={cn("relative", isPending && "pointer-events-none opacity-60")}>
@@ -79,37 +87,22 @@ export function PsGrievancesView({
             <Spinner size="md" />
           </div>
         ) : null}
-        <PsGrievanceTable items={items} detailHrefPrefix={detailHrefPrefix} />
+        <PsGrievanceTable
+          items={items}
+          detailHrefPrefix={detailHrefPrefix}
+          listQueryString={listQueryString}
+        />
       </div>
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-text-muted">
           Showing {from}-{to} of {total}
         </p>
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            loading={isPending}
-            disabled={currentPage <= 1}
-            onClick={() => goToPage(currentPage - 1)}
-          >
-            Previous
-          </Button>
-          <span className="text-sm font-medium text-slate-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            loading={isPending}
-            disabled={currentPage >= totalPages}
-            onClick={() => goToPage(currentPage + 1)}
-          >
-            Next
-          </Button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          loading={isPending}
+          onPageChange={goToPage}
+        />
       </div>
     </div>
   );

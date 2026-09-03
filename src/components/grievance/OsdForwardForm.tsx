@@ -10,6 +10,10 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { forwardOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
+import {
+  CITIZEN_WHATSAPP_MAX_CHARS,
+  citizenWhatsAppLengthError,
+} from "@/lib/grievance/statusMessageTemplates";
 import { useI18n } from "@/lib/i18n/context";
 import type { OsdDepartmentContact } from "@/types/api";
 
@@ -26,6 +30,7 @@ type RecipientRow = {
 type OsdForwardFormProps = {
   osdSlug: string;
   referenceNumber: string;
+  citizenName?: string;
   suggestedRecipients: OsdDepartmentContact[];
   resolvedRecipients: OsdDepartmentContact[];
   grievanceDepartment?: string;
@@ -232,6 +237,7 @@ function newManualRow(): RecipientRow {
 export function OsdForwardForm({
   osdSlug,
   referenceNumber,
+  citizenName: _citizenName = "",
   suggestedRecipients,
   resolvedRecipients,
   grievanceDepartment = "",
@@ -242,10 +248,13 @@ export function OsdForwardForm({
   const { t } = useI18n();
   const router = useRouter();
   const [remarks, setRemarks] = useState("");
+  const [citizenMessage, setCitizenMessage] = useState("");
   const [cc, setCc] = useState("");
   const [bcc, setBcc] = useState("");
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"success" | "warning">("success");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [autoFillEnabled, setAutoFillEnabled] = useState(true);
 
   const recipientOptions = useMemo(
@@ -359,10 +368,21 @@ export function OsdForwardForm({
       setError(t("dashboard", "forwardForm.recipientRequired"));
       return;
     }
+    if (!citizenMessage.trim()) {
+      setError("Enter remarks for the citizen WhatsApp message.");
+      return;
+    }
+    const lengthError = citizenWhatsAppLengthError(citizenMessage);
+    if (lengthError) {
+      setError(lengthError);
+      return;
+    }
 
+    setLoading(true);
     try {
-      await forwardOsdGrievance(osdSlug, referenceNumber, {
+      const result = await forwardOsdGrievance(osdSlug, referenceNumber, {
         remarks,
+        citizen_message: citizenMessage.trim(),
         recipients,
         cc: cc
           .split(/[,;]/)
@@ -374,9 +394,18 @@ export function OsdForwardForm({
           .filter(Boolean),
       });
       router.refresh();
-      setMessage(t("dashboard", "forwardForm.success"));
+      const warning = result.data?.whatsapp_warning;
+      if (warning) {
+        setMessageTone("warning");
+        setMessage(warning);
+      } else {
+        setMessageTone("success");
+        setMessage(result.message || t("dashboard", "forwardForm.success"));
+      }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -484,16 +513,51 @@ export function OsdForwardForm({
           />
         </div>
 
-        <Textarea
-          label={t("dashboard", "grievance.remarks")}
-          value={remarks}
-          onChange={(e) => setRemarks(e.target.value)}
-        />
+        <div className="space-y-1.5">
+          <Textarea
+            label={t("dashboard", "grievance.remarksForDepartment")}
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+          />
+          <p className="text-xs text-text-muted">
+            {t("dashboard", "grievance.remarksForDepartmentHint")}
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <Textarea
+            label={t("dashboard", "grievance.remarksForCitizenWhatsApp")}
+            value={citizenMessage}
+            onChange={(e) => setCitizenMessage(e.target.value)}
+            rows={5}
+            placeholder={t("dashboard", "grievance.citizenMessagePlaceholder")}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-text-muted">
+              {t("dashboard", "grievance.citizenMessageHint")}
+            </p>
+            <p
+              className={`text-xs tabular-nums ${
+                citizenMessage.trim().length > CITIZEN_WHATSAPP_MAX_CHARS
+                  ? "font-medium text-amber-700"
+                  : "text-text-muted"
+              }`}
+            >
+              {citizenMessage.trim().length}/{CITIZEN_WHATSAPP_MAX_CHARS}
+            </p>
+          </div>
+        </div>
 
         {error ? <p className="text-sm text-danger">{error}</p> : null}
-        {message ? <p className="text-sm text-success">{message}</p> : null}
+        {message ? (
+          <p className={`text-sm ${messageTone === "success" ? "text-success" : "text-amber-700"}`}>
+            {message}
+          </p>
+        ) : null}
 
-        <Button type="submit">{t("dashboard", "grievance.forward")}</Button>
+        <Button type="submit" loading={loading} disabled={loading}>
+          {t("dashboard", "grievance.forward")}
+        </Button>
       </form>
     </Card>
   );

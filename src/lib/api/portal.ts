@@ -166,15 +166,23 @@ export async function fetchOsdGrievanceDetail(slug: string, ref: string, server 
   );
 }
 
+export type OsdStatusUpdateResult = {
+  whatsapp_sent: boolean;
+  whatsapp_warning: string | null;
+};
+
 export async function updateOsdStatus(
   slug: string,
   ref: string,
-  payload: { status: string; priority: string; remarks: string },
+  payload: { status: string; priority: string; remarks: string; citizen_message?: string },
 ) {
-  return apiRequest<null>(`/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/status`, {
-    method: "PATCH",
-    body: payload,
-  });
+  return apiRequest<OsdStatusUpdateResult>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/status`,
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
 }
 
 export async function forwardOsdGrievance(
@@ -182,15 +190,19 @@ export async function forwardOsdGrievance(
   ref: string,
   payload: {
     remarks: string;
+    citizen_message?: string;
     recipients: Array<{ department: string; officer_name: string; email: string; whatsapp_number: string }>;
     cc?: string[];
     bcc?: string[];
   },
 ) {
-  return apiRequest<null>(`/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/forward`, {
-    method: "POST",
-    body: payload,
-  });
+  return apiRequest<OsdStatusUpdateResult>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/forward`,
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
 }
 
 export async function fetchOsdDepartments(slug: string) {

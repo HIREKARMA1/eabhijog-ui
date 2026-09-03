@@ -11,6 +11,7 @@
     "operationalCommand": "ଅପରେସନାଲ କମାଣ୍ଡ",
     "osd": "OSD",
     "departments": "ବିଭାଗ",
+    "disposedGrievances": "ନିଷ୍ପତ୍ତି ହୋଇଥିବା ଅଭିଯୋଗ",
     "superAdmin": "ସୁପର ଆଡମିନ"
   },
   "osd": {
@@ -78,6 +79,14 @@
     "updateStatus": "ସ୍ଥିତି ଅପଡେଟ୍",
     "forward": "ବିଭାଗକୁ ପ୍ରେରଣ",
     "remarks": "ମନ୍ତବ୍ୟ",
+    "remarksForCitizen": "ନାଗରିକଙ୍କ ପାଇଁ ମନ୍ତବ୍ୟ",
+    "remarksForCitizenWhatsApp": "ନାଗରିକଙ୍କ ପାଇଁ ମନ୍ତବ୍ୟ (WhatsApp)",
+    "remarksForDepartment": "ବିଭାଗଙ୍କ ପାଇଁ ମନ୍ତବ୍ୟ",
+    "citizenMessage": "ନାଗରିକ ସନ୍ଦେଶ",
+    "citizenMessagePlaceholder": "ନାଗରିକଙ୍କ ପାଇଁ ସଂକ୍ଷିପ୍ତ ମନ୍ତବ୍ୟ ଲେଖନ୍ତୁ…",
+    "remarksForCitizenHint": "ଅଭିଯୋଗଦାତାଙ୍କୁ ପଠାଯାଉଥିବା WhatsApp ସନ୍ଦେଶରେ ସାମିଲ ହେବ।",
+    "remarksForDepartmentHint": "ବିଭାଗ ଅଧିକାରୀଙ୍କୁ ପଠାଯାଉଥିବା ଇମେଲ ଏବଂ WhatsApp ରେ ସାମିଲ ହେବ।",
+    "citizenMessageHint": "କେବଳ ସଂକ୍ଷିପ୍ତ ମନ୍ତବ୍ୟ ଲେଖନ୍ତୁ (ସର୍ବାଧିକ ୫୦୦ ଅକ୍ଷର)। Serri ଆଧିକାରିକ WhatsApp ରାପର୍ ଯୋଡ଼ିବ।",
     "priority": "ଅଗ୍ରାଧିକାର",
     "category": "ବର୍ଗ",
     "district": "ଜିଲ୍ଲା",

@@ -11,6 +11,7 @@
     "operationalCommand": "परिचालन कमांड",
     "osd": "OSD",
     "departments": "विभाग",
+    "disposedGrievances": "निस्तारित शिकायतें",
     "superAdmin": "सुपर एडमिन"
   },
   "osd": {
@@ -78,6 +79,14 @@
     "updateStatus": "स्थिति अपडेट करें",
     "forward": "विभाग को अग्रेषित",
     "remarks": "टिप्पणी",
+    "remarksForCitizen": "नागरिक के लिए टिप्पणी",
+    "remarksForCitizenWhatsApp": "नागरिक के लिए टिप्पणी (WhatsApp)",
+    "remarksForDepartment": "विभाग के लिए टिप्पणी",
+    "citizenMessage": "नागरिक संदेश",
+    "citizenMessagePlaceholder": "नागरिक के लिए संक्षिप्त टिप्पणी लिखें…",
+    "remarksForCitizenHint": "शिकायतकर्ता को भेजे जाने वाले WhatsApp संदेश में शामिल होगी।",
+    "remarksForDepartmentHint": "विभाग अधिकारी को भेजे जाने वाले ईमेल और WhatsApp में शामिल होगी।",
+    "citizenMessageHint": "केवल संक्षिप्त टिप्पणी लिखें (अधिकतम 500 अक्षर)। Serri आधिकारिक WhatsApp रैपर जोड़ता है।",
     "priority": "प्राथमिकता",
     "category": "श्रेणी",
     "district": "जिला",
