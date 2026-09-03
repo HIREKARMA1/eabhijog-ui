@@ -14,7 +14,8 @@ export type IconName =
   | "copy"
   | "external-link"
   | "download"
-  | "message";
+  | "message"
+  | "trash";
 
 type IconProps = SVGProps<SVGSVGElement> & {
   name: IconName;
@@ -115,6 +116,15 @@ const paths: Record<IconName, ReactNode> = {
       <path d="M4 6h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z" />
       <path d="M8 11h8" />
       <path d="M8 14h5" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M4 7h16" />
+      <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+      <path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
     </>
   ),
 };

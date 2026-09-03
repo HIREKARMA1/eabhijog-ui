@@ -1,4 +1,5 @@
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, ApiError } from "@/lib/api/client";
+import { getClientApiBase } from "@/config/env";
 import type {
   AuthLoginData,
   AuthStaff,
@@ -85,6 +86,52 @@ export async function fetchPortalGrievanceDetail(ref: string, server = false) {
   return apiRequest<PortalGrievanceDetailData>(`/api/portal/grievances/${encodeURIComponent(ref)}`, {
     server,
   });
+}
+
+export async function deletePortalGrievance(ref: string) {
+  return apiRequest<{ reference_number: string }>(
+    `/api/portal/grievances/${encodeURIComponent(ref)}`,
+    { method: "DELETE" },
+  );
+}
+
+export async function downloadPortalGrievancePdf(ref: string) {
+  const base = getClientApiBase();
+  const qs = new URLSearchParams({ lang: "as_is" });
+  const res = await fetch(
+    `${base}/api/portal/grievances/${encodeURIComponent(ref)}/pdf?${qs}`,
+    { credentials: "include" },
+  );
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (payload as { error?: { message?: string }; message?: string }).error?.message
+        ?? (payload as { message?: string }).message
+        ?? "Could not download PDF",
+      res.status,
+    );
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const star = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(disposition);
+  let filename = `${ref}.pdf`;
+  if (star?.[1]) {
+    try {
+      filename = decodeURIComponent(star[1].trim().replace(/^"+|"+$/g, ""));
+    } catch {
+      filename = /filename="([^"]+)"/i.exec(disposition)?.[1] || filename;
+    }
+  } else {
+    filename = /filename="([^"]+)"/i.exec(disposition)?.[1] || filename;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export async function respondToGrievance(ref: string, responseText: string, status: string) {

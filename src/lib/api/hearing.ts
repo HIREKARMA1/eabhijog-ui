@@ -11,6 +11,19 @@ import type {
   PublicRegistrationTaxonomy,
 } from "@/types/api";
 
+function filenameFromDisposition(disposition: string, fallback: string): string {
+  const star = /filename\*=(?:UTF-8'')?([^;]+)/i.exec(disposition);
+  if (star?.[1]) {
+    try {
+      return decodeURIComponent(star[1].trim().replace(/^"+|"+$/g, ""));
+    } catch {
+      /* use quoted filename */
+    }
+  }
+  const match = /filename="([^"]+)"/i.exec(disposition);
+  return match?.[1] || fallback;
+}
+
 export async function fetchPublicHearings(server = false) {
   return apiRequest<HearingPublicSummary[]>("/api/public/hearings", { server });
 }
@@ -149,12 +162,9 @@ export async function exportHearingRegistrationsCsv(
 export async function downloadHearingRegistrationPdf(
   hearingId: number,
   registrationId: number,
-  lang: string = "en",
 ) {
   const base = getClientApiBase();
-  const qs = new URLSearchParams({
-    lang: lang === "hi" || lang === "or" ? lang : "en",
-  });
+  const qs = new URLSearchParams({ lang: "as_is" });
   const res = await fetch(
     `${base}/api/hearings/${hearingId}/registrations/${registrationId}/pdf?${qs}`,
     { credentials: "include" },
@@ -170,8 +180,10 @@ export async function downloadHearingRegistrationPdf(
   }
   const blob = await res.blob();
   const disposition = res.headers.get("Content-Disposition") || "";
-  const match = /filename="([^"]+)"/i.exec(disposition);
-  const filename = match?.[1] || `hearing-${hearingId}-reg-${registrationId}.pdf`;
+  const filename = filenameFromDisposition(
+    disposition,
+    `hearing-${hearingId}-reg-${registrationId}.pdf`,
+  );
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -200,12 +212,12 @@ export async function downloadPublicHearingRegistrationPdf(
   hearingId: number,
   registrationId: number,
   referenceNumber: string,
-  lang: string = "en",
+  lang: string = "as_is",
 ) {
   const base = getClientApiBase();
   const qs = new URLSearchParams({
     ref: referenceNumber,
-    lang: lang === "hi" || lang === "or" ? lang : "en",
+    lang: lang === "hi" || lang === "or" || lang === "as_is" ? lang : "en",
   });
   const res = await fetch(
     `${base}/api/public/hearings/${hearingId}/registrations/${registrationId}/pdf?${qs}`,
@@ -221,10 +233,10 @@ export async function downloadPublicHearingRegistrationPdf(
   }
   const blob = await res.blob();
   const disposition = res.headers.get("Content-Disposition") || "";
-  const match = /filename="([^"]+)"/i.exec(disposition);
-  const filename =
-    match?.[1] ||
-    `hearing-${hearingId}-${referenceNumber.replace(/\//g, "-")}.pdf`;
+  const filename = filenameFromDisposition(
+    disposition,
+    `hearing-${hearingId}-${referenceNumber.replace(/\//g, "-")}.pdf`,
+  );
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

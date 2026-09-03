@@ -137,12 +137,23 @@ export type JourneyEvent = {
   occurred_at: string;
 };
 
+export type WhatsAppMessageItem = {
+  id: number;
+  direction: string;
+  body: string;
+  media_urls: string[];
+  sender_name: string | null;
+  trigger: string | null;
+  created_at: string;
+};
+
 export type PortalGrievanceDetailData = {
   grievance: GrievanceRow;
   allowed_statuses: string[];
   timeline: TimelineEvent[];
   journey: JourneyEvent[];
   audit_trail: Array<Record<string, unknown>>;
+  messages?: WhatsAppMessageItem[];
 };
 
 export type AnalyticsOverview = {
@@ -390,16 +401,6 @@ export type PsDashboardData = {
   summary: PsSummaryCards;
   analytics: PsWhatsAppAnalytics;
   recent_grievances: PsGrievanceRow[];
-};
-
-export type WhatsAppMessageItem = {
-  id: number;
-  direction: string;
-  body: string;
-  media_urls: string[];
-  sender_name: string | null;
-  trigger: string | null;
-  created_at: string;
 };
 
 export type InternalNoteItem = {

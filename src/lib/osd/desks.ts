@@ -25,3 +25,7 @@ export function osdCategoryForRole(role: string): string | undefined {
 export function osdRoleLabel(role: string): string {
   return osdCategoryForRole(role) ?? role.replace(/_/g, " ");
 }
+
+export function osdSlugForCategory(category: string | null | undefined): string | undefined {
+  return OSD_DESK_OPTIONS.find((desk) => desk.category === category)?.slug;
+}
