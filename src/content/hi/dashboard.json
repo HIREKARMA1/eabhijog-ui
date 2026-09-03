@@ -38,8 +38,19 @@
     "empty": "कोई शिकायत नहीं मिली।",
     "actions": "कार्रवाई",
     "view": "देखें",
+    "download": "डाउनलोड",
+    "downloading": "डाउनलोड हो रहा है…",
+    "downloadFailed": "PDF डाउनलोड नहीं हो सका।",
+    "downloadAsFilledHint": "नागरिक ने जैसा भरा है वैसा डाउनलोड करें",
     "sourceChatbot": "चैटबॉट",
-    "sourceOnlineHearing": "ऑनलाइन सुनवाई"
+    "sourceOnlineHearing": "ऑनलाइन सुनवाई",
+    "delete": "हटाएँ",
+    "deleting": "हटाया जा रहा है…",
+    "deleteFailed": "यह शिकायत हटाई नहीं जा सकी।",
+    "deleteConfirmTitle": "शिकायत हटाएँ?",
+    "deleteConfirmBody": "आप {ref} को स्थायी रूप से हटाने वाले हैं। संबंधित नोट, संलग्नक, फ़ॉरवर्ड और जुड़ी सुनवाई पंजीकरण भी हट जाएगी।",
+    "deleteConfirmHearing": "यह शिकायत ऑनलाइन सुनवाई से दर्ज हुई है। वह सुनवाई पंजीकरण भी हट जाएगी।",
+    "deleteConfirmIrreversible": "यह कार्रवाई पूर्ववत नहीं की जा सकती।"
   },
   "filters": {
     "title": "फ़िल्टर",
@@ -82,6 +93,9 @@
     "lastUpdated": "अंतिम अपडेट",
     "responseFrom": "प्रतिक्रिया प्राप्त",
     "conversationCount": "वार्तालाप संख्या",
+    "conversationTitle": "WhatsApp वार्तालाप",
+    "conversationEmpty": "अभी कोई संदेश दर्ज नहीं है।",
+    "openOsdConversation": "OSD डेस्क पर पूरी बातचीत खोलें",
     "resolutionTime": "समाधान समय",
     "daysPending": "लंबित दिन"
   },

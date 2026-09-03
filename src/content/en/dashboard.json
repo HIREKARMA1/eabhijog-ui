@@ -38,8 +38,19 @@
     "empty": "No grievances found.",
     "actions": "Actions",
     "view": "View",
+    "download": "Download",
+    "downloading": "Downloading…",
+    "downloadFailed": "Could not download PDF.",
+    "downloadAsFilledHint": "Download as the citizen filled it",
     "sourceChatbot": "Chatbot",
-    "sourceOnlineHearing": "Online Hearing"
+    "sourceOnlineHearing": "Online Hearing",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "deleteFailed": "Could not delete this grievance.",
+    "deleteConfirmTitle": "Delete grievance?",
+    "deleteConfirmBody": "You are about to permanently delete {ref}. Related notes, attachments, forwards, and any linked hearing registration will also be removed.",
+    "deleteConfirmHearing": "This grievance was filed from an online hearing. That hearing registration will be removed as well.",
+    "deleteConfirmIrreversible": "This action cannot be undone."
   },
   "filters": {
     "title": "Filters",
@@ -82,6 +93,9 @@
     "lastUpdated": "Last updated",
     "responseFrom": "Response received from",
     "conversationCount": "Conversation count",
+    "conversationTitle": "WhatsApp conversation",
+    "conversationEmpty": "No messages recorded yet.",
+    "openOsdConversation": "Open full conversation on OSD desk",
     "resolutionTime": "Resolution time",
     "daysPending": "Days pending"
   },

@@ -22,6 +22,7 @@ import {
   type HearingLocaleBundle,
 } from "@/components/hearing/HearingLocalizedContentFields";
 import { Button } from "@/components/ui/Button";
+import { DownloadPdfMenu } from "@/components/grievance/DownloadPdfMenu";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { SectionLoader } from "@/components/ui/Spinner";
 import { Section } from "@/components/ui/Section";
@@ -511,7 +512,7 @@ type Props = {
 };
 
 export function HearingDesk({ canManage }: Props) {
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   const [hearings, setHearings] = useState<HearingDetail[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [hearing, setHearing] = useState<HearingDetail | null>(null);
@@ -570,14 +571,14 @@ export function HearingDesk({ canManage }: Props) {
   const downloadRegistrationPdf = useCallback(
     (registrationId: number) => {
       if (!hearing) return;
-      void downloadHearingRegistrationPdf(hearing.id, registrationId, locale)
+      void downloadHearingRegistrationPdf(hearing.id, registrationId)
         .catch((err) =>
           toastError(
             err instanceof ApiError ? err.message : t("hearing", "desk.pdfFailed"),
           ),
         );
     },
-    [hearing, locale, t, toastError],
+    [hearing, t, toastError],
   );
 
   useEffect(() => {
@@ -1196,15 +1197,11 @@ export function HearingDesk({ canManage }: Props) {
                         <Button size="sm" variant="ghost" onClick={() => setDetailId(row.id)}>
                           View
                         </Button>
-                        <Button
-                          size="sm"
+                        <DownloadPdfMenu
+                          iconOnly
                           variant="ghost"
-                          aria-label={t("hearing", "desk.downloadPdf")}
-                          title={t("hearing", "desk.downloadPdf")}
-                          onClick={() => downloadRegistrationPdf(row.id)}
-                        >
-                          <Icon name="download" size={16} />
-                        </Button>
+                          onDownload={() => downloadRegistrationPdf(row.id)}
+                        />
                         <Button
                           size="sm"
                           variant="ghost"
@@ -1287,15 +1284,11 @@ export function HearingDesk({ canManage }: Props) {
                               <Button size="sm" variant="ghost" onClick={() => setDetailId(row.id)}>
                                 View
                               </Button>
-                              <Button
-                                size="sm"
+                              <DownloadPdfMenu
+                                iconOnly
                                 variant="ghost"
-                                aria-label={t("hearing", "desk.downloadPdf")}
-                                title={t("hearing", "desk.downloadPdf")}
-                                onClick={() => downloadRegistrationPdf(row.id)}
-                              >
-                                <Icon name="download" size={16} />
-                              </Button>
+                                onDownload={() => downloadRegistrationPdf(row.id)}
+                              />
                               <Button
                                 size="sm"
                                 variant="ghost"

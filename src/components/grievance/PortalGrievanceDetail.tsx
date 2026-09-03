@@ -1,36 +1,46 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { DeleteGrievanceButton } from "@/components/grievance/DeleteGrievanceButton";
+import { DownloadPdfMenu } from "@/components/grievance/DownloadPdfMenu";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
+import { WhatsAppTranscript } from "@/components/grievance/WhatsAppTranscript";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { respondToGrievance } from "@/lib/api/portal";
+import { respondToGrievance, downloadPortalGrievancePdf } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n/context";
-import type { GrievanceRow, JourneyEvent } from "@/types/api";
+import { osdSlugForCategory } from "@/lib/osd/desks";
+import type { GrievanceRow, JourneyEvent, WhatsAppMessageItem } from "@/types/api";
 
 type PortalGrievanceDetailProps = {
   grievance: GrievanceRow;
   allowedStatuses: string[];
   journey: JourneyEvent[];
+  messages: WhatsAppMessageItem[];
 };
 
 export function PortalGrievanceDetail({
   grievance,
   allowedStatuses,
   journey,
+  messages,
 }: PortalGrievanceDetailProps) {
   const { t } = useI18n();
   const router = useRouter();
+  const osdSlug = osdSlugForCategory(grievance.osd_category);
   const [responseText, setResponseText] = useState("");
   const [status, setStatus] = useState(allowedStatuses[0] ?? grievance.status);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -47,9 +57,33 @@ export function PortalGrievanceDetail({
     }
   }
 
+  async function onDownload() {
+    setDownloadError("");
+    setDownloading(true);
+    try {
+      await downloadPortalGrievancePdf(grievance.reference_number);
+    } catch (err) {
+      setDownloadError(err instanceof ApiError ? err.message : t("dashboard", "table.downloadFailed"));
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="grid gap-5 lg:grid-cols-3">
-      <Card title={grievance.reference_number} className="lg:col-span-2">
+      <Card className="lg:col-span-2">
+        <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <h2 className="text-base font-semibold text-slate-900">{grievance.reference_number}</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <DownloadPdfMenu size="sm" loading={downloading} onDownload={() => void onDownload()} />
+            <DeleteGrievanceButton
+              referenceNumber={grievance.reference_number}
+              filingSource={grievance.filing_source}
+              onDeleted={() => router.push("/dashboard/grievances")}
+            />
+          </div>
+        </header>
+        {downloadError ? <p className="mb-3 text-sm text-danger">{downloadError}</p> : null}
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-text-muted">{t("dashboard", "table.status")}</dt>
@@ -98,6 +132,20 @@ export function PortalGrievanceDetail({
       </Card>
 
       <GrievanceJourneyTimeline events={journey} className="lg:col-span-3" />
+
+      <Card title={t("dashboard", "grievance.conversationTitle")} className="lg:col-span-3">
+        {osdSlug ? (
+          <p className="mb-3">
+            <Link
+              href={`/osd/${osdSlug}/grievance/${encodeURIComponent(grievance.reference_number)}/conversation`}
+              className="text-sm font-semibold text-saffron hover:text-saffron-hover"
+            >
+              {t("dashboard", "grievance.openOsdConversation")}
+            </Link>
+          </p>
+        ) : null}
+        <WhatsAppTranscript messages={messages} />
+      </Card>
     </div>
   );
 }

@@ -14,6 +14,7 @@ export default async function GrievanceDetailPage({ params }: PageProps) {
         grievance={data.grievance}
         allowedStatuses={data.allowed_statuses}
         journey={data.journey ?? []}
+        messages={data.messages ?? []}
       />
     </PortalLayout>
   );

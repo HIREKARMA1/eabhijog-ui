@@ -38,8 +38,19 @@
     "empty": "କୌଣସି ଅଭିଯୋଗ ମିଳିଲା ନାହିଁ ।",
     "actions": "କାର୍ଯ୍ୟ",
     "view": "ଦେଖନ୍ତୁ",
+    "download": "ଡାଉନଲୋଡ୍",
+    "downloading": "ଡାଉନଲୋଡ୍ ହେଉଛି…",
+    "downloadFailed": "PDF ଡାଉନଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ।",
+    "downloadAsFilledHint": "ନାଗରିକ ଯେପରି ଭରିଛନ୍ତି ସେହିପରି ଡାଉନଲୋଡ୍",
     "sourceChatbot": "ଚାଟବଟ୍",
-    "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି"
+    "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି",
+    "delete": "ବିଲୋପ",
+    "deleting": "ବିଲୋପ ହେଉଛି…",
+    "deleteFailed": "ଏହି ଅଭିଯୋଗ ବିଲୋପ ହୋଇପାରିଲା ନାହିଁ।",
+    "deleteConfirmTitle": "ଅଭିଯୋଗ ବିଲୋପ କରିବେ?",
+    "deleteConfirmBody": "ଆପଣ {ref} କୁ ସ୍ଥାୟୀ ଭାବରେ ବିଲୋପ କରିବାକୁ ଯାଉଛନ୍ତି। ସମ୍ପର୍କିତ ନୋଟ୍, ସଂଲଗ୍ନ, ଫରୱାର୍ଡ ଏବଂ ଯୋଡ଼ା ଶୁଣାଣି ପଞ୍ଜୀକରଣ ମଧ୍ୟ ହଟିଯିବ।",
+    "deleteConfirmHearing": "ଏହି ଅଭିଯୋଗ ଅନଲାଇନ୍ ଶୁଣାଣିରୁ ଦାଖଲ ହୋଇଛି। ସେହି ଶୁଣାଣି ପଞ୍ଜୀକରଣ ମଧ୍ୟ ହଟିଯିବ।",
+    "deleteConfirmIrreversible": "ଏହି କାର୍ଯ୍ୟ ପଛକୁ ଫେରାଯାଇପାରିବ ନାହିଁ।"
   },
   "filters": {
     "title": "ଫିଲ୍ଟର",
@@ -82,6 +93,9 @@
     "lastUpdated": "ଶେଷ ଅପଡେଟ୍",
     "responseFrom": "ପ୍ରତିକ୍ରିୟା ଗ୍ରହୀ",
     "conversationCount": "କଥୋପକଥନ ସଂଖ୍ୟା",
+    "conversationTitle": "WhatsApp କଥୋପକଥନ",
+    "conversationEmpty": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ବାର୍ତ୍ତା ନାହିଁ।",
+    "openOsdConversation": "OSD ଡେସ୍କରେ ସମ୍ପୂର୍ଣ୍ଣ କଥୋପକଥନ ଖୋଲନ୍ତୁ",
     "resolutionTime": "ସମାଧାନ ସମୟ",
     "daysPending": "ବିଳମ୍ବିତ ଦିନ"
   },

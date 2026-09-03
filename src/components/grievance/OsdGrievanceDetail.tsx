@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { DownloadPdfMenu } from "@/components/grievance/DownloadPdfMenu";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import { OsdForwardForm } from "@/components/grievance/OsdForwardForm";
 import Link from "next/link";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { updateOsdStatus } from "@/lib/api/portal";
+import { downloadPortalGrievancePdf, updateOsdStatus } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n/context";
 import type { GrievanceRow, JourneyEvent, OsdDepartmentContact } from "@/types/api";
@@ -41,6 +42,8 @@ export function OsdGrievanceDetailView({
   const [priority, setPriority] = useState(grievance.priority ?? "normal");
   const [remarks, setRemarks] = useState("");
   const [message, setMessage] = useState("");
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
 
   async function onStatusSubmit(e: FormEvent) {
     e.preventDefault();
@@ -54,6 +57,18 @@ export function OsdGrievanceDetailView({
     }
   }
 
+  async function onDownload() {
+    setDownloadError("");
+    setDownloading(true);
+    try {
+      await downloadPortalGrievancePdf(grievance.reference_number);
+    } catch (err) {
+      setDownloadError(err instanceof ApiError ? err.message : t("dashboard", "table.downloadFailed"));
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       <div className="mb-2 lg:col-span-3">
@@ -64,7 +79,12 @@ export function OsdGrievanceDetailView({
           Open WhatsApp conversation →
         </Link>
       </div>
-      <Card title={grievance.reference_number} className="lg:col-span-2">
+      <Card className="lg:col-span-2">
+        <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <h2 className="text-base font-semibold text-slate-900">{grievance.reference_number}</h2>
+          <DownloadPdfMenu size="sm" loading={downloading} onDownload={() => void onDownload()} />
+        </header>
+        {downloadError ? <p className="mb-3 text-sm text-danger">{downloadError}</p> : null}
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-text-muted">Citizen</dt>
