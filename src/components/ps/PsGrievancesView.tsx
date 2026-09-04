@@ -1,13 +1,16 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { GrievanceFilters } from "@/components/grievance/GrievanceFilters";
 import { PsGrievanceTable } from "@/components/ps/PsGrievanceTable";
+import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { Spinner } from "@/components/ui/Spinner";
+import { exportGrievancesSheetCsv } from "@/lib/api/portal";
+import { ApiError } from "@/lib/api/client";
 import { buildGrievanceListQueryString } from "@/lib/grievance/listQuery";
 import { useI18n } from "@/lib/i18n/context";
 import { cn } from "@/lib/utils/cn";
@@ -26,7 +29,8 @@ type Props = {
   showHeader?: boolean;
   currentPage?: number;
   pageSize?: number;
-  listMode?: "active" | "disposed";
+  listMode?: "active" | "disposed" | "reverted";
+  exportPath?: string;
 };
 
 export function PsGrievancesView({
@@ -43,10 +47,13 @@ export function PsGrievancesView({
   currentPage = 1,
   pageSize = 10,
   listMode = "active",
+  exportPath = "/api/ps/grievances/export-sheet",
 }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const to = Math.min(currentPage * pageSize, total);
@@ -63,6 +70,18 @@ export function PsGrievancesView({
     });
   }
 
+  async function onExport() {
+    setExportError("");
+    setExporting(true);
+    try {
+      await exportGrievancesSheetCsv(exportPath, filters);
+    } catch (err) {
+      setExportError(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {showHeader ? (
@@ -71,6 +90,12 @@ export function PsGrievancesView({
           description={description ?? t("ps", "grievances.total", { count: total })}
         />
       ) : null}
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button type="button" variant="outline" loading={exporting} disabled={exporting} onClick={onExport}>
+          {t("ps", "grievances.exportToSheet")}
+        </Button>
+      </div>
+      {exportError ? <p className="text-sm text-amber-700">{exportError}</p> : null}
       <GrievanceFilters
         basePath={basePath}
         variant="desk"
@@ -91,6 +116,7 @@ export function PsGrievancesView({
           items={items}
           detailHrefPrefix={detailHrefPrefix}
           listQueryString={listQueryString}
+          listMode={listMode}
         />
       </div>
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">

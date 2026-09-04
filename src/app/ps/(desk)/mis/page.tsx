@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { PsMisView } from "@/components/ps/PsMisView";
 import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
@@ -34,7 +33,7 @@ function emptyMis(): PsMisAnalyticsData {
 }
 
 export default async function PsMisPage() {
-  let data: PsMisAnalyticsData;
+  let data: PsMisAnalyticsData | null = null;
 
   try {
     if (isMockDataMode()) {
@@ -53,7 +52,7 @@ export default async function PsMisPage() {
       data = result.data;
     }
   } catch {
-    redirect("/login");
+    data = null;
   }
 
   return (
@@ -65,7 +64,13 @@ export default async function PsMisPage() {
         {" > "}
         <strong className="text-slate-900">MIS</strong>
       </SetBreadcrumb>
-      <PsMisView data={data} />
+      {data ? (
+        <PsMisView data={data} />
+      ) : (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Could not load MIS. Refresh the page after the API/database is available.
+        </p>
+      )}
     </>
   );
 }

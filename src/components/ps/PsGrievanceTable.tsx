@@ -1,9 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { DataTable } from "@/components/ui/DataTable";
+import { reopenOsdGrievance, reopenPsGrievance } from "@/lib/api/portal";
+import { ApiError } from "@/lib/api/client";
 import {
   cell,
   formatDateTime,
@@ -18,6 +23,7 @@ function statusTone(status: string) {
   if (status === "forwarded_to_department" || status === "department_action_pending") return "info" as const;
   if (status === "pending_review" || status === "new") return "warning" as const;
   if (status === "cancelled") return "danger" as const;
+  if (status === "reverted") return "warning" as const;
   return "default" as const;
 }
 
@@ -60,16 +66,28 @@ function detailHref(
   return listQueryString ? `${base}?${listQueryString}` : base;
 }
 
+function extractOsdSlug(detailHrefPrefix: string): string | null {
+  const match = detailHrefPrefix.match(/^\/osd\/([^/]+)\//);
+  return match?.[1] ?? null;
+}
+
 export function PsGrievanceTable({
   items,
   detailHrefPrefix = "/ps/grievance/",
   listQueryString,
+  listMode = "active",
 }: {
   items: PsGrievanceRow[];
   detailHrefPrefix?: string;
   listQueryString?: string;
+  listMode?: "active" | "disposed" | "reverted";
 }) {
   const { t } = useI18n();
+  const router = useRouter();
+  const [reopeningRef, setReopeningRef] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
+  const osdSlug = extractOsdSlug(detailHrefPrefix);
+  const isRevertedList = listMode === "reverted";
 
   function sourceLabel(source?: "chatbot" | "online_hearing") {
     if (source === "online_hearing") return t("ps", "grievances.table.sourceOnlineHearing");
@@ -77,8 +95,62 @@ export function PsGrievanceTable({
     return "";
   }
 
+  async function handleReopen(referenceNumber: string) {
+    setActionError("");
+    setReopeningRef(referenceNumber);
+    try {
+      if (osdSlug) {
+        await reopenOsdGrievance(osdSlug, referenceNumber);
+      } else {
+        await reopenPsGrievance(referenceNumber);
+      }
+      router.refresh();
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+    } finally {
+      setReopeningRef(null);
+    }
+  }
+
+  function updateBadge(g: PsGrievanceRow) {
+    if (!isRevertedList) return null;
+    return (
+      <Badge tone={g.can_reopen ? "success" : "warning"}>
+        {g.can_reopen
+          ? t("ps", "grievances.table.updatedByCitizen")
+          : t("ps", "grievances.table.awaitingCitizen")}
+      </Badge>
+    );
+  }
+
+  function actionCell(g: PsGrievanceRow) {
+    return (
+      <div className="flex flex-col items-start gap-2">
+        <Link
+          href={detailHref(detailHrefPrefix, g.reference_number, listQueryString)}
+          className="text-sm font-medium text-brand hover:underline"
+        >
+          {t("ps", "grievances.table.view")}
+        </Link>
+        {isRevertedList && g.can_reopen ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="!px-2 !py-1 text-xs"
+            loading={reopeningRef === g.reference_number}
+            disabled={reopeningRef === g.reference_number}
+            onClick={() => handleReopen(g.reference_number)}
+          >
+            {t("ps", "grievances.table.reopen")}
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <>
+      {actionError ? <p className="mb-2 text-sm text-amber-700">{actionError}</p> : null}
       <div className="space-y-3 md:hidden">
         {items.length === 0 ? (
           <div className="rounded-2xl border border-border bg-surface-card px-4 py-10 text-center text-sm text-text-muted shadow-sm">
@@ -101,13 +173,9 @@ export function PsGrievanceTable({
                       source={g.filing_source}
                       label={sourceLabel(g.filing_source)}
                     />
+                    {updateBadge(g)}
                   </div>
-                  <Link
-                    href={detailHref(detailHrefPrefix, g.reference_number, listQueryString)}
-                    className="inline-flex shrink-0 items-center rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700"
-                  >
-                    {t("ps", "grievances.table.view")}
-                  </Link>
+                  {actionCell(g)}
                 </div>
 
                 <div className="mt-3 space-y-3">
@@ -159,6 +227,7 @@ export function PsGrievanceTable({
                     source={g.filing_source}
                     label={sourceLabel(g.filing_source)}
                   />
+                  {updateBadge(g)}
                 </div>
               ),
             },
@@ -212,14 +281,7 @@ export function PsGrievanceTable({
             {
               key: "actions",
               header: t("ps", "grievances.table.actions"),
-              cell: (g) => (
-                <Link
-                  href={detailHref(detailHrefPrefix, g.reference_number, listQueryString)}
-                  className="text-sm font-medium text-brand hover:underline"
-                >
-                  {t("ps", "grievances.table.view")}
-                </Link>
-              ),
+              cell: (g) => actionCell(g),
             },
           ]}
         />

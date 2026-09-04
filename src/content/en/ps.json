@@ -119,6 +119,7 @@
   "grievances": {
     "title": "Grievance Registry",
     "total": "{count} total",
+    "exportToSheet": "Export to sheet",
     "table": {
       "grievanceId": "Grievance ID",
       "citizenName": "Citizen Name",
@@ -131,6 +132,9 @@
       "lastUpdated": "Last Updated",
       "actions": "Actions",
       "view": "View",
+      "reopen": "Reopen",
+      "awaitingCitizen": "Awaiting citizen",
+      "updatedByCitizen": "Updated by citizen",
       "sourceChatbot": "Chatbot",
       "sourceOnlineHearing": "Online Hearing"
     }
@@ -139,6 +143,7 @@
     "dashboard": "Dashboard",
     "grievances": "Grievances",
     "disposedGrievances": "Disposed Grievances",
+    "revertedGrievances": "Reverted Grievances",
     "hearings": "Online Hearing",
     "mis": "MIS",
     "intelligence": "Press Intelligence",

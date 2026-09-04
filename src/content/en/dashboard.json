@@ -12,6 +12,7 @@
     "osd": "OSD",
     "departments": "Departments",
     "disposedGrievances": "Disposed Grievances",
+    "revertedGrievances": "Reverted Grievances",
     "superAdmin": "Super Admin"
   },
   "osd": {
@@ -76,6 +77,10 @@
     "remarksForCitizenHint": "Included in the WhatsApp message sent to the grievance filer.",
     "remarksForDepartmentHint": "Included in the email and WhatsApp sent to the department officer.",
     "citizenMessageHint": "Type brief remarks only (max 500 characters). Serri adds the official WhatsApp wrapper.",
+    "reopen": "Reopen",
+    "reopenTitle": "Reopen grievance",
+    "reopenReadyHint": "Citizen has updated this grievance. Reopen to return it to pending review.",
+    "reopenWaitingHint": "Waiting for the citizen to update this grievance on WhatsApp before it can be reopened.",
     "priority": "Priority",
     "category": "Category",
     "district": "District",

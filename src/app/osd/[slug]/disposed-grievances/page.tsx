@@ -5,7 +5,7 @@ import { PsGrievancesView } from "@/components/ps/PsGrievancesView";
 import { getConstants } from "@/lib/api/server-portal";
 import { serverApiRequest } from "@/lib/api/server";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
-import type { PsGrievanceRow } from "@/types/api";
+import type { MetadataConstants, PsGrievanceRow } from "@/types/api";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -37,39 +37,49 @@ export default async function OsdDisposedGrievancesPage({ params, searchParams }
   requestFilters.set("offset", String(offset));
   const qs = requestFilters.toString();
   const path = `/api/osd/${slug}/grievances?${qs}`;
+  const basePath = `/osd/${slug}/disposed-grievances`;
 
-  let grievancesRes;
-  let constants;
+  let items: PsGrievanceRow[] = [];
+  let total = 0;
+  let constants: MetadataConstants | null = null;
+  let loadError = false;
   try {
-    [grievancesRes, constants] = await Promise.all([
+    const [grievancesRes, constantsRes] = await Promise.all([
       serverApiRequest<{ items: PsGrievanceRow[]; total: number }>(path),
       getConstants(),
     ]);
+    items = grievancesRes.data.items;
+    total = grievancesRes.data.total;
+    constants = constantsRes;
   } catch {
-    redirect("/login");
+    loadError = true;
   }
-
-  const { items, total } = grievancesRes.data;
-  const basePath = `/osd/${slug}/disposed-grievances`;
 
   return (
     <>
       <SetBreadcrumb>
         <strong>Disposed Grievances</strong>
       </SetBreadcrumb>
-      <PsGrievancesView
-        items={items}
-        total={total}
-        constants={constants}
-        filters={filters}
-        basePath={basePath}
-        detailHrefPrefix={`/osd/${slug}/grievance/`}
-        showHeader={false}
-        currentPage={currentPage}
-        pageSize={PAGE_SIZE}
-        listMode="disposed"
-        title="Disposed Grievances"
-      />
+      {loadError || !constants ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Could not load disposed grievances. Refresh the page after the API/database is available.
+        </p>
+      ) : (
+        <PsGrievancesView
+          items={items}
+          total={total}
+          constants={constants}
+          filters={filters}
+          basePath={basePath}
+          detailHrefPrefix={`/osd/${slug}/grievance/`}
+          showHeader={false}
+          currentPage={currentPage}
+          pageSize={PAGE_SIZE}
+          listMode="disposed"
+          exportPath={`/api/osd/${slug}/grievances/export-sheet`}
+          title="Disposed Grievances"
+        />
+      )}
     </>
   );
 }

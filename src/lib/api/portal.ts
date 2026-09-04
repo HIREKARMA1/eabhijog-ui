@@ -1,4 +1,5 @@
-import { apiRequest } from "@/lib/api/client";
+import { ApiError, apiRequest } from "@/lib/api/client";
+import { getClientApiBase } from "@/config/env";
 import type {
   AuthLoginData,
   AuthStaff,
@@ -136,6 +137,54 @@ export async function updateOsdStatus(
       body: payload,
     },
   );
+}
+
+export async function reopenOsdGrievance(slug: string, ref: string) {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}/reopen`,
+    { method: "POST" },
+  );
+}
+
+export async function reopenPsGrievance(ref: string) {
+  return apiRequest<null>(
+    `/api/ps/grievances/${encodeURIComponent(ref)}/reopen`,
+    { method: "POST" },
+  );
+}
+
+export async function exportGrievancesSheetCsv(
+  path: string,
+  filters: Record<string, string>,
+) {
+  const base = getClientApiBase();
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value && key !== "page") qs.set(key, value);
+  }
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`${base}${path}${suffix}`, { credentials: "include" });
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (payload as { error?: { message?: string }; message?: string }).error?.message
+        ?? (payload as { message?: string }).message
+        ?? "Could not export sheet",
+      res.status,
+    );
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get("Content-Disposition") || "";
+  const match = /filename="([^"]+)"/i.exec(disposition);
+  const filename = match?.[1] || `grievances-${new Date().toISOString().slice(0, 10)}.csv`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export async function forwardOsdGrievance(

@@ -40,18 +40,28 @@ export function getClientApiBase(): string {
   return env.apiPrefix;
 }
 
+function appUrlScheme(): string {
+  try {
+    return new URL(env.appUrl).protocol.replace(":", "") || "http";
+  } catch {
+    return "http";
+  }
+}
+
 /** Same-origin /backend proxy base for RSC (matches browser login cookie path). */
 export function buildServerApiBase(host?: string | null, proto?: string | null): string {
   const prefix = env.apiPrefix.startsWith("/") ? env.apiPrefix : `/${env.apiPrefix}`;
   if (host) {
-    const scheme = (proto?.split(",")[0] ?? "https").trim() || "https";
+    // Prefer forwarded proto; else APP_URL scheme (local default http). Never hard-default https.
+    const forwarded = proto?.split(",")[0]?.trim();
+    const scheme = forwarded || appUrlScheme();
     return `${scheme}://${host}${prefix}`;
   }
   const appUrl = env.appUrl.replace(/\/$/, "");
   return `${appUrl}${prefix}`;
 }
 
-/** @deprecated Use buildServerApiBase with request headers in server components. */
+/** @deprecated Prefer serverApiRequest. Returns FastAPI origin for server-side calls. */
 export function getServerApiBase(): string {
-  return buildServerApiBase();
+  return env.apiBaseUrl.replace(/\/$/, "");
 }

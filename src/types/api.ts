@@ -103,6 +103,7 @@ export type GrievanceRow = {
   department?: string;
   sub_department?: string;
   organization?: string;
+  can_reopen?: boolean;
 };
 
 export type PortalDashboardData = {
@@ -384,6 +385,9 @@ export type PsGrievanceRow = {
   block?: string | null;
   geographic_district?: string;
   filing_source?: "chatbot" | "online_hearing";
+  reverted_at?: string | null;
+  citizen_updated_at?: string | null;
+  can_reopen?: boolean;
 };
 
 export type PsDashboardData = {

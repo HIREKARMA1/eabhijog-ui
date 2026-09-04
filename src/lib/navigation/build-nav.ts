@@ -78,6 +78,11 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
       labelKey: "nav.disposedGrievances",
       icon: "grievances",
     },
+    {
+      href: `${base}/reverted-grievances`,
+      labelKey: "nav.revertedGrievances",
+      icon: "grievances",
+    },
     { href: `${base}/hearings`, labelKey: "nav.hearings", icon: "reports" },
     { href: `${base}/departments`, labelKey: "nav.departments", icon: "departments" },
   ];
@@ -99,6 +104,11 @@ export function buildPsNav(): NavItem[] {
     {
       href: "/ps/disposed-grievances",
       labelKey: "ps.nav.disposedGrievances",
+      icon: "grievances",
+    },
+    {
+      href: "/ps/reverted-grievances",
+      labelKey: "ps.nav.revertedGrievances",
       icon: "grievances",
     },
     { href: "/ps/hearings", labelKey: "ps.nav.hearings", icon: "reports" },
