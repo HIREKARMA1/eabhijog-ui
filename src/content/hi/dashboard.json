@@ -12,6 +12,7 @@
     "osd": "OSD",
     "departments": "विभाग",
     "disposedGrievances": "निस्तारित शिकायतें",
+    "revertedGrievances": "वापस भेजी गई शिकायतें",
     "superAdmin": "सुपर एडमिन"
   },
   "osd": {
@@ -76,6 +77,10 @@
     "remarksForCitizenHint": "शिकायतकर्ता को भेजे जाने वाले WhatsApp संदेश में शामिल होगी।",
     "remarksForDepartmentHint": "विभाग अधिकारी को भेजे जाने वाले ईमेल और WhatsApp में शामिल होगी।",
     "citizenMessageHint": "केवल संक्षिप्त टिप्पणी लिखें (अधिकतम 500 अक्षर)। Serri आधिकारिक WhatsApp रैपर जोड़ता है।",
+    "reopen": "पुनः खोलें",
+    "reopenTitle": "शिकायत पुनः खोलें",
+    "reopenReadyHint": "नागरिक ने इस शिकायत को अपडेट कर दिया है। इसे लंबित समीक्षा में वापस लाने के लिए पुनः खोलें।",
+    "reopenWaitingHint": "पुनः खोलने से पहले नागरिक के WhatsApp पर अपडेट की प्रतीक्षा है।",
     "priority": "प्राथमिकता",
     "category": "श्रेणी",
     "district": "जिला",

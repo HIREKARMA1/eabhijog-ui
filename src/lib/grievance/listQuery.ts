@@ -19,21 +19,36 @@ const DISPOSED_LIST_STATUS_BUCKETS = new Set([
   "discarded",
 ]);
 
+const REVERTED_LIST_STATUS_BUCKETS = new Set([
+  "reverted_grievances",
+  "reverted",
+]);
+
 export function isDisposedListStatus(status: string | null | undefined): boolean {
   return Boolean(status && DISPOSED_LIST_STATUS_BUCKETS.has(status));
+}
+
+export function isRevertedListStatus(status: string | null | undefined): boolean {
+  return Boolean(status && REVERTED_LIST_STATUS_BUCKETS.has(status));
 }
 
 export function grievanceListBackHref(
   activeListHref: string,
   disposedListHref: string,
   searchParams: URLSearchParams | Record<string, string | undefined>,
+  revertedListHref?: string,
 ): string {
   const entries =
     searchParams instanceof URLSearchParams
       ? Array.from(searchParams.entries())
       : Object.entries(searchParams);
   const status = entries.find(([key]) => key === "status")?.[1];
-  const baseHref = isDisposedListStatus(status) ? disposedListHref : activeListHref;
+  let baseHref = activeListHref;
+  if (isRevertedListStatus(status) && revertedListHref) {
+    baseHref = revertedListHref;
+  } else if (isDisposedListStatus(status)) {
+    baseHref = disposedListHref;
+  }
   const returnQuery = grievanceListQueryFromSearchParams(searchParams);
   return returnQuery ? `${baseHref}?${returnQuery}` : baseHref;
 }

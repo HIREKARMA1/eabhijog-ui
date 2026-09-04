@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { PsGrievancesView } from "@/components/ps/PsGrievancesView";
@@ -7,7 +6,7 @@ import { getConstants } from "@/lib/api/server-portal";
 import { isMockDataMode } from "@/config/env";
 import { getMockPsGrievances } from "@/lib/data/mock-loader";
 import { serverApiRequest } from "@/lib/api/server";
-import type { PsGrievanceRow } from "@/types/api";
+import type { MetadataConstants, PsGrievanceRow } from "@/types/api";
 
 type PageProps = { searchParams: Promise<Record<string, string | undefined>> };
 const PAGE_SIZE = 10;
@@ -24,9 +23,10 @@ export default async function PsDisposedGrievancesPage({ searchParams }: PagePro
   const currentPage = Math.max(1, Number(filters.page || "1") || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  let constants;
-  let items: PsGrievanceRow[];
-  let total: number;
+  let constants: MetadataConstants | null = null;
+  let items: PsGrievanceRow[] = [];
+  let total = 0;
+  let loadError = false;
 
   try {
     constants = await getConstants();
@@ -48,7 +48,7 @@ export default async function PsDisposedGrievancesPage({ searchParams }: PagePro
       total = grievancesResult.data.total;
     }
   } catch {
-    redirect("/login");
+    loadError = true;
   }
 
   return (
@@ -60,19 +60,26 @@ export default async function PsDisposedGrievancesPage({ searchParams }: PagePro
         {" > "}
         <strong className="text-slate-900">Disposed Grievances</strong>
       </SetBreadcrumb>
-      <PsGrievancesView
-        items={items}
-        total={total}
-        constants={constants}
-        filters={filters}
-        basePath="/ps/disposed-grievances"
-        detailHrefPrefix="/ps/grievance/"
-        currentPage={currentPage}
-        pageSize={PAGE_SIZE}
-        showHeader={false}
-        listMode="disposed"
-        title="Disposed Grievances"
-      />
+      {loadError || !constants ? (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Could not load disposed grievances. Refresh the page after the API/database is available.
+        </p>
+      ) : (
+        <PsGrievancesView
+          items={items}
+          total={total}
+          constants={constants}
+          filters={filters}
+          basePath="/ps/disposed-grievances"
+          detailHrefPrefix="/ps/grievance/"
+          currentPage={currentPage}
+          pageSize={PAGE_SIZE}
+          showHeader={false}
+          listMode="disposed"
+          exportPath="/api/ps/grievances/export-sheet"
+          title="Disposed Grievances"
+        />
+      )}
     </>
   );
 }

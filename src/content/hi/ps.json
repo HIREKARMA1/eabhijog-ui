@@ -119,6 +119,7 @@
   "grievances": {
     "title": "शिकायत रजिस्टर",
     "total": "कुल {count}",
+    "exportToSheet": "शीट में निर्यात करें",
     "table": {
       "grievanceId": "शिकायत ID",
       "citizenName": "नागरिक का नाम",
@@ -131,6 +132,9 @@
       "lastUpdated": "अंतिम अपडेट",
       "actions": "कार्रवाई",
       "view": "देखें",
+      "reopen": "पुनः खोलें",
+      "awaitingCitizen": "नागरिक की प्रतीक्षा",
+      "updatedByCitizen": "नागरिक द्वारा अपडेट",
       "sourceChatbot": "चैटबॉट",
       "sourceOnlineHearing": "ऑनलाइन सुनवाई"
     }
@@ -139,6 +143,7 @@
     "dashboard": "डैशबोर्ड",
     "grievances": "शिकायतें",
     "disposedGrievances": "निस्तारित शिकायतें",
+    "revertedGrievances": "वापस भेजी गई शिकायतें",
     "hearings": "ऑनलाइन सुनवाई",
     "mis": "MIS",
     "intelligence": "प्रेस इंटेलिजेंस",
