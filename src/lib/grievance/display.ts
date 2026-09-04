@@ -1,4 +1,4 @@
-const CLOSED_STATUSES = new Set(["resolved", "closed", "cancelled"]);
+const CLOSED_STATUSES = new Set(["resolved", "closed", "cancelled", "reverted"]);
 
 export const FORWARD_VIA_FORM_ONLY_STATUS = "forwarded_to_department";
 
@@ -8,6 +8,7 @@ export const OSD_UPDATE_STATUS_WHITELIST = [
   "resolved",
   "closed",
   "cancelled",
+  "reverted",
   FORWARD_VIA_FORM_ONLY_STATUS,
 ] as const;
 
@@ -16,6 +17,7 @@ const STATUS_DISPLAY_LABELS: Record<string, string> = {
   resolved: "Resolved",
   closed: "Closed",
   cancelled: "Rejected",
+  reverted: "Send back to citizen",
   forwarded_to_department: "Forwarded to department",
   department_action_pending: "Department action pending",
   action_taken: "Action taken",
@@ -25,6 +27,22 @@ const STATUS_DISPLAY_LABELS: Record<string, string> = {
   acknowledged: "Acknowledged",
   assigned: "Assigned",
 };
+
+/** Badge / table label (distinct from dropdown wording for revert). */
+export function formatStatusLabel(status: string): string {
+  if (status === "reverted") return "Reverted to citizen";
+  const mapped = STATUS_DISPLAY_LABELS[status];
+  if (mapped) return mapped;
+  const words = status.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** Dropdown option label (Send back to citizen for revert). */
+export function formatOsdStatusOptionLabel(status: string): string {
+  const mapped = STATUS_DISPLAY_LABELS[status];
+  if (mapped) return mapped;
+  return formatStatusLabel(status);
+}
 
 export function formatDateTime(value: string | null | undefined): string {
   if (!value) return "-";
@@ -55,13 +73,6 @@ export function formatResolutionHours(hours: number | null | undefined): string 
   return `${hours} hrs`;
 }
 
-export function formatStatusLabel(status: string): string {
-  const mapped = STATUS_DISPLAY_LABELS[status];
-  if (mapped) return mapped;
-  const words = status.replace(/_/g, " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
-}
-
 export function formatPriorityLabel(priority: string): string {
   const words = priority.replace(/_/g, " ");
   return words.charAt(0).toUpperCase() + words.slice(1);
@@ -71,6 +82,9 @@ export function filterOsdUpdateStatusOptions(
   allowedStatuses: string[],
   currentStatus: string,
 ): string[] {
+  if (currentStatus === "reverted") {
+    return ["reverted"];
+  }
   const allowed = new Set(allowedStatuses);
   // Always keep Forwarded to department in the curated Update Status list.
   allowed.add(FORWARD_VIA_FORM_ONLY_STATUS);

@@ -119,6 +119,7 @@
   "grievances": {
     "title": "ଅଭିଯୋଗ ରେଜିଷ୍ଟ୍ରି",
     "total": "ମୋଟ {count}",
+    "exportToSheet": "ସିଟ୍ କୁ ଏକ୍ସପୋର୍ଟ",
     "table": {
       "grievanceId": "ଅଭିଯୋଗ ID",
       "citizenName": "ନାଗରିକଙ୍କ ନାମ",
@@ -131,6 +132,9 @@
       "lastUpdated": "ଶେଷ ଅପଡେଟ୍",
       "actions": "କାର୍ଯ୍ୟ",
       "view": "ଦେଖନ୍ତୁ",
+      "reopen": "ପୁନଃ ଖୋଲନ୍ତୁ",
+      "awaitingCitizen": "ନାଗରିକଙ୍କ ଅପେକ୍ଷା",
+      "updatedByCitizen": "ନାଗରିକଙ୍କ ଦ୍ୱାରା ଅପଡେଟ୍",
       "sourceChatbot": "ଚାଟବଟ୍",
       "sourceOnlineHearing": "ଅନଲାଇନ୍ ଶୁଣାଣି"
     }
@@ -139,6 +143,7 @@
     "dashboard": "ଡ୍ୟାସବୋର୍ଡ",
     "grievances": "ଅଭିଯୋଗ",
     "disposedGrievances": "ନିଷ୍ପତ୍ତି ହୋଇଥିବା ଅଭିଯୋଗ",
+    "revertedGrievances": "ନାଗରିକଙ୍କୁ ଫେରାଯାଇଥିବା ଅଭିଯୋଗ",
     "hearings": "ଅନଲାଇନ୍ ଶୁଣାଣି",
     "mis": "MIS",
     "intelligence": "ପ୍ରେସ୍ ବୁଦ୍ଧିମତ୍ତା",

@@ -1,6 +1,6 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
-import { buildServerApiBase } from "@/config/env";
+import { env } from "@/config/env";
 import type { ApiEnvelope } from "@/types/api";
 
 function buildCookieHeader(cookieStore: Awaited<ReturnType<typeof cookies>>): string {
@@ -10,31 +10,36 @@ function buildCookieHeader(cookieStore: Awaited<ReturnType<typeof cookies>>): st
     .join("; ");
 }
 
-async function resolveServerApiBase(): Promise<string> {
-  const headerStore = await headers();
-  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
-  const proto = headerStore.get("x-forwarded-proto");
-  return buildServerApiBase(host, proto);
+/**
+ * RSC calls FastAPI directly. Forwarding UI session cookies works because the
+ * Starlette session is cookie-payload based. Avoids self-fetch through Next
+ * rewrites (http/https mismatch and loopback failures that cause login loops).
+ */
+function resolveServerApiBase(): string {
+  return env.apiBaseUrl.replace(/\/$/, "");
 }
 
 export async function serverApiRequest<T>(path: string): Promise<ApiEnvelope<T>> {
   const cookieStore = await cookies();
   const cookieHeader = buildCookieHeader(cookieStore);
-  const url = `${await resolveServerApiBase()}${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${resolveServerApiBase()}${normalizedPath}`;
 
-  const headers: Record<string, string> = {
+  const requestHeaders: Record<string, string> = {
     Accept: "application/json",
   };
   if (cookieHeader) {
-    headers.Cookie = cookieHeader;
+    requestHeaders.Cookie = cookieHeader;
   }
 
   const response = await fetch(url, {
-    headers,
+    headers: requestHeaders,
     cache: "no-store",
   }).catch((err: unknown) => {
     const cause = err instanceof Error && "cause" in err ? String(err.cause) : "";
-    const isRefused = cause.includes("ECONNREFUSED") || (err instanceof Error && err.message.includes("fetch failed"));
+    const isRefused =
+      cause.includes("ECONNREFUSED") ||
+      (err instanceof Error && err.message.includes("fetch failed"));
     if (isRefused) {
       throw new Error(
         "API server unreachable. Start the backend: cd eabhijog-server && uvicorn app.main:app --reload --port 8000",

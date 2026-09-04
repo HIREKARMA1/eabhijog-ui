@@ -12,13 +12,14 @@ type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
 };
 const PAGE_SIZE = 10;
+const DEFAULT_STATUS = "reverted_grievances";
 
-export default async function OsdGrievancesPage({ params, searchParams }: PageProps) {
+export default async function OsdRevertedGrievancesPage({ params, searchParams }: PageProps) {
   const { slug: rawSlug } = await params;
   const slug = normalizeOsdSlug(rawSlug);
 
   if (slug !== decodeURIComponent(rawSlug)) {
-    redirect(`/osd/${slug}/grievances`);
+    redirect(`/osd/${slug}/reverted-grievances`);
   }
 
   const query = await searchParams;
@@ -26,7 +27,8 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
   for (const [key, value] of Object.entries(query)) {
     if (value) filters[key] = value;
   }
-  if (!filters.status) filters.status = "active";
+  if (!filters.status) filters.status = DEFAULT_STATUS;
+
   const currentPage = Math.max(1, Number(filters.page || "1") || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
@@ -34,9 +36,8 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
   requestFilters.set("limit", String(PAGE_SIZE));
   requestFilters.set("offset", String(offset));
   const qs = requestFilters.toString();
-  const path = qs
-    ? `/api/osd/${slug}/grievances?${qs}`
-    : `/api/osd/${slug}/grievances`;
+  const path = `/api/osd/${slug}/grievances?${qs}`;
+  const basePath = `/osd/${slug}/reverted-grievances`;
 
   let items: PsGrievanceRow[] = [];
   let total = 0;
@@ -51,18 +52,17 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
     total = grievancesRes.data.total;
     constants = constantsRes;
   } catch {
-    // Auth is enforced in OsdLayout — do not redirect to /login on API/DB errors.
     loadError = true;
   }
 
   return (
     <>
       <SetBreadcrumb>
-        <strong>Grievances</strong>
+        <strong>Reverted Grievances</strong>
       </SetBreadcrumb>
       {loadError || !constants ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Could not load grievances. Refresh the page after the API/database is available.
+          Could not load reverted grievances. Refresh the page after the API/database is available.
         </p>
       ) : (
         <PsGrievancesView
@@ -70,12 +70,14 @@ export default async function OsdGrievancesPage({ params, searchParams }: PagePr
           total={total}
           constants={constants}
           filters={filters}
-          basePath={`/osd/${slug}/grievances`}
+          basePath={basePath}
           detailHrefPrefix={`/osd/${slug}/grievance/`}
           showHeader={false}
           currentPage={currentPage}
           pageSize={PAGE_SIZE}
+          listMode="reverted"
           exportPath={`/api/osd/${slug}/grievances/export-sheet`}
+          title="Reverted Grievances"
         />
       )}
     </>

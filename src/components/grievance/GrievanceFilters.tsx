@@ -67,8 +67,8 @@ type GrievanceFiltersProps = {
   basePath: string;
   variant?: "portal" | "desk";
   hideOsdCategory?: boolean;
-  /** Main grievance list (active) vs disposed grievances page. */
-  listMode?: "active" | "disposed";
+  /** Main grievance list (active) vs disposed vs reverted pages. */
+  listMode?: "active" | "disposed" | "reverted";
 };
 
 export function GrievanceFilters({
@@ -85,7 +85,12 @@ export function GrievanceFilters({
   const router = useRouter();
   const params = useSearchParams();
   const isDesk = variant === "desk";
-  const defaultDeskStatus = listMode === "disposed" ? "disposed_grievances" : "active";
+  const defaultDeskStatus =
+    listMode === "disposed"
+      ? "disposed_grievances"
+      : listMode === "reverted"
+        ? "reverted_grievances"
+        : "active";
   const allLabel = t("ps", "filters.all");
 
   const [status, setStatus] = useState(
@@ -121,6 +126,10 @@ export function GrievanceFilters({
     ],
     [t],
   );
+
+  const showStatusFilter = listMode === "disposed";
+  const showInlineActions = listMode === "active";
+  const showBottomActions = listMode === "disposed" || listMode === "reverted";
 
   const portalStatusOptions = useMemo(
     () => [
@@ -260,7 +269,7 @@ export function GrievanceFilters({
             onChange={(e) => onDateModeChange(e.target.value)}
             options={datePresetOptions}
           />
-          {listMode === "disposed" ? (
+          {showStatusFilter ? (
             <Select
               name="status"
               label={t("dashboard", "filters.status")}
@@ -268,7 +277,7 @@ export function GrievanceFilters({
               onChange={(e) => setStatus(e.target.value)}
               options={disposedStatusOptions}
             />
-          ) : (
+          ) : showInlineActions ? (
             <div className="flex items-end gap-2">
               <Button type="submit" className="flex-1">
                 {t("dashboard", "filters.apply")}
@@ -277,6 +286,8 @@ export function GrievanceFilters({
                 {t("dashboard", "filters.clear")}
               </Button>
             </div>
+          ) : (
+            <div />
           )}
         </div>
 
@@ -299,7 +310,7 @@ export function GrievanceFilters({
           </div>
         ) : null}
 
-        {listMode === "disposed" ? (
+        {showBottomActions ? (
           <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
             <Button type="submit">{t("dashboard", "filters.apply")}</Button>
             <Button type="button" variant="outline" onClick={onClear}>

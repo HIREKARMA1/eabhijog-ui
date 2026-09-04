@@ -15,10 +15,8 @@ export async function OsdLayout({
   breadcrumb?: React.ReactNode;
 }) {
   let staff;
-  let osd;
-
   try {
-    [staff, osd] = await Promise.all([getCurrentUser(), getOsdDashboard(osdSlug)]);
+    staff = await getCurrentUser();
   } catch {
     redirect("/login");
   }
@@ -27,7 +25,16 @@ export async function OsdLayout({
     redirect(homePathFor(staff));
   }
 
-  const nav = buildOsdNav(osdSlug, osd.pending_count, staff);
+  let pendingCount = 0;
+  try {
+    const osd = await getOsdDashboard(osdSlug);
+    pendingCount = osd.pending_count;
+  } catch {
+    // Dashboard fetch failure must not log the user out (avoids login ↔ OSD loop).
+    pendingCount = 0;
+  }
+
+  const nav = buildOsdNav(osdSlug, pendingCount, staff);
 
   return (
     <PortalShell
