@@ -4,10 +4,12 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { GrievanceFilters } from "@/components/grievance/GrievanceFilters";
+import { OsdVolumeGrid } from "@/components/osd/dashboard/OsdSummaryGrid";
 import { PsGrievanceTable } from "@/components/ps/PsGrievanceTable";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
+import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
 import { exportGrievancesSheetCsv } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
@@ -31,6 +33,9 @@ type Props = {
   pageSize?: number;
   listMode?: "active" | "disposed" | "reverted";
   exportPath?: string;
+  osdSlug?: string;
+  volumeSummary?: Record<string, number>;
+  isSuperAdmin?: boolean;
 };
 
 export function PsGrievancesView({
@@ -48,6 +53,9 @@ export function PsGrievancesView({
   pageSize = 10,
   listMode = "active",
   exportPath = "/api/ps/grievances/export-sheet",
+  osdSlug,
+  volumeSummary,
+  isSuperAdmin = false,
 }: Props) {
   const { t } = useI18n();
   const router = useRouter();
@@ -65,6 +73,17 @@ export function PsGrievancesView({
       if (value && key !== "page") next.set(key, value);
     }
     if (page > 1) next.set("page", String(page));
+    startTransition(() => {
+      router.replace(`${basePath}?${next.toString()}`, { scroll: false });
+    });
+  }
+
+  function toggleDateSort() {
+    const next = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value && key !== "page" && key !== "sort") next.set(key, value);
+    }
+    if (filters.sort !== "oldest") next.set("sort", "oldest");
     startTransition(() => {
       router.replace(`${basePath}?${next.toString()}`, { scroll: false });
     });
@@ -89,6 +108,20 @@ export function PsGrievancesView({
           title={title ?? t("ps", "grievances.title")}
           description={description ?? t("ps", "grievances.total", { count: total })}
         />
+      ) : null}
+      {osdSlug && volumeSummary ? (
+        <Section
+          title={t("dashboard", "osdDashboard.volume")}
+          className="rounded-2xl bg-white/55 p-4 shadow-sm ring-1 ring-white/70"
+        >
+          <OsdVolumeGrid
+            summary={volumeSummary}
+            osdSlug={osdSlug}
+            basePath={basePath}
+            listMode={listMode}
+            extraParams={filters}
+          />
+        </Section>
       ) : null}
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button type="button" variant="outline" loading={exporting} disabled={exporting} onClick={onExport}>
@@ -117,6 +150,9 @@ export function PsGrievancesView({
           detailHrefPrefix={detailHrefPrefix}
           listQueryString={listQueryString}
           listMode={listMode}
+          sortOldest={filters.sort === "oldest"}
+          onToggleDateSort={toggleDateSort}
+          isSuperAdmin={isSuperAdmin}
         />
       </div>
       <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">

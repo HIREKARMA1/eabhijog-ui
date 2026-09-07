@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useI18n } from "@/lib/i18n/context";
-import { Textarea } from "@/components/ui/Textarea";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
 import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
+import { WhatsAppThread } from "@/components/grievance/WhatsAppThread";
 import {
   cell,
   formatDateTime,
@@ -22,14 +22,13 @@ type Props = {
   data: GrievanceConversationData;
   onAddNote: (text: string) => Promise<void>;
   onWhatsAppReply: (message: string) => Promise<void>;
-  actionsPanel?: React.ReactNode;
+  actionsPanel?: ReactNode;
 };
 
 export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPanel }: Props) {
   const router = useRouter();
   const { t } = useI18n();
   const [noteText, setNoteText] = useState("");
-  const [replyText, setReplyText] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submitNote = useCallback(async () => {
@@ -44,77 +43,12 @@ export function ConversationView({ data, onAddNote, onWhatsAppReply, actionsPane
     }
   }, [noteText, onAddNote, router]);
 
-  const submitReply = useCallback(async () => {
-    if (!replyText.trim()) return;
-    setBusy(true);
-    try {
-      await onWhatsAppReply(replyText.trim());
-      setReplyText("");
-      router.refresh();
-    } finally {
-      setBusy(false);
-    }
-  }, [replyText, onWhatsAppReply, router]);
-
   const g = data.grievance;
 
   return (
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="flex flex-col rounded-lg border border-border">
-          <div className="border-b border-border bg-surface-muted px-4 py-3">
-            <h2 className="font-medium">WhatsApp Conversation</h2>
-            <p className="text-xs text-text-muted">{g.citizen_phone}</p>
-          </div>
-          <div className="flex max-h-[520px] flex-1 flex-col gap-2 overflow-y-auto p-4">
-            {data.messages.length === 0 ? (
-              <p className="text-sm text-text-muted">No messages recorded yet.</p>
-            ) : (
-              data.messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${m.direction === "inbound"
-                      ? "self-start bg-surface-muted"
-                      : "self-end bg-brand/10"
-                    }`}
-                >
-                  <p className="text-xs text-text-muted">
-                    {m.sender_name ||
-                      (m.direction === "inbound"
-                        ? "Citizen"
-                        : m.trigger === "bot"
-                          ? t("common", "brand.bot")
-                          : "Office")}{" "}
-                    · {new Date(m.created_at).toLocaleString()}
-                  </p>
-                  {m.body && <p className="mt-1 whitespace-pre-wrap">{m.body}</p>}
-                  {m.media_urls?.map((url) => (
-                    <a
-                      key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 block text-xs text-brand underline"
-                    >
-                      Attachment
-                    </a>
-                  ))}
-                </div>
-              ))
-            )}
-          </div>
-          <div className="border-t border-border p-3">
-            <Textarea
-              rows={2}
-              placeholder="Send WhatsApp reply to citizen..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-            />
-            <Button className="mt-2" disabled={busy || !replyText.trim()} onClick={submitReply}>
-              Send WhatsApp Reply
-            </Button>
-          </div>
-        </div>
+        <WhatsAppThread data={data} onWhatsAppReply={onWhatsAppReply} />
 
         <div className="space-y-4">
           <div className="rounded-lg border border-border p-4">

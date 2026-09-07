@@ -204,6 +204,7 @@
     "termsSuffix": "for Online Grievance Hearing registration. I understand that approved registrations receive a serial number and WhatsApp notification with the Google Meet link for the hearing.",
     "errSelectOption": "Please select an option from the dropdown.",
     "errPhone": "Enter a valid 10-digit mobile number.",
+    "errNameDigits": "Name cannot contain numbers. Enter letters only.",
     "errAddress": "Enter your full address (at least 5 characters).",
     "errCategory": "Please select what the grievance is related to.",
     "errOrganization": "Please select at least one organization.",

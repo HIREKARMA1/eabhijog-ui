@@ -2,17 +2,17 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/icons/Icon";
 import { GrievanceAttachments } from "@/components/grievance/GrievanceAttachments";
-import { GrievanceJourneyTimeline } from "@/components/grievance/GrievanceJourneyTimeline";
 import { GrievanceListBackLink } from "@/components/grievance/GrievanceListBackLink";
 import { OsdForwardForm } from "@/components/grievance/OsdForwardForm";
+import { WhatsAppThread } from "@/components/grievance/WhatsAppThread";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { reopenOsdGrievance, updateOsdStatus } from "@/lib/api/portal";
+import { reopenOsdGrievance, updateOsdStatus, osdWhatsAppReply, deleteOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import {
   CITIZEN_WHATSAPP_MAX_CHARS,
@@ -27,7 +27,7 @@ import {
 } from "@/lib/grievance/display";
 import { ExpandableText } from "@/components/grievance/ExpandableText";
 import { useI18n } from "@/lib/i18n/context";
-import type { GrievanceRow, JourneyEvent, OsdDepartmentContact } from "@/types/api";
+import type { GrievanceConversationData, GrievanceRow, OsdDepartmentContact } from "@/types/api";
 
 type OsdGrievanceDetailProps = {
   osdSlug: string;
@@ -36,7 +36,8 @@ type OsdGrievanceDetailProps = {
   priorities: string[];
   suggestedRecipients: OsdDepartmentContact[];
   resolvedRecipients: OsdDepartmentContact[];
-  journey: JourneyEvent[];
+  conversation?: GrievanceConversationData | null;
+  isSuperAdmin?: boolean;
 };
 
 export function OsdGrievanceDetailView({
@@ -46,7 +47,8 @@ export function OsdGrievanceDetailView({
   priorities,
   suggestedRecipients,
   resolvedRecipients,
-  journey,
+  conversation,
+  isSuperAdmin = false,
 }: OsdGrievanceDetailProps) {
   const { t } = useI18n();
   const router = useRouter();
@@ -55,6 +57,7 @@ export function OsdGrievanceDetailView({
   const [priority, setPriority] = useState(grievance.priority ?? "normal");
   const [citizenMessage, setCitizenMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [feedbackTone, setFeedbackTone] = useState<"success" | "warning">("success");
 
@@ -127,20 +130,137 @@ export function OsdGrievanceDetailView({
     }
   }
 
+  async function onDelete() {
+    const confirmed = window.confirm(
+      t("dashboard", "grievance.deleteConfirm", { ref: grievance.reference_number }),
+    );
+    if (!confirmed) return;
+    setFeedback("");
+    setDeleting(true);
+    try {
+      await deleteOsdGrievance(osdSlug, grievance.reference_number);
+      router.push(`/osd/${osdSlug}/grievances`);
+      router.refresh();
+    } catch (err) {
+      setFeedbackTone("warning");
+      setFeedback(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+      setDeleting(false);
+    }
+  }
+
+  const statusCard = isReverted ? (
+    <Card title={t("dashboard", "grievance.reopenTitle")}>
+      <p className="mb-3 text-sm text-text-muted">
+        {grievance.can_reopen
+          ? t("dashboard", "grievance.reopenReadyHint")
+          : t("dashboard", "grievance.reopenWaitingHint")}
+      </p>
+      <Button
+        type="button"
+        className="w-full"
+        loading={loading}
+        disabled={loading || !grievance.can_reopen}
+        onClick={onReopen}
+      >
+        {t("dashboard", "grievance.reopen")}
+      </Button>
+      {feedback ? (
+        <p
+          className={`mt-3 text-sm ${
+            feedbackTone === "success" ? "text-success" : "text-amber-700"
+          }`}
+        >
+          {feedback}
+        </p>
+      ) : null}
+    </Card>
+  ) : (
+    <Card title={t("dashboard", "grievance.updateStatus")}>
+      <form onSubmit={onStatusSubmit} className="space-y-3">
+        <Select
+          label={t("dashboard", "table.status")}
+          value={status}
+          onChange={(e) => handleStatusChange(e.target.value)}
+          options={statusOptions.map((s) => ({
+            value: s,
+            label: formatOsdStatusOptionLabel(s),
+          }))}
+        />
+        <Select
+          label={t("dashboard", "grievance.priority")}
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          options={priorities.map((p) => ({ value: p, label: formatPriorityLabel(p) }))}
+        />
+        {showCitizenMessage ? (
+          <div className="space-y-1.5">
+            <Textarea
+              label={t("dashboard", "grievance.remarksForCitizenWhatsApp")}
+              value={citizenMessage}
+              onChange={(e) => setCitizenMessage(e.target.value)}
+              rows={5}
+              placeholder={t("dashboard", "grievance.citizenMessagePlaceholder")}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-text-muted">
+                {t("dashboard", "grievance.citizenMessageHint")}
+              </p>
+              <p
+                className={`text-xs tabular-nums ${
+                  citizenMessage.trim().length > CITIZEN_WHATSAPP_MAX_CHARS
+                    ? "font-medium text-amber-700"
+                    : "text-text-muted"
+                }`}
+              >
+                {citizenMessage.trim().length}/{CITIZEN_WHATSAPP_MAX_CHARS}
+              </p>
+            </div>
+          </div>
+        ) : null}
+        <Button type="submit" className="w-full" loading={loading} disabled={loading}>
+          {t("dashboard", "grievance.updateStatus")}
+        </Button>
+      </form>
+      {feedback ? (
+        <p
+          className={`mt-3 text-sm ${
+            feedbackTone === "success" ? "text-success" : "text-amber-700"
+          }`}
+        >
+          {feedback}
+        </p>
+      ) : null}
+    </Card>
+  );
+
   return (
     <div className="grid gap-5 lg:grid-cols-3">
-      <div className="mb-2 flex flex-col gap-2 lg:col-span-3">
+      <div className="flex items-center justify-between gap-3 lg:col-span-3">
+        {isSuperAdmin ? (
+          <Button
+            type="button"
+            variant="danger"
+            size="sm"
+            loading={deleting}
+            disabled={deleting || loading}
+            onClick={onDelete}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <Icon name="trash" size={16} />
+              {t("dashboard", "grievance.delete")}
+            </span>
+          </Button>
+        ) : (
+          <span />
+        )}
         <GrievanceListBackLink
           listHref={`/osd/${osdSlug}/grievances`}
           disposedListHref={`/osd/${osdSlug}/disposed-grievances`}
           revertedListHref={`/osd/${osdSlug}/reverted-grievances`}
+          label={t("dashboard", "grievance.backToList")}
+          asButton
+          align="end"
         />
-        <Link
-          href={`/osd/${osdSlug}/grievance/${grievance.reference_number}/conversation`}
-          className="text-sm text-brand hover:underline"
-        >
-          Open WhatsApp conversation →
-        </Link>
       </div>
       <Card title={grievance.reference_number} className="lg:col-span-2">
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
@@ -216,90 +336,22 @@ export function OsdGrievanceDetailView({
         </div>
       </Card>
 
-      {isReverted ? (
-        <Card title={t("dashboard", "grievance.reopenTitle")}>
-          <p className="mb-3 text-sm text-text-muted">
-            {grievance.can_reopen
-              ? t("dashboard", "grievance.reopenReadyHint")
-              : t("dashboard", "grievance.reopenWaitingHint")}
-          </p>
-          <Button
-            type="button"
-            className="w-full"
-            loading={loading}
-            disabled={loading || !grievance.can_reopen}
-            onClick={onReopen}
-          >
-            {t("dashboard", "grievance.reopen")}
-          </Button>
-          {feedback ? (
-            <p
-              className={`mt-3 text-sm ${
-                feedbackTone === "success" ? "text-success" : "text-amber-700"
-              }`}
-            >
-              {feedback}
-            </p>
-          ) : null}
-        </Card>
-      ) : (
-        <Card title={t("dashboard", "grievance.updateStatus")}>
-          <form onSubmit={onStatusSubmit} className="space-y-3">
-            <Select
-              label={t("dashboard", "table.status")}
-              value={status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              options={statusOptions.map((s) => ({
-                value: s,
-                label: formatOsdStatusOptionLabel(s),
-              }))}
-            />
-            <Select
-              label={t("dashboard", "grievance.priority")}
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              options={priorities.map((p) => ({ value: p, label: formatPriorityLabel(p) }))}
-            />
-            {showCitizenMessage ? (
-              <div className="space-y-1.5">
-                <Textarea
-                  label={t("dashboard", "grievance.remarksForCitizenWhatsApp")}
-                  value={citizenMessage}
-                  onChange={(e) => setCitizenMessage(e.target.value)}
-                  rows={5}
-                  placeholder={t("dashboard", "grievance.citizenMessagePlaceholder")}
-                />
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-xs text-text-muted">
-                    {t("dashboard", "grievance.citizenMessageHint")}
-                  </p>
-                  <p
-                    className={`text-xs tabular-nums ${
-                      citizenMessage.trim().length > CITIZEN_WHATSAPP_MAX_CHARS
-                        ? "font-medium text-amber-700"
-                        : "text-text-muted"
-                    }`}
-                  >
-                    {citizenMessage.trim().length}/{CITIZEN_WHATSAPP_MAX_CHARS}
-                  </p>
-                </div>
-              </div>
-            ) : null}
-            <Button type="submit" className="w-full" loading={loading} disabled={loading}>
-              {t("dashboard", "grievance.updateStatus")}
-            </Button>
-          </form>
-          {feedback ? (
-            <p
-              className={`mt-3 text-sm ${
-                feedbackTone === "success" ? "text-success" : "text-amber-700"
-              }`}
-            >
-              {feedback}
-            </p>
-          ) : null}
-        </Card>
-      )}
+      <div className="space-y-4">
+        {conversation ? (
+          <WhatsAppThread
+            data={conversation}
+            compact
+            onWhatsAppReply={(message) =>
+              osdWhatsAppReply(osdSlug, grievance.reference_number, message).then(() => undefined)
+            }
+          />
+        ) : (
+          <Card title="WhatsApp Conversation">
+            <p className="text-sm text-text-muted">No messages recorded yet.</p>
+          </Card>
+        )}
+        {statusCard}
+      </div>
 
       {!isReverted ? (
         <div id="osd-forward-form" className="scroll-mt-4 rounded-xl transition-shadow lg:col-span-3">
@@ -316,8 +368,6 @@ export function OsdGrievanceDetailView({
           />
         </div>
       ) : null}
-
-      <GrievanceJourneyTimeline events={journey} className="lg:col-span-3" />
     </div>
   );
 }

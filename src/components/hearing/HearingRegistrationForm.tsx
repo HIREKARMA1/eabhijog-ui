@@ -309,8 +309,15 @@ export function HearingRegistrationForm({ hearing }: Props) {
       return;
     }
 
+    const citizenName = readFormValue("citizen_name");
+    if (/\d/.test(citizenName)) {
+      showSubmitError(H("register.errNameDigits"));
+      setSubmitting(false);
+      return;
+    }
+
     const required: { key: string; label: string; value: string }[] = [
-      { key: "citizen_name", label: H("register.missingName"), value: readFormValue("citizen_name") },
+      { key: "citizen_name", label: H("register.missingName"), value: citizenName },
       { key: "citizen_address", label: H("register.missingAddress"), value: citizenAddress.trim() },
       { key: "service_category", label: H("register.missingCategory"), value: serviceCategory },
       { key: "title", label: H("register.missingTitle"), value: readFormValue("title") },
@@ -586,7 +593,7 @@ export function HearingRegistrationForm({ hearing }: Props) {
                 {/* Step 0 - Personal */}
                 <StepPanel step={0} activeStep={activeStep} title={H("register.stepPersonal")}>
                   <div className="grid min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-3 *:min-w-0">
-                    <Field label={H("register.fullName")} name="citizen_name" required />
+                    <Field label={H("register.fullName")} name="citizen_name" required lettersOnly />
                     <PhoneField digits={phoneDigits} onChange={setPhoneDigits} />
                     <input type="hidden" name="citizen_phone" value={phoneDigits} />
                     <label className="block min-w-0 sm:col-span-2 lg:col-span-3">
@@ -1315,6 +1322,7 @@ function Field({
   type = "text",
   placeholder,
   hint,
+  lettersOnly,
 }: {
   label: string;
   name: string;
@@ -1322,6 +1330,7 @@ function Field({
   type?: string;
   placeholder?: string;
   hint?: string;
+  lettersOnly?: boolean;
 }) {
   return (
     <label className="block min-w-0">
@@ -1331,7 +1340,19 @@ function Field({
         type={type}
         required={required}
         placeholder={placeholder}
+        autoComplete={lettersOnly ? "name" : undefined}
+        inputMode={lettersOnly ? "text" : undefined}
+        pattern={lettersOnly ? "[^0-9]*" : undefined}
+        title={lettersOnly ? "Letters only — numbers are not allowed" : undefined}
         className="hearing-form-input"
+        onInput={
+          lettersOnly
+            ? (event) => {
+                const target = event.currentTarget;
+                target.value = target.value.replace(/\d/g, "");
+              }
+            : undefined
+        }
       />
     </label>
   );
