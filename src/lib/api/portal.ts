@@ -146,6 +146,13 @@ export async function reopenOsdGrievance(slug: string, ref: string) {
   );
 }
 
+export async function deleteOsdGrievance(slug: string, ref: string) {
+  return apiRequest<null>(
+    `/api/osd/${slug}/grievances/${encodeURIComponent(ref)}`,
+    { method: "DELETE" },
+  );
+}
+
 export async function reopenPsGrievance(ref: string) {
   return apiRequest<null>(
     `/api/ps/grievances/${encodeURIComponent(ref)}/reopen`,

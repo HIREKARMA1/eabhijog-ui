@@ -3,6 +3,7 @@
     "main": "Main",
     "dashboard": "Dashboard",
     "grievances": "Grievances",
+    "grievanceLookup": "Grievance lookup",
     "hearings": "Online Hearing",
     "reports": "Reports",
     "staff": "Staff accounts",
@@ -78,6 +79,8 @@
     "remarksForDepartmentHint": "Included in the email and WhatsApp sent to the department officer.",
     "citizenMessageHint": "Type brief remarks only (max 500 characters). Serri adds the official WhatsApp wrapper.",
     "reopen": "Reopen",
+    "delete": "Delete grievance",
+    "deleteConfirm": "Permanently delete {ref}? This cannot be undone.",
     "reopenTitle": "Reopen grievance",
     "reopenReadyHint": "Citizen has updated this grievance. Reopen to return it to pending review.",
     "reopenWaitingHint": "Waiting for the citizen to update this grievance on WhatsApp before it can be reopened.",
@@ -98,7 +101,11 @@
     "responseFrom": "Response received from",
     "conversationCount": "Conversation count",
     "resolutionTime": "Resolution time",
-    "daysPending": "Days pending"
+    "daysPending": "Days pending",
+    "backToList": "Back to Grievances",
+    "lookupTitle": "Grievance lookup",
+    "searchById": "Search by grievance ID",
+    "openCase": "Open grievance"
   },
   "journey": {
     "title": "Grievance Journey",
@@ -107,7 +114,8 @@
     "user": "User",
     "action": "Action",
     "remarks": "Remarks",
-    "empty": "No journey events recorded yet."
+    "empty": "No journey events recorded yet.",
+    "loading": "Loading journey…"
   },
   "forwardForm": {
     "recipient": "Recipient",
@@ -213,10 +221,15 @@
     "pending": "Pending review",
     "forwarded": "Forwarded today",
     "actionPending": "Department action pending",
-    "closed": "Closed"
+    "closed": "Closed",
+    "totalReceived": "Total grievances received",
+    "open": "Open",
+    "resolved": "Grievances resolved",
+    "rejected": "Rejected"
   },
   "osdDashboard": {
     "summary": "Summary",
+    "volume": "Grievance volume",
     "recent": "Recent Grievances",
     "viewAll": "View all grievances"
   }

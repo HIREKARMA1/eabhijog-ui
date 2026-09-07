@@ -14,7 +14,10 @@ export type IconName =
   | "copy"
   | "external-link"
   | "download"
-  | "message";
+  | "message"
+  | "calendar-sort"
+  | "search"
+  | "trash";
 
 type IconProps = SVGProps<SVGSVGElement> & {
   name: IconName;
@@ -115,6 +118,29 @@ const paths: Record<IconName, ReactNode> = {
       <path d="M4 6h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z" />
       <path d="M8 11h8" />
       <path d="M8 14h5" />
+    </>
+  ),
+  "calendar-sort": (
+    <>
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path d="M8 3v4" />
+      <path d="M16 3v4" />
+      <path d="M4 10h16" />
+      <path d="M12 13v5" />
+      <path d="M9.5 15.5L12 13l2.5 2.5" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6" />
+      <path d="M16 16l4 4" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M5 7h14" />
+      <path d="M10 7V5h4v2" />
+      <path d="M8 7l1 12h6l1-12" />
     </>
   ),
 };

@@ -61,13 +61,21 @@ export async function apiRequest<T>(
     throw new ApiError("Network error", 0);
   }
 
-  const payload = (await response.json()) as ApiEnvelope<T> & {
+  let payload: ApiEnvelope<T> & {
     error?: {
       message?: string;
       code?: string;
       details?: Record<string, unknown>;
     };
   };
+  try {
+    payload = (await response.json()) as typeof payload;
+  } catch {
+    throw new ApiError(
+      response.ok ? "Network error" : `Request failed (${response.status})`,
+      response.status,
+    );
+  }
 
   if (!response.ok || !payload.success) {
     const message = payload.error?.message ?? payload.message ?? "Request failed";

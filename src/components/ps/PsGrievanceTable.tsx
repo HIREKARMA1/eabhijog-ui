@@ -4,17 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/icons/Icon";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DataTable } from "@/components/ui/DataTable";
-import { reopenOsdGrievance, reopenPsGrievance } from "@/lib/api/portal";
+import { cn } from "@/lib/utils/cn";
+import { reopenOsdGrievance, reopenPsGrievance, deleteOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
-import {
-  cell,
-  formatDateTime,
-  formatDaysPending,
-  formatStatusLabel,
-} from "@/lib/grievance/display";
+import { cell, formatStatusLabel } from "@/lib/grievance/display";
 import { useI18n } from "@/lib/i18n/context";
 import type { PsGrievanceRow } from "@/types/api";
 
@@ -31,14 +28,6 @@ function priorityTone(priority: string) {
   if (priority === "urgent" || priority === "critical" || priority === "high") return "danger" as const;
   if (priority === "normal" || priority === "medium") return "info" as const;
   return "default" as const;
-}
-
-function daysPendingClass(days: string) {
-  if (days === "-") return "bg-slate-100 text-slate-600";
-  const count = Number(days);
-  if (count >= 7) return "bg-red-50 text-red-700 ring-1 ring-red-100";
-  if (count >= 3) return "bg-amber-50 text-amber-700 ring-1 ring-amber-100";
-  return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100";
 }
 
 function FilingSourceBadge({
@@ -76,18 +65,26 @@ export function PsGrievanceTable({
   detailHrefPrefix = "/ps/grievance/",
   listQueryString,
   listMode = "active",
+  sortOldest = false,
+  onToggleDateSort,
+  isSuperAdmin = false,
 }: {
   items: PsGrievanceRow[];
   detailHrefPrefix?: string;
   listQueryString?: string;
   listMode?: "active" | "disposed" | "reverted";
+  sortOldest?: boolean;
+  onToggleDateSort?: () => void;
+  isSuperAdmin?: boolean;
 }) {
   const { t } = useI18n();
   const router = useRouter();
   const [reopeningRef, setReopeningRef] = useState<string | null>(null);
+  const [deletingRef, setDeletingRef] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
   const osdSlug = extractOsdSlug(detailHrefPrefix);
   const isRevertedList = listMode === "reverted";
+  const canDelete = Boolean(isSuperAdmin && osdSlug);
 
   function sourceLabel(source?: "chatbot" | "online_hearing") {
     if (source === "online_hearing") return t("ps", "grievances.table.sourceOnlineHearing");
@@ -109,6 +106,24 @@ export function PsGrievanceTable({
       setActionError(err instanceof ApiError ? err.message : t("common", "errors.generic"));
     } finally {
       setReopeningRef(null);
+    }
+  }
+
+  async function handleDelete(referenceNumber: string) {
+    if (!osdSlug) return;
+    const confirmed = window.confirm(
+      t("ps", "grievances.table.deleteConfirm", { ref: referenceNumber }),
+    );
+    if (!confirmed) return;
+    setActionError("");
+    setDeletingRef(referenceNumber);
+    try {
+      await deleteOsdGrievance(osdSlug, referenceNumber);
+      router.refresh();
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : t("common", "errors.generic"));
+    } finally {
+      setDeletingRef(null);
     }
   }
 
@@ -138,11 +153,23 @@ export function PsGrievanceTable({
             variant="outline"
             className="!px-2 !py-1 text-xs"
             loading={reopeningRef === g.reference_number}
-            disabled={reopeningRef === g.reference_number}
+            disabled={reopeningRef === g.reference_number || deletingRef === g.reference_number}
             onClick={() => handleReopen(g.reference_number)}
           >
             {t("ps", "grievances.table.reopen")}
           </Button>
+        ) : null}
+        {canDelete ? (
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md p-1 text-red-600 hover:bg-red-50 disabled:opacity-50"
+            title={t("ps", "grievances.table.delete")}
+            aria-label={t("ps", "grievances.table.delete")}
+            disabled={deletingRef === g.reference_number || reopeningRef === g.reference_number}
+            onClick={() => handleDelete(g.reference_number)}
+          >
+            <Icon name="trash" size={16} />
+          </button>
         ) : null}
       </div>
     );
@@ -158,7 +185,6 @@ export function PsGrievanceTable({
           </div>
         ) : (
           items.map((g, index) => {
-            const days = formatDaysPending(g.created_at, g.status);
             return (
               <div
                 key={g.reference_number}
@@ -190,19 +216,6 @@ export function PsGrievanceTable({
                     <span>{cell(g.assigned_osd || g.osd_category)}</span>
                     <Badge tone={statusTone(g.status)}>{formatStatusLabel(g.status)}</Badge>
                     <Badge tone={priorityTone(g.priority)}>{g.priority.toUpperCase()}</Badge>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-text-muted">{t("ps", "grievances.table.daysPending")}</p>
-                      <span className={`mt-1 inline-flex min-w-10 justify-center rounded-full px-2.5 py-1 text-xs font-semibold ${daysPendingClass(days)}`}>
-                        {days}
-                      </span>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 px-3 py-2">
-                      <p className="text-text-muted">{t("ps", "grievances.table.lastUpdated")}</p>
-                      <p className="mt-1 font-medium text-slate-700">{formatDateTime(g.updated_at)}</p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -262,25 +275,31 @@ export function PsGrievanceTable({
               cell: (g) => <Badge tone={priorityTone(g.priority)}>{g.priority.toUpperCase()}</Badge>,
             },
             {
-              key: "daysPending",
-              header: t("ps", "grievances.table.daysPending"),
-              cell: (g) => {
-                const days = formatDaysPending(g.created_at, g.status);
-                return (
-                  <span className={`inline-flex min-w-10 justify-center rounded-full px-2.5 py-1 text-xs font-semibold ${daysPendingClass(days)}`}>
-                    {days}
-                  </span>
-                );
-              },
-            },
-            {
-              key: "updated",
-              header: t("ps", "grievances.table.lastUpdated"),
-              cell: (g) => <span className="text-xs text-slate-600">{formatDateTime(g.updated_at)}</span>,
-            },
-            {
               key: "actions",
-              header: t("ps", "grievances.table.actions"),
+              header: (
+                <div className="flex items-center justify-end gap-2">
+                  <span>{t("ps", "grievances.table.actions")}</span>
+                  {onToggleDateSort ? (
+                    <button
+                      type="button"
+                      onClick={onToggleDateSort}
+                      title={
+                        sortOldest
+                          ? t("ps", "grievances.table.sortNewestFirst")
+                          : t("ps", "grievances.table.sortOldestFirst")
+                      }
+                      aria-pressed={sortOldest}
+                      className={cn(
+                        "inline-flex rounded-md p-1 text-white/90 transition hover:bg-white/20 hover:text-white",
+                        sortOldest && "bg-white/25 text-white",
+                      )}
+                    >
+                      <Icon name="calendar-sort" size={16} />
+                    </button>
+                  ) : null}
+                </div>
+              ),
+              className: "text-right",
               cell: (g) => actionCell(g),
             },
           ]}

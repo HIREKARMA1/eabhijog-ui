@@ -1,12 +1,17 @@
 import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdDashboardOverview } from "@/components/osd/OsdDashboardOverview";
-import { getOsdDashboard } from "@/lib/api/server-portal";
+import { getConstants, getCurrentUser, getOsdDashboard } from "@/lib/api/server-portal";
+import { isSuperAdmin } from "@/lib/auth/roles";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
 import { redirect } from "next/navigation";
+import type { MetadataConstants, OsdDashboardData } from "@/types/api";
 
-type PageProps = { params: Promise<{ slug: string }> };
+type PageProps = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+};
 
-export default async function OsdDashboardPage({ params }: PageProps) {
+export default async function OsdDashboardPage({ params, searchParams }: PageProps) {
   const { slug: rawSlug } = await params;
   const slug = normalizeOsdSlug(rawSlug);
 
@@ -14,9 +19,25 @@ export default async function OsdDashboardPage({ params }: PageProps) {
     redirect(`/osd/${slug}/dashboard`);
   }
 
-  let data;
+  const query = await searchParams;
+  const filters: Record<string, string> = {};
+  for (const key of ["osd_category", "filing_source"]) {
+    const value = query[key];
+    if (value) filters[key] = value;
+  }
+
+  let data: OsdDashboardData | null = null;
+  let constants: MetadataConstants | null = null;
+  let superAdmin = false;
   try {
-    data = await getOsdDashboard(slug);
+    const [dashboard, constantsRes, staff] = await Promise.all([
+      getOsdDashboard(slug, filters.osd_category, filters.filing_source),
+      getConstants(),
+      getCurrentUser(),
+    ]);
+    data = dashboard;
+    constants = constantsRes;
+    superAdmin = isSuperAdmin(staff);
   } catch {
     // Auth is enforced in OsdLayout. Do not bounce to /login here — that fights
     // LoginAuthGuard and creates a redirect loop when the dashboard API fails.
@@ -37,7 +58,13 @@ export default async function OsdDashboardPage({ params }: PageProps) {
       <SetBreadcrumb>
         <strong>{data.osd_category}</strong>
       </SetBreadcrumb>
-      <OsdDashboardOverview data={data} osdSlug={slug} />
+      <OsdDashboardOverview
+        data={data}
+        osdSlug={slug}
+        constants={constants}
+        filters={filters}
+        isSuperAdmin={superAdmin}
+      />
     </>
   );
 }

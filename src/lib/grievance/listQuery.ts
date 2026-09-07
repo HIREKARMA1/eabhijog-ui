@@ -9,6 +9,7 @@ export const GRIEVANCE_LIST_QUERY_KEYS = [
   "date_preset",
   "date_from",
   "date_to",
+  "sort",
   "page",
 ] as const;
 

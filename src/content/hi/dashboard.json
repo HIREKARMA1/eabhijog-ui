@@ -3,6 +3,7 @@
     "main": "मुख्य",
     "dashboard": "डैशबोर्ड",
     "grievances": "शिकायतें",
+    "grievanceLookup": "शिकायत खोज",
     "hearings": "ऑनलाइन सुनवाई",
     "reports": "रिपोर्ट",
     "staff": "स्टाफ खाते",
@@ -78,6 +79,8 @@
     "remarksForDepartmentHint": "विभाग अधिकारी को भेजे जाने वाले ईमेल और WhatsApp में शामिल होगी।",
     "citizenMessageHint": "केवल संक्षिप्त टिप्पणी लिखें (अधिकतम 500 अक्षर)। Serri आधिकारिक WhatsApp रैपर जोड़ता है।",
     "reopen": "पुनः खोलें",
+    "delete": "शिकायत हटाएं",
+    "deleteConfirm": "क्या आप {ref} को स्थायी रूप से हटाना चाहते हैं? यह वापस नहीं लिया जा सकता।",
     "reopenTitle": "शिकायत पुनः खोलें",
     "reopenReadyHint": "नागरिक ने इस शिकायत को अपडेट कर दिया है। इसे लंबित समीक्षा में वापस लाने के लिए पुनः खोलें।",
     "reopenWaitingHint": "पुनः खोलने से पहले नागरिक के WhatsApp पर अपडेट की प्रतीक्षा है।",
@@ -97,7 +100,11 @@
     "responseFrom": "प्रतिक्रिया प्राप्त",
     "conversationCount": "वार्तालाप संख्या",
     "resolutionTime": "समाधान समय",
-    "daysPending": "लंबित दिन"
+    "daysPending": "लंबित दिन",
+    "backToList": "शिकायतों पर वापस जाएँ",
+    "lookupTitle": "शिकायत खोज",
+    "searchById": "शिकायत ID से खोजें",
+    "openCase": "शिकायत खोलें"
   },
   "journey": {
     "title": "शिकायत यात्रा",
@@ -106,7 +113,8 @@
     "user": "उपयोगकर्ता",
     "action": "कार्रवाई",
     "remarks": "टिप्पणी",
-    "empty": "अभी तक कोई यात्रा घटना दर्ज नहीं है।"
+    "empty": "अभी तक कोई यात्रा घटना दर्ज नहीं है।",
+    "loading": "यात्रा लोड हो रही है…"
   },
   "forwardForm": {
     "recipient": "प्राप्तकर्ता",
@@ -212,10 +220,15 @@
     "pending": "समीक्षा लंबित",
     "forwarded": "आज अग्रेषित",
     "actionPending": "विभाग कार्रवाई लंबित",
-    "closed": "बंद"
+    "closed": "बंद",
+    "totalReceived": "कुल प्राप्त शिकायतें",
+    "open": "खुली",
+    "resolved": "समाधान हुई शिकायतें",
+    "rejected": "अस्वीकृत"
   },
   "osdDashboard": {
     "summary": "सारांश",
+    "volume": "शिकायत संख्या",
     "recent": "हाल की शिकायतें",
     "viewAll": "सभी शिकायतें देखें"
   }

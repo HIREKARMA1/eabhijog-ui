@@ -3,13 +3,15 @@
 import { StatCard } from "@/components/ui/StatCard";
 import { useI18n } from "@/lib/i18n/context";
 
-const SUMMARY_CARDS: {
+type SummaryCard = {
   key: string;
   labelKey: string;
   fallbackKeys?: string[];
   /** Query string appended to /osd/{slug}/grievances */
   query: string;
-}[] = [
+};
+
+const SUMMARY_CARDS: SummaryCard[] = [
   { key: "assigned_today", labelKey: "assignedToday", query: "date_preset=today" },
   {
     key: "pending_acknowledgement",
@@ -41,12 +43,96 @@ const SUMMARY_CARDS: {
   { key: "overdue_cases", labelKey: "overdue", query: "overdue=true" },
 ];
 
-function summaryValue(summary: Record<string, number>, card: (typeof SUMMARY_CARDS)[number]) {
+function summaryValue(summary: Record<string, number>, card: SummaryCard) {
   if (summary[card.key] != null) return summary[card.key];
   for (const fallback of card.fallbackKeys ?? []) {
     if (summary[fallback] != null) return summary[fallback];
   }
   return 0;
+}
+
+function grievanceHref(basePath: string, query: string, extraParams?: Record<string, string>) {
+  const params = new URLSearchParams(query);
+  if (extraParams) {
+    for (const [key, value] of Object.entries(extraParams)) {
+      if (value && key !== "status" && key !== "page" && !params.has(key)) {
+        params.set(key, value);
+      }
+    }
+  }
+  const qs = params.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
+function volumeCards(listMode: "active" | "disposed" | "reverted"): SummaryCard[] {
+  const totalQuery =
+    listMode === "disposed"
+      ? "status=disposed_grievances"
+      : listMode === "reverted"
+        ? "status=reverted_grievances"
+        : "";
+  return [
+    { key: "total", labelKey: "totalReceived", query: totalQuery },
+    { key: "open", labelKey: "open", query: "status=open_volume" },
+    { key: "resolved", labelKey: "resolved", query: "status=resolved" },
+    { key: "closed_cases", labelKey: "closed", query: "status=closed" },
+    { key: "rejected", labelKey: "rejected", query: "status=discarded" },
+  ];
+}
+
+function OsdCardGrid({
+  cards,
+  summary,
+  basePath,
+  extraParams,
+  columnsClassName,
+}: {
+  cards: SummaryCard[];
+  summary: Record<string, number>;
+  basePath: string;
+  extraParams?: Record<string, string>;
+  columnsClassName: string;
+}) {
+  const { t } = useI18n();
+
+  return (
+    <div className={columnsClassName}>
+      {cards.map((card, index) => (
+        <StatCard
+          key={card.key}
+          label={t("dashboard", `osdSummary.${card.labelKey}`)}
+          value={summaryValue(summary, card)}
+          href={grievanceHref(basePath, card.query, extraParams)}
+          tone={index}
+          compact
+        />
+      ))}
+    </div>
+  );
+}
+
+export function OsdVolumeGrid({
+  summary,
+  osdSlug,
+  basePath,
+  listMode = "active",
+  extraParams,
+}: {
+  summary: Record<string, number>;
+  osdSlug: string;
+  basePath?: string;
+  listMode?: "active" | "disposed" | "reverted";
+  extraParams?: Record<string, string>;
+}) {
+  return (
+    <OsdCardGrid
+      cards={volumeCards(listMode)}
+      summary={summary}
+      basePath={basePath ?? `/osd/${osdSlug}/grievances`}
+      extraParams={extraParams}
+      columnsClassName="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
+    />
+  );
 }
 
 export function OsdSummaryGrid({
@@ -56,21 +142,12 @@ export function OsdSummaryGrid({
   summary: Record<string, number>;
   osdSlug: string;
 }) {
-  const { t } = useI18n();
-  const basePath = `/osd/${osdSlug}/grievances`;
-
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-      {SUMMARY_CARDS.map((card, index) => (
-        <StatCard
-          key={card.key}
-          label={t("dashboard", `osdSummary.${card.labelKey}`)}
-          value={summaryValue(summary, card)}
-          href={`${basePath}?${card.query}`}
-          tone={index}
-          compact
-        />
-      ))}
-    </div>
+    <OsdCardGrid
+      cards={SUMMARY_CARDS}
+      summary={summary}
+      basePath={`/osd/${osdSlug}/grievances`}
+      columnsClassName="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7"
+    />
   );
 }
