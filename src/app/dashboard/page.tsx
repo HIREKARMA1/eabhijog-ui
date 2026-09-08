@@ -18,8 +18,8 @@ export default async function DashboardPage() {
     >
       <DashboardOverview
         summary={dashboard.summary}
-        grievances={dashboard.recent_grievances}
         kpi={dashboard.kpi}
+        charts={dashboard.charts}
         isSuperAdmin={isSuperAdmin(staff)}
       />
     </PortalLayout>
