@@ -9,7 +9,7 @@
     "staff": "Staff accounts",
     "operational": "Operational",
     "overview": "Overview",
-    "operationalCommand": "Operational Command",
+    "operationalCommand": "Dashboard",
     "osd": "OSD",
     "departments": "Departments",
     "disposedGrievances": "Disposed Grievances",
@@ -231,6 +231,23 @@
     "summary": "Summary",
     "volume": "Grievance volume",
     "recent": "Recent Grievances",
-    "viewAll": "View all grievances"
+    "viewAll": "View all grievances",
+    "charts": {
+      "title": "Grievance analytics",
+      "status": "Registered vs outcomes",
+      "outcomes": "Registered, resolved, closed",
+      "successRate": "Success rate",
+      "weekly": "This week (Mon–Sun)",
+      "monthly": "This month",
+      "period": "Period",
+      "week": "Week",
+      "month": "Monthly",
+      "empty": "No grievances for these filters.",
+      "open": "Registered (open)",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "rejected": "Rejected",
+      "registered": "Registered"
+    }
   }
 }

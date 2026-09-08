@@ -109,8 +109,9 @@ export type GrievanceRow = {
 export type PortalDashboardData = {
   summary: DashboardSummary;
   pending_count: number;
-  recent_grievances: GrievanceRow[];
+  recent_grievances?: GrievanceRow[];
   kpi: Record<string, number>;
+  charts?: OsdDashboardCharts;
 };
 
 export type PortalOperationalData = {
@@ -183,12 +184,28 @@ export type MetadataConstants = {
   date_presets: string[];
 };
 
+export type OsdChartSlice = {
+  key: string;
+  label: string;
+  count: number;
+  href: string;
+};
+
+export type OsdDashboardCharts = {
+  success_rate_pct: number;
+  status_slices: OsdChartSlice[];
+  outcome_slices: OsdChartSlice[];
+  weekly_registered: OsdChartSlice[];
+  monthly_registered?: OsdChartSlice[];
+};
+
 export type OsdDashboardData = {
   osd_slug: string;
   osd_category: string;
   summary: Record<string, number>;
   pending_count: number;
-  recent_grievances: PsGrievanceRow[];
+  recent_grievances?: PsGrievanceRow[];
+  charts?: OsdDashboardCharts;
 };
 
 export type OsdDepartmentContact = {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils/cn";
 
@@ -60,29 +60,41 @@ export function MisPieChart({
   }, [slices, total]);
 
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm">
       <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
       {!total ? (
         <p className="mt-8 text-center text-sm text-text-muted">{emptyLabel}</p>
       ) : (
         <div className="mt-3 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-          <svg viewBox="0 0 160 160" className="h-40 w-40 shrink-0">
-            {arcs.map((arc) => (
-              <a key={arc.key} href={arc.href}>
-                <path
-                  d={arcPath(80, 80, 72, arc.start, arc.end)}
-                  fill={arc.color}
-                  opacity={hover && hover !== arc.key ? 0.45 : 1}
-                  className="cursor-pointer transition-opacity"
-                  onMouseEnter={() => setHover(arc.key)}
-                  onMouseLeave={() => setHover(null)}
-                >
-                  <title>
-                    {arc.label}: {arc.count}
-                  </title>
-                </path>
-              </a>
-            ))}
+          <svg viewBox="0 0 160 160" className="h-40 w-40 shrink-0 overflow-visible">
+            {arcs.map((arc) => {
+              const sweep = arc.end - arc.start;
+              if (sweep <= 0) return null;
+              const common = {
+                fill: arc.color,
+                opacity: hover && hover !== arc.key ? 0.45 : 1,
+                className: "cursor-pointer transition-opacity",
+                onMouseEnter: () => setHover(arc.key),
+                onMouseLeave: () => setHover(null),
+              };
+              return (
+                <a key={arc.key} href={arc.href}>
+                  {sweep >= 359.9 ? (
+                    <circle cx="80" cy="80" r="72" {...common}>
+                      <title>
+                        {arc.label}: {arc.count}
+                      </title>
+                    </circle>
+                  ) : (
+                    <path d={arcPath(80, 80, 72, arc.start, arc.end)} {...common}>
+                      <title>
+                        {arc.label}: {arc.count}
+                      </title>
+                    </path>
+                  )}
+                </a>
+              );
+            })}
             <circle cx="80" cy="80" r="34" fill="white" />
             <text x="80" y="76" textAnchor="middle" className="fill-slate-500 text-[10px]">
               Total
@@ -128,23 +140,23 @@ export function MisBarChart({
   const max = Math.max(...slices.map((s) => s.count), 1);
 
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm">
       <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
       {!slices.length ? (
         <p className="mt-8 text-center text-sm text-text-muted">{emptyLabel}</p>
       ) : (
         <div className="mt-4 space-y-2.5">
           {slices.map((slice, index) => (
-            <Link key={slice.key} href={slice.href} className="block group">
+            <Link key={slice.key} href={slice.href} className="block min-w-0 group">
               <div className="mb-1 flex items-center justify-between gap-2 text-xs">
-                <span className="truncate font-medium text-slate-700 group-hover:text-navy-700">
+                <span className="min-w-0 truncate font-medium text-slate-700 group-hover:text-navy-700">
                   {slice.label}
                 </span>
                 <span className="shrink-0 font-semibold tabular-nums text-slate-900">{slice.count}</span>
               </div>
               <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full transition-all group-hover:brightness-110"
+                  className="h-full max-w-full rounded-full transition-all group-hover:brightness-110"
                   style={{
                     width: `${Math.max((slice.count / max) * 100, slice.count ? 4 : 0)}%`,
                     background: COLORS[index % COLORS.length],
@@ -163,57 +175,63 @@ export function MisTrendChart({
   title,
   slices,
   emptyLabel,
+  action,
 }: {
   title: string;
   slices: ChartSlice[];
   emptyLabel: string;
+  action?: ReactNode;
 }) {
   const max = Math.max(...slices.map((s) => s.count), 1);
-  const height = 120;
-  const width = Math.max(slices.length * 28, 280);
-  const barW = 16;
+  const dense = slices.length > 10;
 
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-      {!slices.some((s) => s.count > 0) ? (
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        {action}
+      </div>
+      {!slices.length ? (
         <p className="mt-8 text-center text-sm text-text-muted">{emptyLabel}</p>
       ) : (
-        <div className="mt-3 overflow-x-auto">
-          <svg viewBox={`0 0 ${width} ${height + 28}`} className="min-w-full" style={{ height: height + 28 }}>
-            {slices.map((slice, index) => {
-              const h = slice.count ? Math.max((slice.count / max) * height, 3) : 0;
-              const x = index * 28 + 6;
-              const y = height - h;
-              return (
-                <a key={slice.key} href={slice.href}>
-                  <g className="cursor-pointer">
-                    <rect
-                      x={x}
-                      y={y}
-                      width={barW}
-                      height={h}
-                      rx={4}
-                      fill={COLORS[1]}
-                      className="hover:opacity-80"
-                    >
-                      <title>
-                        {slice.label}: {slice.count}
-                      </title>
-                    </rect>
-                    <text
-                      x={x + barW / 2}
-                      y={height + 14}
-                      textAnchor="middle"
-                      className="fill-slate-500 text-[8px]"
-                    >
-                      {slice.label.replace(/ .*/, "")}
-                    </text>
-                  </g>
-                </a>
-              );
-            })}
-          </svg>
+        <div className={cn("mt-3 flex h-44 items-end", dense ? "gap-px sm:gap-0.5" : "gap-1 sm:gap-2")}>
+          {slices.map((slice) => {
+            const pct = slice.count ? Math.max((slice.count / max) * 100, 6) : 0;
+            return (
+              <Link
+                key={slice.key}
+                href={slice.href}
+                title={`${slice.label}: ${slice.count}`}
+                className="flex h-full min-w-0 flex-1 flex-col items-center gap-1 no-underline"
+              >
+                <span
+                  className={cn(
+                    "shrink-0 font-semibold tabular-nums text-slate-700",
+                    dense ? "text-[8px] sm:text-[10px]" : "text-[10px]",
+                  )}
+                >
+                  {slice.count}
+                </span>
+                <span className="flex min-h-0 w-full flex-1 items-end justify-center">
+                  <span
+                    className={cn(
+                      "w-full rounded-t-md bg-sky-600 transition hover:opacity-80",
+                      dense ? "max-w-3 sm:max-w-4" : "max-w-8",
+                    )}
+                    style={{ height: `${pct}%`, minHeight: slice.count ? 4 : 0 }}
+                  />
+                </span>
+                <span
+                  className={cn(
+                    "w-full shrink-0 truncate text-center text-slate-500",
+                    dense ? "text-[8px] sm:text-[10px]" : "text-[10px]",
+                  )}
+                >
+                  {slice.label}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
