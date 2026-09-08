@@ -67,8 +67,8 @@ type GrievanceFiltersProps = {
   basePath: string;
   variant?: "portal" | "desk";
   hideOsdCategory?: boolean;
-  /** Main grievance list (active) vs disposed vs reverted pages. */
-  listMode?: "active" | "disposed" | "reverted";
+  /** Main grievance list (active) vs disposed vs reverted vs dashboard volume. */
+  listMode?: "active" | "disposed" | "reverted" | "dashboard";
 };
 
 export function GrievanceFilters({
@@ -128,7 +128,8 @@ export function GrievanceFilters({
   );
 
   const showStatusFilter = listMode === "disposed";
-  const showInlineActions = listMode === "active";
+  const isDashboard = listMode === "dashboard";
+  const showInlineActions = listMode === "active" || isDashboard;
   const showBottomActions = listMode === "disposed" || listMode === "reverted";
 
   const portalStatusOptions = useMemo(
@@ -189,10 +190,10 @@ export function GrievanceFilters({
     const qs = new URLSearchParams();
 
     if (isDesk) {
-      if (status) qs.set("status", status);
+      if (!isDashboard && status) qs.set("status", status);
       if (filingSource) qs.set("filing_source", filingSource);
       if (osdCategory) qs.set("osd_category", osdCategory);
-      appendDateParams(qs);
+      if (!isDashboard) appendDateParams(qs);
     } else {
       if (status) qs.set("status", status);
       if (district) qs.set("district", district);
@@ -202,6 +203,9 @@ export function GrievanceFilters({
       if (search.trim()) qs.set("search", search.trim());
       appendDateParams(qs);
     }
+
+    const sort = params.get("sort");
+    if (sort) qs.set("sort", sort);
 
     const suffix = qs.toString() ? `?${qs.toString()}` : "";
     router.push(`${basePath}${suffix}`);
@@ -215,6 +219,10 @@ export function GrievanceFilters({
     setDateTo("");
 
     if (isDesk) {
+      if (isDashboard) {
+        router.push(basePath);
+        return;
+      }
       setStatus(defaultDeskStatus);
       router.push(`${basePath}?status=${defaultDeskStatus}`);
       return;
@@ -262,6 +270,7 @@ export function GrievanceFilters({
             onChange={(e) => setOsdCategory(e.target.value)}
             options={categoryOptions}
           />
+          {!isDashboard ? (
           <Select
             name="date_preset"
             label={t("ps", "filters.sectionDate")}
@@ -269,6 +278,7 @@ export function GrievanceFilters({
             onChange={(e) => onDateModeChange(e.target.value)}
             options={datePresetOptions}
           />
+          ) : null}
           {showStatusFilter ? (
             <Select
               name="status"

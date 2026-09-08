@@ -24,10 +24,16 @@ export const getCurrentUser = cache(async () => {
   return result.data;
 });
 
-export const getOsdDashboard = cache(async (slug: string) => {
-  const result = await serverApiRequest<OsdDashboardData>(`/api/osd/${slug}/dashboard`);
-  return result.data;
-});
+export const getOsdDashboard = cache(
+  async (slug: string, osdCategory?: string, filingSource?: string) => {
+    const qs = new URLSearchParams();
+    if (osdCategory) qs.set("osd_category", osdCategory);
+    if (filingSource) qs.set("filing_source", filingSource);
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    const result = await serverApiRequest<OsdDashboardData>(`/api/osd/${slug}/dashboard${suffix}`);
+    return result.data;
+  },
+);
 
 export async function getPublicPortal() {
   const result = await serverApiRequest<PortalPublicData>("/api/public/portal");

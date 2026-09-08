@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 
 import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdGrievanceDetailView } from "@/components/grievance/OsdGrievanceDetail";
-import { getConstants, getOsdGrievanceDetail } from "@/lib/api/server-portal";
+import { getConstants, getOsdConversation, getOsdGrievanceDetail, getCurrentUser } from "@/lib/api/server-portal";
+import { isSuperAdmin } from "@/lib/auth/roles";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
 
 type PageProps = { params: Promise<{ slug: string; ref: string }> };
@@ -16,9 +17,11 @@ export default async function OsdGrievanceDetailPage({ params }: PageProps) {
   }
 
   try {
-    const [data, constants] = await Promise.all([
+    const [data, constants, conversation, staff] = await Promise.all([
       getOsdGrievanceDetail(slug, ref),
       getConstants(),
+      getOsdConversation(slug, ref.toUpperCase()).catch(() => null),
+      getCurrentUser(),
     ]);
     return (
       <>
@@ -32,7 +35,8 @@ export default async function OsdGrievanceDetailPage({ params }: PageProps) {
           priorities={constants.priorities}
           suggestedRecipients={data.suggested_recipients}
           resolvedRecipients={data.resolved_recipients ?? []}
-          journey={data.journey ?? []}
+          conversation={conversation}
+          isSuperAdmin={isSuperAdmin(staff)}
         />
       </>
     );

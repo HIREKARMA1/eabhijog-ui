@@ -74,6 +74,11 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
       badge: pendingCount,
     },
     {
+      href: `${base}/lookup`,
+      labelKey: "nav.grievanceLookup",
+      icon: "search",
+    },
+    {
       href: `${base}/disposed-grievances`,
       labelKey: "nav.disposedGrievances",
       icon: "grievances",
