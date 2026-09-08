@@ -1,7 +1,6 @@
 import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdDashboardOverview } from "@/components/osd/OsdDashboardOverview";
-import { getConstants, getCurrentUser, getOsdDashboard } from "@/lib/api/server-portal";
-import { isSuperAdmin } from "@/lib/auth/roles";
+import { getConstants, getOsdDashboard } from "@/lib/api/server-portal";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
 import { redirect } from "next/navigation";
 import type { MetadataConstants, OsdDashboardData } from "@/types/api";
@@ -28,19 +27,19 @@ export default async function OsdDashboardPage({ params, searchParams }: PagePro
 
   let data: OsdDashboardData | null = null;
   let constants: MetadataConstants | null = null;
-  let superAdmin = false;
   try {
-    const [dashboard, constantsRes, staff] = await Promise.all([
+    const [dashboard, constantsRes] = await Promise.all([
       getOsdDashboard(slug, filters.osd_category, filters.filing_source),
       getConstants(),
-      getCurrentUser(),
     ]);
     data = dashboard;
     constants = constantsRes;
-    superAdmin = isSuperAdmin(staff);
   } catch {
     // Auth is enforced in OsdLayout. Do not bounce to /login here — that fights
     // LoginAuthGuard and creates a redirect loop when the dashboard API fails.
+  }
+
+  if (!data || !constants) {
     return (
       <>
         <SetBreadcrumb>
@@ -63,7 +62,6 @@ export default async function OsdDashboardPage({ params, searchParams }: PagePro
         osdSlug={slug}
         constants={constants}
         filters={filters}
-        isSuperAdmin={superAdmin}
       />
     </>
   );

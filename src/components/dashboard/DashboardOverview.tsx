@@ -1,19 +1,17 @@
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
+import { GrievanceAnalyticsCharts } from "@/components/dashboard/GrievanceAnalyticsCharts";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { Section } from "@/components/ui/Section";
-import { formatStatusLabel } from "@/lib/grievance/display";
 import { Bi } from "@/lib/i18n/bi";
 import { cn } from "@/lib/utils/cn";
-import type { DashboardSummary, GrievanceRow } from "@/types/api";
+import type { DashboardSummary, OsdDashboardCharts } from "@/types/api";
 
 type DashboardOverviewProps = {
   summary: DashboardSummary;
-  grievances: GrievanceRow[];
   kpi: Record<string, number>;
   isSuperAdmin: boolean;
+  charts?: OsdDashboardCharts | null;
 };
 
 const kpiTiles = [
@@ -50,13 +48,7 @@ const kpiTiles = [
   },
 ] as const;
 
-function statusTone(status: string) {
-  if (["closed", "resolved", "action_taken"].includes(status)) return "success" as const;
-  if (status === "pending_review") return "warning" as const;
-  return "info" as const;
-}
-
-export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: DashboardOverviewProps) {
+export function DashboardOverview({ summary, kpi, isSuperAdmin, charts }: DashboardOverviewProps) {
   const openCount = summary.new_count + summary.in_progress_count;
 
   return (
@@ -213,43 +205,14 @@ export function DashboardOverview({ summary, grievances, kpi, isSuperAdmin }: Da
       </div>
 
       <Section
-        title={<Bi en="Recent submissions" or="ସାମ୍ପ୍ରତିକ ଅଭିଯୋଗ" />}
+        title={<Bi en="Grievance analytics" or="ଅଭିଯୋଗ ବିଶ୍ଳେଷଣ" />}
         action={
           <LinkButton href="/dashboard/grievances" variant="outline" className="text-xs">
             <Bi en="View all" or="ସମସ୍ତ ଦେଖନ୍ତୁ" />
           </LinkButton>
         }
       >
-        <Card className="overflow-hidden p-0 md:p-0">
-          {grievances.length === 0 ? (
-            <p className="py-10 text-center text-sm text-text-muted">
-              <Bi en="No grievances on record yet." or="ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଅଭିଯୋଗ ନାହିଁ ।" />
-            </p>
-          ) : (
-            grievances.map((g) => (
-              <Link
-                key={g.reference_number}
-                href={`/dashboard/grievances?ref=${g.reference_number}`}
-                className="flex items-center gap-4 border-b border-slate-100 px-5 py-3.5 no-underline last:border-b-0 hover:bg-slate-50"
-              >
-                <span className="min-w-36 font-mono text-xs font-bold text-blue-700">
-                  #{g.reference_number}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-slate-900">
-                    {g.citizen_name ?? "Citizen"}
-                  </span>
-                  <span className="mt-0.5 block text-xs text-text-muted">
-                    {g.district} · {g.category ?? g.osd_category}
-                  </span>
-                </span>
-                <Badge tone={statusTone(g.status)} className="shrink-0 whitespace-nowrap">
-                  {formatStatusLabel(g.status).replace(/\b\w/g, (c) => c.toUpperCase())}
-                </Badge>
-              </Link>
-            ))
-          )}
-        </Card>
+        <GrievanceAnalyticsCharts charts={charts} />
       </Section>
     </div>
   );

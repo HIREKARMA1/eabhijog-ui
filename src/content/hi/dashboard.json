@@ -9,7 +9,7 @@
     "staff": "स्टाफ खाते",
     "operational": "परिचालन",
     "overview": "अवलोकन",
-    "operationalCommand": "परिचालन कमांड",
+    "operationalCommand": "डैशबोर्ड",
     "osd": "OSD",
     "departments": "विभाग",
     "disposedGrievances": "निस्तारित शिकायतें",
@@ -230,6 +230,23 @@
     "summary": "सारांश",
     "volume": "शिकायत संख्या",
     "recent": "हाल की शिकायतें",
-    "viewAll": "सभी शिकायतें देखें"
+    "viewAll": "सभी शिकायतें देखें",
+    "charts": {
+      "title": "शिकायत विश्लेषण",
+      "status": "पंजीकृत बनाम परिणाम",
+      "outcomes": "पंजीकृत, हल, बंद",
+      "successRate": "सफलता दर",
+      "weekly": "यह सप्ताह (सोम–रवि)",
+      "monthly": "यह महीना",
+      "period": "अवधि",
+      "week": "सप्ताह",
+      "month": "मासिक",
+      "empty": "इन फ़िल्टर के लिए कोई शिकायत नहीं।",
+      "open": "पंजीकृत (खुली)",
+      "resolved": "हल",
+      "closed": "बंद",
+      "rejected": "अस्वीकृत",
+      "registered": "पंजीकृत"
+    }
   }
 }
