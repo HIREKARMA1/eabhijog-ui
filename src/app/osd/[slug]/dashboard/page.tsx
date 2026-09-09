@@ -1,9 +1,8 @@
-import { SetBreadcrumb } from "@/components/shell/BreadcrumbContext";
 import { OsdDashboardOverview } from "@/components/osd/OsdDashboardOverview";
-import { getConstants, getOsdDashboard } from "@/lib/api/server-portal";
+import { getOsdDashboard } from "@/lib/api/server-portal";
 import { normalizeOsdSlug } from "@/lib/navigation/osd-slug";
 import { redirect } from "next/navigation";
-import type { MetadataConstants, OsdDashboardData } from "@/types/api";
+import type { OsdDashboardData } from "@/types/api";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,50 +18,28 @@ export default async function OsdDashboardPage({ params, searchParams }: PagePro
   }
 
   const query = await searchParams;
-  const filters: Record<string, string> = {};
-  for (const key of ["osd_category", "filing_source"]) {
-    const value = query[key];
-    if (value) filters[key] = value;
-  }
+  const filingSource = query.filing_source;
+  const chart = {
+    period: query.chart_period,
+    from: query.chart_from,
+    to: query.chart_to,
+  };
 
   let data: OsdDashboardData | null = null;
-  let constants: MetadataConstants | null = null;
   try {
-    const [dashboard, constantsRes] = await Promise.all([
-      getOsdDashboard(slug, filters.osd_category, filters.filing_source),
-      getConstants(),
-    ]);
-    data = dashboard;
-    constants = constantsRes;
+    data = await getOsdDashboard(slug, undefined, filingSource, chart);
   } catch {
     // Auth is enforced in OsdLayout. Do not bounce to /login here — that fights
     // LoginAuthGuard and creates a redirect loop when the dashboard API fails.
   }
 
-  if (!data || !constants) {
+  if (!data) {
     return (
-      <>
-        <SetBreadcrumb>
-          <strong>OSD</strong>
-        </SetBreadcrumb>
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Could not load the OSD dashboard. Refresh the page or open Grievances from the sidebar.
-        </p>
-      </>
+      <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        Could not load the OSD dashboard. Refresh the page or open Grievances from the sidebar.
+      </p>
     );
   }
 
-  return (
-    <>
-      <SetBreadcrumb>
-        <strong>{data.osd_category}</strong>
-      </SetBreadcrumb>
-      <OsdDashboardOverview
-        data={data}
-        osdSlug={slug}
-        constants={constants}
-        filters={filters}
-      />
-    </>
-  );
+  return <OsdDashboardOverview data={data} />;
 }

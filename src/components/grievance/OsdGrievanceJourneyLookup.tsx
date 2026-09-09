@@ -35,12 +35,16 @@ export function OsdGrievanceJourneyLookup({
   const [journeyError, setJourneyError] = useState("");
 
   async function loadList(nextSearch = search, nextCategory = osdCategory) {
+    const q = nextSearch.trim();
+    if (!q) {
+      setItems([]);
+      setError("");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
-      const params: Record<string, string> = { limit: "10" };
-      const q = nextSearch.trim();
-      if (q) params.search = q;
+      const params: Record<string, string> = { limit: "10", search: q };
       if (nextCategory) params.osd_category = nextCategory;
       const result = await fetchOsdGrievances(osdSlug, params);
       setItems(result.data.items);
@@ -51,12 +55,6 @@ export function OsdGrievanceJourneyLookup({
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    void loadList("", "");
-    // Initial desk list only.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [osdSlug]);
 
   useEffect(() => {
     if (!selectedRef) return;
@@ -130,7 +128,11 @@ export function OsdGrievanceJourneyLookup({
               const next = e.target.value;
               setOsdCategory(next);
               closeJourney();
-              void loadList(search, next);
+              if (search.trim()) {
+                void loadList(search, next);
+              } else {
+                setItems([]);
+              }
             }}
             className="w-full rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition-[border-color,box-shadow,background-color] duration-150 hover:border-slate-300 focus:border-navy-700 focus:bg-white focus:ring-2 focus:ring-navy-700/15"
           >
@@ -143,7 +145,7 @@ export function OsdGrievanceJourneyLookup({
           </select>
         </label>
         <Button type="submit" loading={loading} disabled={loading}>
-          {t("dashboard", "filters.apply")}
+          {t("dashboard", "filters.searchAction")}
         </Button>
       </form>
       {error ? <p className="mt-2 text-sm text-amber-700">{error}</p> : null}

@@ -25,10 +25,17 @@ export const getCurrentUser = cache(async () => {
 });
 
 export const getOsdDashboard = cache(
-  async (slug: string, osdCategory?: string, filingSource?: string) => {
+  async (
+    slug: string,
+    _osdCategory?: string,
+    filingSource?: string,
+    chart?: { period?: string; from?: string; to?: string },
+  ) => {
     const qs = new URLSearchParams();
-    if (osdCategory) qs.set("osd_category", osdCategory);
     if (filingSource) qs.set("filing_source", filingSource);
+    if (chart?.period) qs.set("chart_period", chart.period);
+    if (chart?.from) qs.set("chart_from", chart.from);
+    if (chart?.to) qs.set("chart_to", chart.to);
     const suffix = qs.toString() ? `?${qs.toString()}` : "";
     const result = await serverApiRequest<OsdDashboardData>(`/api/osd/${slug}/dashboard${suffix}`);
     return result.data;
@@ -40,8 +47,19 @@ export async function getPublicPortal() {
   return result.data;
 }
 
-export async function getPortalDashboard() {
-  const result = await serverApiRequest<PortalDashboardData>("/api/portal/dashboard");
+export async function getPortalDashboard(query?: {
+  filingSource?: string;
+  chartPeriod?: string;
+  chartFrom?: string;
+  chartTo?: string;
+}) {
+  const qs = new URLSearchParams();
+  if (query?.filingSource) qs.set("filing_source", query.filingSource);
+  if (query?.chartPeriod) qs.set("chart_period", query.chartPeriod);
+  if (query?.chartFrom) qs.set("chart_from", query.chartFrom);
+  if (query?.chartTo) qs.set("chart_to", query.chartTo);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const result = await serverApiRequest<PortalDashboardData>(`/api/portal/dashboard${suffix}`);
   return result.data;
 }
 
