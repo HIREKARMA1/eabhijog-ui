@@ -1,19 +1,34 @@
 import type { IconName } from "@/components/icons/Icon";
 import {
+  formatStaffRole,
   isPortalAdmin,
   isPrivateSecretary,
   isStaffManager,
   isSuperAdmin,
   isTransportIntelligenceOfficer,
 } from "@/lib/auth/roles";
+import { osdCategoryForRole } from "@/lib/osd/desks";
 import type { AuthStaff } from "@/types/api";
+
 export type NavItem = {
   href: string;
   labelKey: string;
   icon?: IconName;
   badge?: number;
   section?: string;
+  /** Pre-resolved section heading (sidebar group label only). */
+  sectionLabel?: string;
+  /** Bold / highlighted section heading (logged-in role). */
+  sectionEmphasis?: boolean;
 };
+
+function navRoleLabel(staff: AuthStaff): string {
+  const category = staff.osd_category?.trim() || osdCategoryForRole(staff.role);
+  if (category) {
+    return /\bosd\b/i.test(category) ? category : `${category} OSD`;
+  }
+  return formatStaffRole(staff.role);
+}
 
 export function buildPortalNav(
   staff: AuthStaff,
@@ -66,6 +81,8 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
       labelKey: "nav.operationalCommand",
       icon: "dashboard",
       section: "nav.osd",
+      sectionLabel: navRoleLabel(staff),
+      sectionEmphasis: true,
     },
     {
       href: `${base}/grievances`,

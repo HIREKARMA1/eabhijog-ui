@@ -69,8 +69,15 @@ export function Sidebar({
             return (
               <div key={item.href} className="mb-1">
                 {section ? (
-                  <p className="sidebar-section-label mb-2 mt-4 px-3 text-[10px] font-semibold uppercase tracking-wider first:mt-0">
-                    {t("dashboard", section)}
+                  <p
+                    className={cn(
+                      "mb-2 mt-4 px-3 first:mt-0",
+                      item.sectionEmphasis
+                        ? "rounded-md bg-saffron/20 px-3 py-1.5 text-xs font-bold tracking-wide text-saffron"
+                        : "sidebar-section-label text-[10px] font-semibold uppercase tracking-wider",
+                    )}
+                  >
+                    {item.sectionLabel ?? t("dashboard", section)}
                   </p>
                 ) : null}
                 <Link

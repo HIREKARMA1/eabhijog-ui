@@ -4,12 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { GrievanceFilters } from "@/components/grievance/GrievanceFilters";
-import { OsdVolumeGrid } from "@/components/osd/dashboard/OsdSummaryGrid";
 import { PsGrievanceTable } from "@/components/ps/PsGrievanceTable";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
-import { Section } from "@/components/ui/Section";
 import { Spinner } from "@/components/ui/Spinner";
 import { exportGrievancesSheetCsv } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
@@ -33,8 +31,6 @@ type Props = {
   pageSize?: number;
   listMode?: "active" | "disposed" | "reverted";
   exportPath?: string;
-  osdSlug?: string;
-  volumeSummary?: Record<string, number>;
   isSuperAdmin?: boolean;
 };
 
@@ -53,8 +49,6 @@ export function PsGrievancesView({
   pageSize = 10,
   listMode = "active",
   exportPath = "/api/ps/grievances/export-sheet",
-  osdSlug,
-  volumeSummary,
   isSuperAdmin = false,
 }: Props) {
   const { t } = useI18n();
@@ -108,20 +102,6 @@ export function PsGrievancesView({
           title={title ?? t("ps", "grievances.title")}
           description={description ?? t("ps", "grievances.total", { count: total })}
         />
-      ) : null}
-      {osdSlug && volumeSummary ? (
-        <Section
-          title={t("dashboard", "osdDashboard.volume")}
-          className="rounded-2xl bg-white/55 p-4 shadow-sm ring-1 ring-white/70"
-        >
-          <OsdVolumeGrid
-            summary={volumeSummary}
-            osdSlug={osdSlug}
-            basePath={basePath}
-            listMode={listMode}
-            extraParams={filters}
-          />
-        </Section>
       ) : null}
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button type="button" variant="outline" loading={exporting} disabled={exporting} onClick={onExport}>

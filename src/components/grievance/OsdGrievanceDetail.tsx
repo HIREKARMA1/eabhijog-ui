@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
@@ -53,6 +53,8 @@ export function OsdGrievanceDetailView({
   const { t } = useI18n();
   const router = useRouter();
   const isReverted = grievance.status === "reverted";
+  const forwardRef = useRef<HTMLDivElement>(null);
+  const [threadHeight, setThreadHeight] = useState<number>();
   const [status, setStatus] = useState(grievance.status);
   const [priority, setPriority] = useState(grievance.priority ?? "normal");
   const [citizenMessage, setCitizenMessage] = useState("");
@@ -67,6 +69,34 @@ export function OsdGrievanceDetailView({
   );
 
   const showCitizenMessage = isStatusMessageStatus(status) && !isReverted;
+
+  useLayoutEffect(() => {
+    if (isReverted) {
+      setThreadHeight(undefined);
+      return;
+    }
+    const source = forwardRef.current;
+    if (!source) return;
+
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const apply = () => {
+      if (!desktop.matches) {
+        setThreadHeight(undefined);
+        return;
+      }
+      setThreadHeight(Math.round(source.getBoundingClientRect().height));
+    };
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(source);
+    desktop.addEventListener("change", apply);
+    window.addEventListener("resize", apply);
+    return () => {
+      observer.disconnect();
+      desktop.removeEventListener("change", apply);
+      window.removeEventListener("resize", apply);
+    };
+  }, [isReverted, suggestedRecipients, resolvedRecipients]);
 
   function handleStatusChange(nextStatus: string) {
     setStatus(nextStatus);
@@ -148,35 +178,41 @@ export function OsdGrievanceDetailView({
     }
   }
 
+  const statusCardClassName = "flex h-full w-full flex-col";
+
   const statusCard = isReverted ? (
-    <Card title={t("dashboard", "grievance.reopenTitle")}>
-      <p className="mb-3 text-sm text-text-muted">
-        {grievance.can_reopen
-          ? t("dashboard", "grievance.reopenReadyHint")
-          : t("dashboard", "grievance.reopenWaitingHint")}
-      </p>
-      <Button
-        type="button"
-        className="w-full"
-        loading={loading}
-        disabled={loading || !grievance.can_reopen}
-        onClick={onReopen}
-      >
-        {t("dashboard", "grievance.reopen")}
-      </Button>
-      {feedback ? (
-        <p
-          className={`mt-3 text-sm ${
-            feedbackTone === "success" ? "text-success" : "text-amber-700"
-          }`}
-        >
-          {feedback}
+    <Card title={t("dashboard", "grievance.reopenTitle")} className={statusCardClassName}>
+      <div className="flex min-h-0 flex-1 flex-col">
+        <p className="mb-3 text-sm text-text-muted">
+          {grievance.can_reopen
+            ? t("dashboard", "grievance.reopenReadyHint")
+            : t("dashboard", "grievance.reopenWaitingHint")}
         </p>
-      ) : null}
+        <div className="mt-auto space-y-3">
+          <Button
+            type="button"
+            className="w-full"
+            loading={loading}
+            disabled={loading || !grievance.can_reopen}
+            onClick={onReopen}
+          >
+            {t("dashboard", "grievance.reopen")}
+          </Button>
+          {feedback ? (
+            <p
+              className={`text-sm ${
+                feedbackTone === "success" ? "text-success" : "text-amber-700"
+              }`}
+            >
+              {feedback}
+            </p>
+          ) : null}
+        </div>
+      </div>
     </Card>
   ) : (
-    <Card title={t("dashboard", "grievance.updateStatus")}>
-      <form onSubmit={onStatusSubmit} className="space-y-3">
+    <Card title={t("dashboard", "grievance.updateStatus")} className={statusCardClassName}>
+      <form onSubmit={onStatusSubmit} className="flex min-h-0 flex-1 flex-col gap-3">
         <Select
           label={t("dashboard", "table.status")}
           value={status}
@@ -217,25 +253,27 @@ export function OsdGrievanceDetailView({
             </div>
           </div>
         ) : null}
-        <Button type="submit" className="w-full" loading={loading} disabled={loading}>
-          {t("dashboard", "grievance.updateStatus")}
-        </Button>
+        <div className="mt-auto space-y-3">
+          <Button type="submit" className="w-full" loading={loading} disabled={loading}>
+            {t("dashboard", "grievance.updateStatus")}
+          </Button>
+          {feedback ? (
+            <p
+              className={`text-sm ${
+                feedbackTone === "success" ? "text-success" : "text-amber-700"
+              }`}
+            >
+              {feedback}
+            </p>
+          ) : null}
+        </div>
       </form>
-      {feedback ? (
-        <p
-          className={`mt-3 text-sm ${
-            feedbackTone === "success" ? "text-success" : "text-amber-700"
-          }`}
-        >
-          {feedback}
-        </p>
-      ) : null}
     </Card>
   );
 
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
-      <div className="flex items-center justify-between gap-3 lg:col-span-3">
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
         {isSuperAdmin ? (
           <Button
             type="button"
@@ -262,112 +300,121 @@ export function OsdGrievanceDetailView({
           align="end"
         />
       </div>
-      <Card title={grievance.reference_number} className="lg:col-span-2">
-        <dl className="grid gap-3 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-text-muted">Citizen</dt>
-            <dd>{grievance.citizen_name ?? "-"}</dd>
-          </div>
-          <div>
-            <dt className="text-text-muted">{t("dashboard", "table.district")}</dt>
-            <dd>{grievance.geographic_district ?? grievance.district ?? "-"}</dd>
-          </div>
-          <div>
-            <dt className="text-text-muted">{t("dashboard", "table.status")}</dt>
-            <dd>{formatStatusLabel(grievance.status)}</dd>
-          </div>
-          <div>
-            <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyDepartment")}</dt>
-            <dd>
-              {grievance.department &&
-              grievance.department.trim().toLowerCase() !==
-                (grievance.osd_category ?? grievance.category ?? "").trim().toLowerCase()
-                ? grievance.department
-                : "-"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-text-muted">{t("dashboard", "grievance.taxonomySubDepartment")}</dt>
-            <dd>{grievance.sub_department?.trim() || "-"}</dd>
-          </div>
-          <div>
-            <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyOrganization")}</dt>
-            <dd>{grievance.organization?.trim() || "-"}</dd>
-          </div>
-          <div className="sm:col-span-2 space-y-3">
-            {(() => {
-              const body = grievance.grievance_text?.trim() ?? "";
-              const title = grievance.title?.trim() ?? "";
-              const showBoth = Boolean(body && title && body !== title);
-              if (showBoth) {
-                return (
-                  <>
-                    <div>
-                      <dt className="text-text-muted">Title</dt>
-                      <dd className="mt-1">
-                        <ExpandableText text={title} />
-                      </dd>
-                    </div>
-                    <div>
+
+      <div className="grid gap-5 [grid-template-areas:'details'_'thread'_'status'_'forward'] lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:items-stretch lg:[grid-template-areas:'details_status'_'thread_forward']">
+        <div className="flex h-full min-h-0 min-w-0 [grid-area:details]">
+          <Card title={grievance.reference_number} className="flex h-full w-full flex-col">
+            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-text-muted">Citizen</dt>
+                <dd>{grievance.citizen_name ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-text-muted">{t("dashboard", "table.district")}</dt>
+                <dd>{grievance.geographic_district ?? grievance.district ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-text-muted">{t("dashboard", "table.status")}</dt>
+                <dd>{formatStatusLabel(grievance.status)}</dd>
+              </div>
+              <div>
+                <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyDepartment")}</dt>
+                <dd>
+                  {grievance.department &&
+                  grievance.department.trim().toLowerCase() !==
+                    (grievance.osd_category ?? grievance.category ?? "").trim().toLowerCase()
+                    ? grievance.department
+                    : "-"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-text-muted">{t("dashboard", "grievance.taxonomySubDepartment")}</dt>
+                <dd>{grievance.sub_department?.trim() || "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-text-muted">{t("dashboard", "grievance.taxonomyOrganization")}</dt>
+                <dd>{grievance.organization?.trim() || "-"}</dd>
+              </div>
+              <div className="space-y-3 sm:col-span-2">
+                {(() => {
+                  const body = grievance.grievance_text?.trim() ?? "";
+                  const title = grievance.title?.trim() ?? "";
+                  const showBoth = Boolean(body && title && body !== title);
+                  if (showBoth) {
+                    return (
+                      <>
+                        <div>
+                          <dt className="text-text-muted">Title</dt>
+                          <dd className="mt-1">
+                            <ExpandableText text={title} />
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-text-muted">Grievance</dt>
+                          <dd className="mt-1">
+                            <ExpandableText text={body} />
+                          </dd>
+                        </div>
+                      </>
+                    );
+                  }
+                  return (
+                    <>
                       <dt className="text-text-muted">Grievance</dt>
                       <dd className="mt-1">
-                        <ExpandableText text={body} />
+                        <ExpandableText text={body || title} />
                       </dd>
-                    </div>
-                  </>
-                );
-              }
-              return (
-                <>
-                  <dt className="text-text-muted">Grievance</dt>
-                  <dd className="mt-1">
-                    <ExpandableText text={body || title} />
-                  </dd>
-                </>
-              );
-            })()}
-          </div>
-        </dl>
-        <div className="mt-5 border-t border-border pt-5">
-          <GrievanceAttachments
-            attachments={grievance.attachments}
-            attachmentUrl={grievance.attachment_url}
-          />
-        </div>
-      </Card>
-
-      <div className="space-y-4">
-        {conversation ? (
-          <WhatsAppThread
-            data={conversation}
-            compact
-            onWhatsAppReply={(message) =>
-              osdWhatsAppReply(osdSlug, grievance.reference_number, message).then(() => undefined)
-            }
-          />
-        ) : (
-          <Card title="WhatsApp Conversation">
-            <p className="text-sm text-text-muted">No messages recorded yet.</p>
+                    </>
+                  );
+                })()}
+              </div>
+            </dl>
+            <div className="mt-5 border-t border-border pt-5">
+              <GrievanceAttachments
+                attachments={grievance.attachments}
+                attachmentUrl={grievance.attachment_url}
+              />
+            </div>
           </Card>
-        )}
-        {statusCard}
-      </div>
-
-      {!isReverted ? (
-        <div id="osd-forward-form" className="scroll-mt-4 rounded-xl transition-shadow lg:col-span-3">
-          <OsdForwardForm
-            osdSlug={osdSlug}
-            referenceNumber={grievance.reference_number}
-            citizenName={grievance.citizen_name ?? ""}
-            suggestedRecipients={suggestedRecipients}
-            resolvedRecipients={resolvedRecipients}
-            grievanceDepartment={grievance.department}
-            grievanceSubDepartment={grievance.sub_department}
-            grievanceOrganization={grievance.organization}
-            grievanceOsdCategory={grievance.osd_category ?? grievance.category ?? ""}
-          />
         </div>
-      ) : null}
+
+        <div
+          className="min-w-0 overflow-hidden [grid-area:thread] lg:self-start"
+          style={threadHeight ? { height: threadHeight } : undefined}
+        >
+          {conversation ? (
+            <WhatsAppThread
+              data={conversation}
+              fillHeight={Boolean(threadHeight)}
+              onWhatsAppReply={(message) =>
+                osdWhatsAppReply(osdSlug, grievance.reference_number, message).then(() => undefined)
+              }
+            />
+          ) : (
+            <Card title="WhatsApp Conversation" className={threadHeight ? "h-full" : undefined}>
+              <p className="text-sm text-text-muted">No messages recorded yet.</p>
+            </Card>
+          )}
+        </div>
+
+        <div className="flex h-full min-h-0 min-w-0 [grid-area:status]">{statusCard}</div>
+
+        {!isReverted ? (
+          <div id="osd-forward-form" ref={forwardRef} className="min-w-0 scroll-mt-4 [grid-area:forward] lg:self-start">
+            <OsdForwardForm
+              osdSlug={osdSlug}
+              referenceNumber={grievance.reference_number}
+              citizenName={grievance.citizen_name ?? ""}
+              suggestedRecipients={suggestedRecipients}
+              resolvedRecipients={resolvedRecipients}
+              grievanceDepartment={grievance.department}
+              grievanceSubDepartment={grievance.sub_department}
+              grievanceOrganization={grievance.organization}
+              grievanceOsdCategory={grievance.osd_category ?? grievance.category ?? ""}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

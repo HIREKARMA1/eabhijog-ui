@@ -112,6 +112,7 @@ export type PortalDashboardData = {
   recent_grievances?: GrievanceRow[];
   kpi: Record<string, number>;
   charts?: OsdDashboardCharts;
+  desk_breakdown?: OsdDeskBreakdown;
 };
 
 export type PortalOperationalData = {
@@ -197,6 +198,40 @@ export type OsdDashboardCharts = {
   outcome_slices: OsdChartSlice[];
   weekly_registered: OsdChartSlice[];
   monthly_registered?: OsdChartSlice[];
+  period?: string;
+  range_from?: string;
+  range_to?: string;
+  month_label?: string;
+};
+
+export type OsdDeskHrefs = {
+  open: string;
+  resolved: string;
+  closed: string;
+  rejected: string;
+};
+
+export type OsdDeskBreakdownDesk = {
+  key: string;
+  label: string;
+  open: number;
+  resolved: number;
+  closed: number;
+  rejected: number;
+  disposed: number;
+  hrefs: OsdDeskHrefs;
+};
+
+export type OsdDeskBreakdown = {
+  totals: {
+    open: number;
+    disposed: number;
+    closed: number;
+    rejected: number;
+    resolved: number;
+    hrefs: OsdDeskHrefs;
+  };
+  desks: OsdDeskBreakdownDesk[];
 };
 
 export type OsdDashboardData = {
@@ -206,6 +241,7 @@ export type OsdDashboardData = {
   pending_count: number;
   recent_grievances?: PsGrievanceRow[];
   charts?: OsdDashboardCharts;
+  desk_breakdown?: OsdDeskBreakdown;
 };
 
 export type OsdDepartmentContact = {

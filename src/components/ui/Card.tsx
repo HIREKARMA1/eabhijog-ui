@@ -18,7 +18,7 @@ export function Card({ children, className, title, subtitle }: CardProps) {
       )}
     >
       {title ? (
-        <header className="mb-4">
+        <header className="mb-4 shrink-0">
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
           {subtitle ? <p className="mt-1 text-sm text-text-muted">{subtitle}</p> : null}
         </header>

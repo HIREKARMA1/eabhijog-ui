@@ -8,7 +8,9 @@ import { GovtNavbar } from "@/components/shell/GovtNavbar";
 import { PortalFooter } from "@/components/shell/PortalFooter";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { Topbar } from "@/components/shell/Topbar";
+import { formatStaffRole } from "@/lib/auth/roles";
 import type { NavItem } from "@/lib/navigation/build-nav";
+import { osdCategoryForRole } from "@/lib/osd/desks";
 import type { AuthStaff } from "@/types/api";
 
 type PortalShellProps = {
@@ -17,11 +19,13 @@ type PortalShellProps = {
   nav: NavItem[];
   /** @deprecated Prefer SetBreadcrumb from page content; kept for rare static titles. */
   breadcrumb?: React.ReactNode;
+  /** Persistent top-bar desk title, e.g. "Commerce & Transport - OSD". */
+  contextTitle?: string;
   children: React.ReactNode;
 };
 
-function formatRole(role: string): string {
-  return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+function staffRoleLabel(staff: AuthStaff): string {
+  return staff.osd_category ?? osdCategoryForRole(staff.role) ?? formatStaffRole(staff.role);
 }
 
 function initials(name: string): string {
@@ -38,6 +42,7 @@ function PortalShellInner({
   homeHref,
   nav,
   breadcrumb: staticBreadcrumb,
+  contextTitle,
   children,
 }: PortalShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -66,13 +71,17 @@ function PortalShellInner({
         <Sidebar
           nav={nav}
           staffName={staff.name}
-          staffRole={formatRole(staff.role)}
+          staffRole={staffRoleLabel(staff)}
           staffInitials={initials(staff.name)}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <Topbar breadcrumb={breadcrumb} onMenuClick={() => setSidebarOpen(true)} />
+          <Topbar
+            title={contextTitle}
+            breadcrumb={breadcrumb}
+            onMenuClick={() => setSidebarOpen(true)}
+          />
           <div ref={mainRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
             <main className="px-3 py-3 sm:px-4 sm:py-5 md:px-6 md:py-6">{children}</main>
             <PortalFooter />
