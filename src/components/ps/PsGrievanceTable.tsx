@@ -11,7 +11,7 @@ import { DataTable } from "@/components/ui/DataTable";
 import { cn } from "@/lib/utils/cn";
 import { reopenOsdGrievance, reopenPsGrievance, deleteOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
-import { cell, formatStatusLabel } from "@/lib/grievance/display";
+import { cell, formatDaysPending, formatStatusLabel } from "@/lib/grievance/display";
 import { useI18n } from "@/lib/i18n/context";
 import type { PsGrievanceRow } from "@/types/api";
 
@@ -28,6 +28,14 @@ function priorityTone(priority: string) {
   if (priority === "urgent" || priority === "critical" || priority === "high") return "danger" as const;
   if (priority === "normal" || priority === "medium") return "info" as const;
   return "default" as const;
+}
+
+function daysPendingClass(days: string) {
+  if (days === "-") return "bg-slate-100 text-slate-600";
+  const count = Number(days);
+  if (count >= 7) return "bg-red-50 text-red-700 ring-1 ring-red-100";
+  if (count >= 3) return "bg-amber-50 text-amber-700 ring-1 ring-amber-100";
+  return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100";
 }
 
 function FilingSourceBadge({
@@ -216,6 +224,14 @@ export function PsGrievanceTable({
                     <span>{cell(g.assigned_osd || g.osd_category)}</span>
                     <Badge tone={statusTone(g.status)}>{formatStatusLabel(g.status)}</Badge>
                     <Badge tone={priorityTone(g.priority)}>{g.priority.toUpperCase()}</Badge>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                        daysPendingClass(formatDaysPending(g.created_at, g.status)),
+                      )}
+                    >
+                      {t("ps", "grievances.table.daysPending")} {formatDaysPending(g.created_at, g.status)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -273,6 +289,23 @@ export function PsGrievanceTable({
               key: "priority",
               header: t("ps", "grievances.table.priority"),
               cell: (g) => <Badge tone={priorityTone(g.priority)}>{g.priority.toUpperCase()}</Badge>,
+            },
+            {
+              key: "daysPending",
+              header: t("ps", "grievances.table.daysPending"),
+              cell: (g) => {
+                const days = formatDaysPending(g.created_at, g.status);
+                return (
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums",
+                      daysPendingClass(days),
+                    )}
+                  >
+                    {days}
+                  </span>
+                );
+              },
             },
             {
               key: "actions",

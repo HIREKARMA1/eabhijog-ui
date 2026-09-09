@@ -11,6 +11,7 @@ import { fetchCurrentUser, fetchProfile } from "@/lib/api/portal";
 import { homePathFor, isOsdRole, isPortalAdmin, isPrivateSecretary, formatStaffRole } from "@/lib/auth/roles";
 import { useI18n } from "@/lib/i18n/context";
 import { buildNavForStaff } from "@/lib/navigation/build-nav";
+import { formatOsdDeskTitle, osdCategoryForRole } from "@/lib/osd/desks";
 import type { AuthStaff, StaffAccount } from "@/types/api";
 
 export default function ProfilePage() {
@@ -42,7 +43,7 @@ export default function ProfilePage() {
     ? t("ps", "title")
     : isPortalAdmin(staff)
       ? t("dashboard", "nav.dashboard")
-      : (staff.osd_category ?? formatStaffRole(staff.role));
+      : formatOsdDeskTitle(staff.osd_category ?? osdCategoryForRole(staff.role) ?? formatStaffRole(staff.role));
 
   return (
     <PortalShell

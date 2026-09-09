@@ -39,10 +39,12 @@ export function MisPieChart({
   title,
   slices,
   emptyLabel,
+  className,
 }: {
   title: string;
   slices: ChartSlice[];
   emptyLabel: string;
+  className?: string;
 }) {
   const [hover, setHover] = useState<string | null>(null);
   const total = useMemo(() => slices.reduce((sum, s) => sum + s.count, 0), [slices]);
@@ -60,12 +62,17 @@ export function MisPieChart({
   }, [slices, total]);
 
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm">
+    <div
+      className={cn(
+        "relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm",
+        className,
+      )}
+    >
       <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
       {!total ? (
-        <p className="mt-8 text-center text-sm text-text-muted">{emptyLabel}</p>
+        <p className="mt-8 flex-1 text-center text-sm text-text-muted">{emptyLabel}</p>
       ) : (
-        <div className="mt-3 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+        <div className="mt-3 flex min-h-0 flex-1 flex-col items-center gap-4 sm:flex-row sm:items-center">
           <svg viewBox="0 0 160 160" className="h-40 w-40 shrink-0 overflow-visible">
             {arcs.map((arc) => {
               const sweep = arc.end - arc.start;
@@ -132,20 +139,27 @@ export function MisBarChart({
   title,
   slices,
   emptyLabel,
+  className,
 }: {
   title: string;
   slices: ChartSlice[];
   emptyLabel: string;
+  className?: string;
 }) {
   const max = Math.max(...slices.map((s) => s.count), 1);
 
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm">
+    <div
+      className={cn(
+        "relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm",
+        className,
+      )}
+    >
       <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
       {!slices.length ? (
-        <p className="mt-8 text-center text-sm text-text-muted">{emptyLabel}</p>
+        <p className="mt-8 flex-1 text-center text-sm text-text-muted">{emptyLabel}</p>
       ) : (
-        <div className="mt-4 space-y-2.5">
+        <div className="mt-4 flex flex-1 flex-col justify-evenly gap-3">
           {slices.map((slice, index) => (
             <Link key={slice.key} href={slice.href} className="block min-w-0 group">
               <div className="mb-1 flex items-center justify-between gap-2 text-xs">
@@ -176,17 +190,24 @@ export function MisTrendChart({
   slices,
   emptyLabel,
   action,
+  className,
 }: {
   title: string;
   slices: ChartSlice[];
   emptyLabel: string;
   action?: ReactNode;
+  className?: string;
 }) {
   const max = Math.max(...slices.map((s) => s.count), 1);
   const dense = slices.length > 10;
 
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm">
+    <div
+      className={cn(
+        "relative min-w-0 overflow-hidden rounded-2xl border border-border bg-white p-4 shadow-sm",
+        className,
+      )}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
         {action}

@@ -4,6 +4,7 @@ import { PortalShell } from "@/components/shell/PortalShell";
 import { getCurrentUser, getOsdDashboard } from "@/lib/api/server-portal";
 import { buildOsdNav } from "@/lib/navigation/build-nav";
 import { homePathFor } from "@/lib/auth/roles";
+import { formatOsdDeskTitle, osdCategoryForRole, osdDeskBySlug } from "@/lib/osd/desks";
 
 export async function OsdLayout({
   osdSlug,
@@ -35,6 +36,9 @@ export async function OsdLayout({
   }
 
   const nav = buildOsdNav(osdSlug, pendingCount, staff);
+  const deskTitle = formatOsdDeskTitle(
+    osdDeskBySlug(osdSlug)?.category ?? osdCategoryForRole(staff.role) ?? staff.osd_category,
+  );
 
   return (
     <PortalShell
@@ -42,6 +46,7 @@ export async function OsdLayout({
       homeHref={`/osd/${osdSlug}/dashboard`}
       nav={nav}
       breadcrumb={breadcrumb}
+      contextTitle={deskTitle}
     >
       {children}
     </PortalShell>

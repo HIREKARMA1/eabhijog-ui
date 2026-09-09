@@ -6,15 +6,23 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { useI18n } from "@/lib/i18n/context";
+import { cn } from "@/lib/utils/cn";
 import type { GrievanceConversationData } from "@/types/api";
 
 type Props = {
   data: GrievanceConversationData;
   onWhatsAppReply: (message: string) => Promise<void>;
   compact?: boolean;
+  /** Fill the parent height instead of using a fixed max-height. */
+  fillHeight?: boolean;
 };
 
-export function WhatsAppThread({ data, onWhatsAppReply, compact = false }: Props) {
+export function WhatsAppThread({
+  data,
+  onWhatsAppReply,
+  compact = false,
+  fillHeight = false,
+}: Props) {
   const router = useRouter();
   const { t } = useI18n();
   const [replyText, setReplyText] = useState("");
@@ -34,15 +42,21 @@ export function WhatsAppThread({ data, onWhatsAppReply, compact = false }: Props
   }, [replyText, onWhatsAppReply, router]);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-white">
-      <div className="border-b border-border bg-surface-muted px-4 py-3">
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden rounded-lg border border-border bg-white",
+        fillHeight && "h-full min-h-0 w-full",
+      )}
+    >
+      <div className="shrink-0 border-b border-border bg-surface-muted px-4 py-3">
         <h2 className="font-medium">WhatsApp Conversation</h2>
         <p className="text-xs text-text-muted">{g.citizen_phone}</p>
       </div>
       <div
-        className={`flex flex-1 flex-col gap-2 overflow-y-auto p-4 ${
-          compact ? "max-h-[320px]" : "max-h-[520px]"
-        }`}
+        className={cn(
+          "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-4",
+          !fillHeight && (compact ? "max-h-[320px]" : "max-h-[520px]"),
+        )}
       >
         {data.messages.length === 0 ? (
           <p className="text-sm text-text-muted">No messages recorded yet.</p>
@@ -79,7 +93,7 @@ export function WhatsAppThread({ data, onWhatsAppReply, compact = false }: Props
           ))
         )}
       </div>
-      <div className="border-t border-border p-3">
+      <div className="shrink-0 border-t border-border p-3">
         <Textarea
           rows={2}
           placeholder="Send WhatsApp reply to citizen..."

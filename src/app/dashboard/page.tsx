@@ -5,8 +5,21 @@ import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { getCurrentUser, getPortalDashboard } from "@/lib/api/server-portal";
 import { isSuperAdmin } from "@/lib/auth/roles";
 
-export default async function DashboardPage() {
-  const [dashboard, staff] = await Promise.all([getPortalDashboard(), getCurrentUser()]);
+type PageProps = {
+  searchParams: Promise<Record<string, string | undefined>>;
+};
+
+export default async function DashboardPage({ searchParams }: PageProps) {
+  const query = await searchParams;
+  const [dashboard, staff] = await Promise.all([
+    getPortalDashboard({
+      filingSource: query.filing_source,
+      chartPeriod: query.chart_period,
+      chartFrom: query.chart_from,
+      chartTo: query.chart_to,
+    }),
+    getCurrentUser(),
+  ]);
 
   return (
     <PortalLayout
@@ -20,6 +33,7 @@ export default async function DashboardPage() {
         summary={dashboard.summary}
         kpi={dashboard.kpi}
         charts={dashboard.charts}
+        deskBreakdown={dashboard.desk_breakdown}
         isSuperAdmin={isSuperAdmin(staff)}
       />
     </PortalLayout>

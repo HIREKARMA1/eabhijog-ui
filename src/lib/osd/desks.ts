@@ -25,3 +25,15 @@ export function osdCategoryForRole(role: string): string | undefined {
 export function osdRoleLabel(role: string): string {
   return osdCategoryForRole(role) ?? role.replace(/_/g, " ");
 }
+
+export function osdDeskBySlug(slug: string) {
+  return OSD_DESK_OPTIONS.find((desk) => desk.slug === slug);
+}
+
+/** Display title for an OSD desk, e.g. "Commerce & Transport - OSD". */
+export function formatOsdDeskTitle(category: string | null | undefined): string {
+  const name = category?.trim();
+  if (!name) return "OSD";
+  if (/\bosd\b/i.test(name)) return name;
+  return `${name} - OSD`;
+}

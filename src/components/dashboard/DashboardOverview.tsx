@@ -1,17 +1,20 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { GrievanceAnalyticsCharts } from "@/components/dashboard/GrievanceAnalyticsCharts";
+import { DeskOutcomeCards } from "@/components/dashboard/DeskOutcomeCards";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { Section } from "@/components/ui/Section";
 import { Bi } from "@/lib/i18n/bi";
 import { cn } from "@/lib/utils/cn";
-import type { DashboardSummary, OsdDashboardCharts } from "@/types/api";
+import type { DashboardSummary, OsdDashboardCharts, OsdDeskBreakdown } from "@/types/api";
 
 type DashboardOverviewProps = {
   summary: DashboardSummary;
   kpi: Record<string, number>;
   isSuperAdmin: boolean;
   charts?: OsdDashboardCharts | null;
+  deskBreakdown?: OsdDeskBreakdown | null;
 };
 
 const kpiTiles = [
@@ -48,7 +51,7 @@ const kpiTiles = [
   },
 ] as const;
 
-export function DashboardOverview({ summary, kpi, isSuperAdmin, charts }: DashboardOverviewProps) {
+export function DashboardOverview({ summary, kpi, isSuperAdmin, charts, deskBreakdown }: DashboardOverviewProps) {
   const openCount = summary.new_count + summary.in_progress_count;
 
   return (
@@ -204,6 +207,12 @@ export function DashboardOverview({ summary, kpi, isSuperAdmin, charts }: Dashbo
         </Link>
       </div>
 
+      {deskBreakdown ? (
+        <Suspense fallback={null}>
+          <DeskOutcomeCards breakdown={deskBreakdown} />
+        </Suspense>
+      ) : null}
+
       <Section
         title={<Bi en="Grievance analytics" or="ଅଭିଯୋଗ ବିଶ୍ଳେଷଣ" />}
         action={
@@ -212,7 +221,9 @@ export function DashboardOverview({ summary, kpi, isSuperAdmin, charts }: Dashbo
           </LinkButton>
         }
       >
-        <GrievanceAnalyticsCharts charts={charts} />
+        <Suspense fallback={null}>
+          <GrievanceAnalyticsCharts charts={charts} />
+        </Suspense>
       </Section>
     </div>
   );
