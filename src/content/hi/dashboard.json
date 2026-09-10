@@ -231,6 +231,7 @@
   "osdDashboard": {
     "summary": "सारांश",
     "volume": "शिकायत संख्या",
+    "totalGrievances": "कुल शिकायतें",
     "openTotal": "कुल खुली शिकायतें",
     "disposedTotal": "कुल निस्तारित शिकायतें",
     "resolvedTotal": "कुल समाधान हुई शिकायतें",

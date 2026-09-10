@@ -12,7 +12,11 @@ type DeskOutcomeCardsProps = {
   breakdown: OsdDeskBreakdown;
 };
 
-type OutcomeMetric = "open" | "resolved" | "disposed";
+type OutcomeMetric = "total" | "open" | "resolved" | "disposed";
+
+function deskTotal(desk: OsdDeskBreakdownDesk) {
+  return desk.open + desk.resolved + desk.closed + desk.rejected;
+}
 
 const ROW_THEMES: Record<
   OutcomeMetric,
@@ -25,6 +29,14 @@ const ROW_THEMES: Record<
     deskLabel: string;
   }
 > = {
+  total: {
+    row: "border-navy-600/25 bg-white",
+    title: "text-navy-700",
+    value: "text-navy-900",
+    desk: "border-navy-600/20 bg-white",
+    deskValue: "text-navy-800",
+    deskLabel: "text-navy-600",
+  },
   open: {
     row: "border-sky-200 bg-white",
     title: "text-sky-700",
@@ -75,22 +87,21 @@ function DeskBox({
 }) {
   const { t } = useI18n();
   const theme = ROW_THEMES[metric];
+  const clickable = metric !== "total";
   const href =
     metric === "disposed"
       ? desk.hrefs.closed
       : metric === "open"
         ? desk.hrefs.open
         : desk.hrefs.resolved;
-  const value = desk[metric];
-
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "min-w-0 rounded-xl border px-2.5 py-2 no-underline shadow-sm transition",
-        theme.desk,
-      )}
-    >
+  const value = metric === "total" ? deskTotal(desk) : desk[metric];
+  const className = cn(
+    "min-w-0 rounded-xl border px-2.5 py-2 shadow-sm",
+    clickable && "no-underline transition",
+    theme.desk,
+  );
+  const content = (
+    <>
       <p className={cn("flex items-center gap-1.5 truncate text-[10px] font-semibold uppercase tracking-wide", theme.deskLabel)}>
         <span className={cn("h-2 w-2 shrink-0 rounded-full", DESK_DOTS[index % DESK_DOTS.length])} />
         {desk.label}
@@ -107,6 +118,16 @@ function DeskBox({
           </span>
         </p>
       ) : null}
+    </>
+  );
+
+  if (!clickable) {
+    return <div className={className}>{content}</div>;
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {content}
     </Link>
   );
 }
@@ -121,12 +142,18 @@ function OutcomeRow({
 }: {
   title: string;
   value: number;
-  href: string;
+  href?: string;
   desks: OsdDeskBreakdownDesk[];
   metric: OutcomeMetric;
   extraLeft?: ReactNode;
 }) {
   const theme = ROW_THEMES[metric];
+  const heading = (
+    <>
+      <p className={cn("text-xs font-semibold uppercase tracking-[0.14em]", theme.title)}>{title}</p>
+      <p className={cn("mt-2 text-3xl font-extrabold tabular-nums", theme.value)}>{value}</p>
+    </>
+  );
 
   return (
     <div
@@ -136,10 +163,13 @@ function OutcomeRow({
       )}
     >
       <div className="flex min-w-0 flex-col justify-center border-b border-black/5 pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-4">
-        <Link href={href} className="no-underline">
-          <p className={cn("text-xs font-semibold uppercase tracking-[0.14em]", theme.title)}>{title}</p>
-          <p className={cn("mt-2 text-3xl font-extrabold tabular-nums", theme.value)}>{value}</p>
-        </Link>
+        {href ? (
+          <Link href={href} className="no-underline">
+            {heading}
+          </Link>
+        ) : (
+          <div>{heading}</div>
+        )}
         {extraLeft}
       </div>
       <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
@@ -193,6 +223,12 @@ export function DeskOutcomeCards({ breakdown }: DeskOutcomeCardsProps) {
         </label>
       </div>
 
+      <OutcomeRow
+        title={t("dashboard", "osdDashboard.totalGrievances")}
+        value={desks.reduce((sum, desk) => sum + deskTotal(desk), 0)}
+        desks={desks}
+        metric="total"
+      />
       <OutcomeRow
         title={t("dashboard", "osdDashboard.openTotal")}
         value={totals.open}
