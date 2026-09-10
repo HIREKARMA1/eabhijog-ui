@@ -231,6 +231,7 @@
   "osdDashboard": {
     "summary": "ସାରାଂଶ",
     "volume": "ଅଭିଯୋଗ ସଂଖ୍ୟା",
+    "totalGrievances": "ମୋଟ ଅଭିଯୋଗ",
     "openTotal": "ମୋଟ ଖୋଲା ଅଭିଯୋଗ",
     "disposedTotal": "ମୋଟ ନିଷ୍ପତ୍ତି ହୋଇଥିବା ଅଭିଯୋଗ",
     "resolvedTotal": "ମୋଟ ସମାଧାନ ହୋଇଥିବା ଅଭିଯୋଗ",

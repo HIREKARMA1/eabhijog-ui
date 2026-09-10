@@ -232,6 +232,7 @@
   "osdDashboard": {
     "summary": "Summary",
     "volume": "Grievance volume",
+    "totalGrievances": "Total grievances",
     "openTotal": "Total grievances open",
     "disposedTotal": "Total grievances disposed",
     "resolvedTotal": "Total grievances resolved",
