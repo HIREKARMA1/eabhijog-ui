@@ -266,6 +266,16 @@ export type OsdDepartmentContactRecord = {
   is_active: boolean;
 };
 
+export type EmployeeLookup = {
+  id: number;
+  name: string;
+  designation: string;
+  department: string;
+  service: string;
+  mobile_number: string;
+  email: string;
+};
+
 export type TaxonomyOrganization = {
   id: number;
   name: string;
