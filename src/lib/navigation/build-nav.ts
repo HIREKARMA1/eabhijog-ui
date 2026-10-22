@@ -96,6 +96,11 @@ export function buildOsdNav(osdSlug: string, pendingCount: number, staff: AuthSt
       icon: "search",
     },
     {
+      href: `${base}/lookups`,
+      labelKey: "nav.employeeLookups",
+      icon: "search",
+    },
+    {
       href: `${base}/disposed-grievances`,
       labelKey: "nav.disposedGrievances",
       icon: "grievances",
