@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
@@ -8,14 +8,14 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { forwardOsdGrievance } from "@/lib/api/portal";
+import { fetchEmployeeLookups, forwardOsdGrievance } from "@/lib/api/portal";
 import { ApiError } from "@/lib/api/client";
 import {
   CITIZEN_WHATSAPP_MAX_CHARS,
   citizenWhatsAppLengthError,
 } from "@/lib/grievance/statusMessageTemplates";
 import { useI18n } from "@/lib/i18n/context";
-import type { OsdDepartmentContact } from "@/types/api";
+import type { EmployeeLookup, OsdDepartmentContact } from "@/types/api";
 
 type RecipientRow = {
   key: string;
@@ -25,6 +25,8 @@ type RecipientRow = {
   officer_name: string;
   email: string;
   whatsapp_number: string;
+  designation: string;
+  service: string;
 };
 
 type OsdForwardFormProps = {
@@ -151,6 +153,8 @@ function rowFromContact(
     officer_name: autoFill ? (contact.officer_name ?? "") : "",
     email: autoFill ? (contact.email ?? "") : "",
     whatsapp_number: autoFill ? (contact.whatsapp_number ?? "") : "",
+    designation: "",
+    service: "",
   };
 }
 
@@ -183,6 +187,8 @@ function buildInitialRows(
         officer_name: autoFillEnabled ? (contact.officer_name ?? "") : "",
         email: autoFillEnabled ? (contact.email ?? "") : "",
         whatsapp_number: autoFillEnabled ? (contact.whatsapp_number ?? "") : "",
+        designation: "",
+        service: "",
       },
     ];
   }
@@ -201,6 +207,8 @@ function buildInitialRows(
       officer_name: "",
       email: "",
       whatsapp_number: "",
+      designation: "",
+      service: "",
     },
   ];
 }
@@ -219,6 +227,8 @@ function newDepartmentRow(
     officer_name: autoFill ? (contact?.officer_name ?? "") : "",
     email: autoFill ? (contact?.email ?? "") : "",
     whatsapp_number: autoFill ? (contact?.whatsapp_number ?? "") : "",
+    designation: "",
+    service: "",
   };
 }
 
@@ -231,6 +241,8 @@ function newManualRow(): RecipientRow {
     officer_name: "",
     email: "",
     whatsapp_number: "",
+    designation: "",
+    service: "",
   };
 }
 
@@ -256,6 +268,11 @@ export function OsdForwardForm({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoFillEnabled, setAutoFillEnabled] = useState(true);
+  const [lookupOpen, setLookupOpen] = useState(false);
+  const [lookupQuery, setLookupQuery] = useState("");
+  const [lookupResults, setLookupResults] = useState<EmployeeLookup[]>([]);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupError, setLookupError] = useState("");
 
   const recipientOptions = useMemo(
     () => mergeRecipientOptions(resolvedRecipients, suggestedRecipients),
@@ -284,6 +301,24 @@ export function OsdForwardForm({
   );
 
   const [rows, setRows] = useState<RecipientRow[]>(initialRows);
+
+  useEffect(() => {
+    if (!lookupOpen || lookupQuery.trim().length < 2) return;
+    const timer = window.setTimeout(async () => {
+      setLookupLoading(true);
+      setLookupError("");
+      try {
+        const response = await fetchEmployeeLookups(osdSlug, lookupQuery, 10);
+        setLookupResults(response.data?.items ?? []);
+      } catch (err) {
+        setLookupResults([]);
+        setLookupError(err instanceof ApiError ? err.message : "Could not search employee lookups.");
+      } finally {
+        setLookupLoading(false);
+      }
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [lookupOpen, lookupQuery, osdSlug]);
 
   function updateRow(key: string, patch: Partial<RecipientRow>) {
     setRows((current) => current.map((row) => (row.key === key ? { ...row, ...patch } : row)));
@@ -334,6 +369,24 @@ export function OsdForwardForm({
     });
   }
 
+  function onEmployeeLookupSelect(employee: EmployeeLookup) {
+    const target = rows[0];
+    if (!target) return;
+    updateRow(target.key, {
+      mode: "manual",
+      departmentIndex: -1,
+      department: employee.department || target.department,
+      officer_name: employee.name,
+      email: employee.email,
+      whatsapp_number: employee.mobile_number,
+      designation: employee.designation,
+      service: employee.service,
+    });
+    setLookupOpen(false);
+    setLookupQuery("");
+    setLookupResults([]);
+  }
+
   function addDepartmentRecipient() {
     const defaultIndex = recipientOptions.length > 0 ? 0 : -1;
     setRows((current) => [
@@ -362,10 +415,10 @@ export function OsdForwardForm({
         email: row.email.trim(),
         whatsapp_number: row.whatsapp_number.trim(),
       }))
-      .filter((row) => row.email);
+      .filter((row) => row.email || row.whatsapp_number);
 
     if (recipients.length === 0) {
-      setError(t("dashboard", "forwardForm.recipientRequired"));
+      setError("Add at least one recipient with an email address or mobile number.");
       return;
     }
     if (!citizenMessage.trim()) {
@@ -410,7 +463,48 @@ export function OsdForwardForm({
   }
 
   return (
-    <Card title={t("dashboard", "grievance.forward")}>
+    <Card>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-slate-900">{t("dashboard", "grievance.forward")}</h2>
+        <Button type="button" size="sm" variant="outline" onClick={() => setLookupOpen((open) => !open)}>
+          {lookupOpen ? "Close employee search" : "Search employee"}
+        </Button>
+      </div>
+      {lookupOpen ? (
+        <div className="mb-4 rounded-lg border border-border bg-slate-50 p-4">
+          <Input
+            label="Search employee directory"
+            value={lookupQuery}
+            onChange={(event) => setLookupQuery(event.target.value)}
+            placeholder="Search name, designation, department, service, mobile or email"
+            autoComplete="off"
+          />
+          <p className="mt-1 text-xs text-text-muted">Type at least 2 characters. Select a result to fill the first recipient.</p>
+          {lookupLoading ? <p className="mt-3 text-sm text-text-muted">Searching…</p> : null}
+          {lookupError ? <p role="alert" className="mt-3 text-sm text-danger">{lookupError}</p> : null}
+          {!lookupLoading && lookupQuery.trim().length >= 2 && lookupResults.length === 0 && !lookupError ? (
+            <p className="mt-3 text-sm text-text-muted">No matching employees found.</p>
+          ) : null}
+          {lookupResults.length > 0 ? (
+            <ul className="mt-3 max-h-72 space-y-2 overflow-y-auto">
+              {lookupResults.map((employee) => (
+                <li key={employee.id}>
+                  <button type="button" onClick={() => onEmployeeLookupSelect(employee)} className="w-full rounded-lg border border-border bg-white p-3 text-left transition hover:border-navy-700 hover:bg-navy-50">
+                    <span className="block font-semibold text-slate-900">{employee.name}</span>
+                    <span className="mt-1 grid gap-x-4 gap-y-0.5 text-xs text-text-muted sm:grid-cols-2">
+                      <span className="truncate whitespace-nowrap" title={`Designation: ${employee.designation || "—"}`}>Designation: {employee.designation || "—"}</span>
+                      <span className="truncate whitespace-nowrap" title={`Department: ${employee.department || "—"}`}>Department: {employee.department || "—"}</span>
+                      <span className="truncate whitespace-nowrap" title={`Service: ${employee.service || "—"}`}>Service: {employee.service || "—"}</span>
+                      <span className="truncate whitespace-nowrap" title={`Mobile: ${employee.mobile_number || "—"}`}>Mobile: {employee.mobile_number || "—"}</span>
+                      <span className="truncate whitespace-nowrap sm:col-span-2" title={`Email: ${employee.email || "—"}`}>Email: {employee.email || "—"}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-border bg-slate-50/80 px-4 py-3">
           <div>
@@ -442,8 +536,18 @@ export function OsdForwardForm({
                   </Button>
                 ) : null}
               </div>
+              {row.designation || row.service ? (
+                <p
+                  className="mt-2 truncate whitespace-nowrap text-xs text-text-muted"
+                  title={`${row.designation ? `Designation: ${row.designation}` : ""}${row.designation && row.service ? " · " : ""}${row.service ? `Service: ${row.service}` : ""}`}
+                >
+                  {row.designation ? `Designation: ${row.designation}` : ""}
+                  {row.designation && row.service ? " · " : ""}
+                  {row.service ? `Service: ${row.service}` : ""}
+                </p>
+              ) : null}
 
-              <div className="grid gap-3 md:grid-cols-4">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {row.mode === "department" && row.departmentIndex >= 0 && recipientOptions.length > 0 ? (
                   <Select
                     label={t("dashboard", "departments.department")}
@@ -460,6 +564,9 @@ export function OsdForwardForm({
                     value={row.department}
                     onChange={(e) => updateRow(row.key, { department: e.target.value, mode: "manual", departmentIndex: -1 })}
                     placeholder={t("dashboard", "forwardForm.manualDepartmentHint")}
+                    labelClassName="block truncate whitespace-nowrap"
+                    className="min-w-0 text-ellipsis"
+                    title={row.department}
                   />
                 )}
 
@@ -467,6 +574,9 @@ export function OsdForwardForm({
                   label={t("dashboard", "departments.officerName")}
                   value={row.officer_name}
                   onChange={(e) => updateRow(row.key, { officer_name: e.target.value, mode: "manual", departmentIndex: -1 })}
+                  labelClassName="block truncate whitespace-nowrap"
+                  className="min-w-0 text-ellipsis"
+                  title={row.officer_name}
                 />
 
                 <Input
@@ -474,7 +584,9 @@ export function OsdForwardForm({
                   type="email"
                   value={row.email}
                   onChange={(e) => updateRow(row.key, { email: e.target.value, mode: "manual", departmentIndex: -1 })}
-                  required
+                  labelClassName="block truncate whitespace-nowrap"
+                  className="min-w-0 text-ellipsis"
+                  title={row.email}
                 />
                 <Input
                   label={t("dashboard", "departments.whatsappNumber")}
@@ -483,6 +595,9 @@ export function OsdForwardForm({
                     updateRow(row.key, { whatsapp_number: e.target.value, mode: "manual", departmentIndex: -1 })
                   }
                   placeholder="+91XXXXXXXXXX"
+                  labelClassName="block truncate whitespace-nowrap"
+                  className="min-w-0 text-ellipsis"
+                  title={row.whatsapp_number}
                 />
               </div>
             </div>

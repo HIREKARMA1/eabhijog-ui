@@ -8,6 +8,7 @@ import type {
   MetadataConstants,
   OsdDashboardData,
   OsdDepartmentContactRecord,
+  EmployeeLookup,
   OsdGrievanceDetailData,
   PortalAnalyticsData,
   PortalDashboardData,
@@ -259,6 +260,31 @@ export async function updateOsdDepartment(
 export async function bulkOsdDepartments(slug: string, csvText: string) {
   return apiRequest<{ created: number; updated: number; skipped: number }>(
     `/api/osd/${slug}/departments/bulk`,
+    { method: "POST", body: { csv_text: csvText } },
+  );
+}
+
+export async function fetchEmployeeLookups(slug: string, query = "", limit = 100) {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (query.trim()) params.set("q", query.trim());
+  return apiRequest<{ items: EmployeeLookup[] }>(
+    `/api/osd/${slug}/employee-lookups?${params.toString()}`,
+  );
+}
+
+export async function saveEmployeeLookup(
+  slug: string,
+  payload: Omit<EmployeeLookup, "id">,
+) {
+  return apiRequest<EmployeeLookup>(`/api/osd/${slug}/employee-lookups`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export async function bulkEmployeeLookups(slug: string, csvText: string) {
+  return apiRequest<{ created: number; updated: number; skipped: number }>(
+    `/api/osd/${slug}/employee-lookups/bulk`,
     { method: "POST", body: { csv_text: csvText } },
   );
 }
