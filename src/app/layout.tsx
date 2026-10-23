@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: "Odisha citizen grievance portal - Jana Samadhan",
   authors: {
     name: "Akash kumar sahu(Lead Engineer),Rohith gowd ,satya prakash nath",
-    url: "https://janasamadhan.org",
+    url: "https://hirekarma.in",
   }
 
 };
