@@ -19,6 +19,11 @@ const notoHindi = Noto_Sans_Devanagari({
 export const metadata: Metadata = {
   title: "Jana Samadhan",
   description: "Odisha citizen grievance portal - Jana Samadhan",
+  authors: {
+    name: "Akash kumar sahu(Lead Engineer),Rohith gowd ,satya prakash nath",
+    url: "https://janasamadhan.org",
+  }
+
 };
 
 export default function RootLayout({
